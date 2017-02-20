@@ -5,8 +5,7 @@ Steve Tubnonghee
 Directory
 ---------
     .
-    +--build/          (required by Makefile)
-    +--lib/            (required by Makefile)
+    +--lib/            (optional by Makefile)
     +--bin/            (required by Makefile)
     +--include/        all headers
     +--src/            all source code
