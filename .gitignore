@@ -1,0 +1,11 @@
+# Ignore the build and lib dirs
+build
+lib/*
+
+# Ignore any executables
+bin/*
+
+# Ignore vim buffer
+.swp
+# Ignore Mac specific files
+.DS_Store
