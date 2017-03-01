@@ -20,6 +20,6 @@
 #define RT_SHF              16
 #define RD_SHF              11
 
-typedef enum {I_TYPE_OP, R_TYPE_OP} op_type;
+typedef enum {FORMAT_I, FORMAT_R} op_format;
 typedef enum {REG_RS, REG_RT, REG_RD} reg_type;
 #endif

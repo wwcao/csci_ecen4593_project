@@ -23,22 +23,22 @@ int readInstruction() {
     return counter;
 }
 
-op_type getInsType(int ins) {
+op_format getInsFormat(int ins) {
     int test;
     test = ins&OP_MASK;
     if(test) {
         // non-zero R Type
-        printf("0x%x is R Type\n", ins);
-        return R_TYPE_OP;
+        printf("0x%x is R Format\n", ins);
+        return FORMAT_R;
     }
-    printf("0x%x is I Type\n", ins);
-    return I_TYPE_OP;
+    printf("0x%x is I Format\n", ins);
+    return FORMAT_I;
 }
 
 unsigned getRegNum(int ins, reg_type rtype) {
     switch(rtype) {
         case REG_RS:
-            return (ins&RS_MASK)>>16;
+            return (ins&RS_MASK)>>RS_SHF;
         case REG_RT:
             return (ins&RT_MASK)>>RT_SHF;
         case REG_RD:

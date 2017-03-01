@@ -6,6 +6,8 @@ lib/*
 bin/*
 
 # Ignore vim buffer
-.swp
+.*.swp
+
+
 # Ignore Mac specific files
 .DS_Store
