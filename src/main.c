@@ -6,13 +6,15 @@
 int memory[MEMORY_SIZE];
 int main() {
     readInstruction();
-    printf("type: %d\n", getInsFormat(memory[0]));
-    printf("rs: %d\n", getRegNum(memory[0], REG_RS));
-    printf("\n");
-    printf("type: %d\n", getInsFormat(memory[2]));
-    printf("rs: %d\n", getRegNum(memory[2], REG_RS));
-    printf("rd: %d\n", getRegNum(memory[2], REG_RD));
-    printf("rt: %d\n", getRegNum(memory[2], REG_RT));
+    int i = 0;
+    while( memory[i] != NULL){
+    printf("type: %d\n", getInsFormat(memory[i]));
+    printf("rs: %d\n", getRegNum(memory[i], REG_RS));
+    printf("rd: %d\n", getRegNum(memory[i], REG_RD));
+    printf("rt: %d\n", getRegNum(memory[i], REG_RT));
+
+    i=i+2;
+    }
 
     return 0;
 }
