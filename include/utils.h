@@ -2,7 +2,7 @@
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
 
-#include "units.h"
+#include "memory.h"
 #include "static.h"
 int memory[MEMORY_SIZE];
 
