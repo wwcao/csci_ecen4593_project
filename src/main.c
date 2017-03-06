@@ -7,13 +7,13 @@ int memory[MEMORY_SIZE];
 int main() {
     readInstruction();
     int i = 0;
-    while( memory[i] != NULL){
-    printf("type: %d\n", getInsFormat(memory[i]));
-    printf("rs: %d\n", getRegNum(memory[i], REG_RS));
-    printf("rd: %d\n", getRegNum(memory[i], REG_RD));
-    printf("rt: %d\n", getRegNum(memory[i], REG_RT));
+    while(i < 10){
+        printf("type: %d\n", getInsFormat(memory[i]));
+        printf("rs: %d\n", getRegNum(memory[i], REG_RS));
+        printf("rd: %d\n", getRegNum(memory[i], REG_RD));
+        printf("rt: %d\n", getRegNum(memory[i], REG_RT));
 
-    i=i+2;
+        i+=1;
     }
 
     return 0;

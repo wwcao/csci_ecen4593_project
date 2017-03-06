@@ -1,3 +1,4 @@
+
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,20 +6,24 @@
 
 int readInstruction() {
     unsigned counter;
-    char buffer[INSTRUCTION_LEN];
+    char buffer[INSTRUCTION_LEN*2];
     FILE* f;
-    int* p_mem_ins;
-    
     if(!(f = fopen(INSTRUCTION_PATH, "r"))) Error("Failed to read file\n");
-    
-    p_mem_ins = memory + INS_START_POS;
     counter = 0;
-    while(fgets(buffer, INSTRUCTION_LEN, f)) {
-        sscanf(buffer+2, "%x", p_mem_ins++);
-        printf("->0x%x\n", memory[counter]);
+    while(fgets(buffer, INSTRUCTION_LEN*2, f)
+            && buffer[0] != '\n') {
+        char addr_s[24];
+        int addr;
+        int ins;
+        sscanf(buffer+2, "%s%x", addr_s, &ins);
+        addr_s[8] = '\0';
+        sscanf(addr_s, "%x", &addr);
+        buffer[22]='\0';
+        if(addr > MEMORY_SIZE) Error("Out of Bound\n");
+        memory[addr>>2] = ins;
+        printf("[%s]\tchunk[%d], 0x%x [0x%x]\n", buffer, addr>>2, ins, memory[addr>>2]);
         counter++;
     }
-
     fclose(f);
     return counter;
 }
