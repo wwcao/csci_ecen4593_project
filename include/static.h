@@ -36,7 +36,52 @@
 // R format -- SHM & FUNC
 
 
+
+
 typedef enum {FORMAT_I, FORMAT_R} op_format;
 typedef enum {REG_RS, REG_RT, REG_RD} reg_type;
+
+
+// pipeline register types
+
+typedef struct {
+  unsigned int ins;
+  unsigned int flush;
+  unsigned int nextPC;
+  // maybe more
+} IFID_Register;
+
+typedef struct {
+  unsigned int wb;
+  unsigned int mem;
+  unsigned int ex;
+  unsigned int reg1Value;
+  unsigned int reg2Value;
+  unsigned int extendValue;
+  unsigned short rs;
+  unsigned short rt;
+  unsigned short rd;
+} IDEX_Register;
+
+typedef struct {
+  unsigned int wb;
+  unsigned int m;
+  unsigned int aluResult;
+  unsigned int writeData;
+  unsigned short rd;
+} EXMEM_Register;
+
+typedef struct {
+  un
+}
+
+typedef struct {
+  // not sure yet
+  unsigned int mem;
+  unsigned int memValue;
+  unsigned int aluValue;
+  unsigned int rd;
+} shadow_registers;
+
 
 #endif
