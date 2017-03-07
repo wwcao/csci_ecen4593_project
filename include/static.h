@@ -72,10 +72,6 @@ typedef struct {
 } EXMEM_Register;
 
 typedef struct {
-  un
-}
-
-typedef struct {
   // not sure yet
   unsigned int mem;
   unsigned int memValue;
