@@ -1,13 +1,13 @@
 #
 ## TODO: Move `libmongoclient.a` to /usr/local/lib so this can work on production servers
 #
-# 
-CC := gcc# This is the main compiler
+#
+CC 				:= gcc# This is the main compiler
 # CC := clang --analyze # and comment out the linker last line for sanity
-SRCDIR := src
-BUILDDIR := build
-TARGET := bin/emulator
-#  
+SRCDIR 		:= src
+BUILDDIR 	:= build
+TARGET		:= bin/emulator
+#
 SRCEXT := c
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
@@ -24,13 +24,13 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
-	@echo " Cleaning..."; 
+	@echo " Cleaning...";
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
 # Tests
-# tester:
-#   $(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
-#
-#   # Spikes
+tester:
+   $(CC) $(CFLAGS) test/tester.c $(INC) $(LIB) -o bin/tester
+
+   # Spikes
 
 .PHONY: clean
