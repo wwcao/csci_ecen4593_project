@@ -6,11 +6,11 @@
 
 int readInstruction() {
     unsigned counter;
-    char buffer[INSTRUCTION_LEN*2];
+    char buffer[INSTRUCTION_LEN*2+4];
     FILE* f;
     if(!(f = fopen(INSTRUCTION_PATH, "r"))) Error("Failed to read file\n");
     counter = 0;
-    while(fgets(buffer, INSTRUCTION_LEN*2, f)
+    while(fgets(buffer, INSTRUCTION_LEN*2+4, f)
             && buffer[0] != '\n') {
         char addr_s[24];
         int addr;
@@ -18,10 +18,9 @@ int readInstruction() {
         sscanf(buffer+2, "%s%x", addr_s, &ins);
         addr_s[8] = '\0';
         sscanf(addr_s, "%x", &addr);
-        buffer[22]='\0';
-        if(addr > MEMORY_SIZE) Error("Out of Bound\n");
+        if(addr > INS_END_POS) Error("Out of Bound\n");
         memory[addr>>2] = ins;
-        printf("[%s]\tchunk[%d], 0x%x [0x%x]\n", buffer, addr>>2, ins, memory[addr>>2]);
+        //printf("[%s]\tchunk[%d], 0x%x [0x%x]\n", buffer, addr>>2, ins, memory[addr>>2]);
         counter++;
     }
     fclose(f);
@@ -52,11 +51,16 @@ unsigned getRegNum(int ins, reg_type rtype) {
     }
 }
 
-void printInstr(int ins) {
-    
-}
-
 void Error(const char* msg) {
     printf("%s", msg);
     exit(1);
+}
+
+void Log(const char* format, ...) {
+  // log 
+  va_list argptr = NULL;
+  va_start(argptr, format);
+  vfprintf(format, argptr);
+  va_end(argptr);
+  return;
 }
