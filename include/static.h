@@ -5,6 +5,8 @@
 #define INSTRUCTION_LEN       12
 
 #define MEMORY_SIZE           4096
+#define DMEMORY_SIZE          4096
+#define IMEMORY_SIZE          4096
 #define INS_END_POS           256
 #define INS_START_POS         0
 
@@ -71,6 +73,14 @@ typedef struct {
   unsigned int writeData;
   unsigned short rd;
 } EXMEM_Register;
+
+typedef struct {
+  unsigned int wb;
+  unsigned int m;
+  unsigned int writeData;
+  unsigned short rd;
+  // maybe more
+} MEMWB_Register;
 
 typedef struct {
   // not sure yet

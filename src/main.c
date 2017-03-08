@@ -3,7 +3,7 @@
 #include "static.h"
 #include "units.h"
 
-int memory[MEMORY_SIZE];
+unsigned memory[MEMORY_SIZE];
 int main() {
     readInstruction();
     int i = 0;

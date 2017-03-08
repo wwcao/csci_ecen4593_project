@@ -4,8 +4,8 @@
 
 #include "memory.h"
 #include "static.h"
-int memory[MEMORY_SIZE];
 
+unsigned memory[MEMORY_SIZE];
 
 int readInstruction();
 op_format getInsFormat(int);

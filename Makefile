@@ -29,7 +29,7 @@ clean:
 
 # Tests
 tester:
-   $(CC) $(CFLAGS) test/tester.c $(INC) $(LIB) -o bin/tester
+	$(CC) $(CFLAGS) test/tester.c $(INC) -o bin/tester
 
    # Spikes
 

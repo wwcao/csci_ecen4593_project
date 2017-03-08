@@ -58,9 +58,11 @@ void Error(const char* msg) {
 
 void Log(const char* format, ...) {
   // log 
+  /*
   va_list argptr = NULL;
   va_start(argptr, format);
   vfprintf(format, argptr);
   va_end(argptr);
+  */
   return;
 }
