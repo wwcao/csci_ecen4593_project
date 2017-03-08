@@ -12,5 +12,20 @@ extern IDEX_Register idex_reg;
 extern EXMEM_Register exmem_reg;
 extern MEMWB_Register memwb_reg;
 
+extern Unit ctlUnit;
+extern Unit hdUnit;
+extern Unit fwdUnit;
+
+void ctlUnitOperation() {
+  return;
+}
+
+void hdUnitOperation() {
+  return;
+}
+
+void fwdUnitOperation() {
+  return;
+}
 
 #endif
