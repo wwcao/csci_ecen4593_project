@@ -2,31 +2,35 @@
 #ifndef __PIPELINE_HEADER__
 #define __PIPLINE_HEADER__
 
-#define IS_PIPELINE         0
-#define RUNTOEND            0
+#define IS_PIPELINE             0
+#define RUNTOEND                0
 
-void IF() {
-
-}
-
-void ID() {
+void IF(void) {
 
 }
 
-void EX() {
+void ID(void) {
 
 }
 
-void MEM() {
+void EX(void) {
 
 }
 
-void WB() {
+void MEM(void) {
+
+}
+
+void WB(void) {
 
 }
 
 void START() {
-
+  IF(void);
+  ID(void);
+  EX(void);
+  MEM(void);
+  WB(void);
 }
 
 #endif
