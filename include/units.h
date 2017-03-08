@@ -1,6 +1,6 @@
 #include "static.h"
 #ifndef __UNITS_HEADER__
-#define __UNITS__HEADER__
+#define __UNITS_HEADER__
 
 extern unsigned memory[MEMORY_SIZE];
 extern unsigned imemory[IMEMORY_SIZE];
