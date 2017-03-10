@@ -12,6 +12,7 @@ op_format getInsFormat(int);
 unsigned getRegNum(int, reg_type);
 void printInstr(int);
 
+// TODO: Function to initialize all units
 
 
 
