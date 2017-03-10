@@ -5,7 +5,6 @@
 #define IS_PIPELINE         0
 #define RUNTOEND            0
 
-int tick;
 void IF() {
 
 }
