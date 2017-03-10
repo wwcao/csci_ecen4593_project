@@ -58,9 +58,14 @@ typedef struct {
   unsigned int wb;
   unsigned int mem;
   unsigned int ex;
+  unsigned int imm;
   unsigned int reg1Value;
   unsigned int reg2Value;
   unsigned int extendValue;
+  unsigned int aluResult;
+  unsigned int aluOp;
+  unsigned int regDst;
+  unsigned int branch;
   unsigned short rs;
   unsigned short rt;
   unsigned short rd;
@@ -68,7 +73,11 @@ typedef struct {
 
 typedef struct {
   unsigned int wb;
-  unsigned int m;
+  unsigned int mem;
+  unsigned int branch;
+  unsigned int branchAddr;
+  unsigned int addResult;
+  unsigned int zero;
   unsigned int aluResult;
   unsigned int writeData;
   unsigned short rd;
@@ -76,7 +85,7 @@ typedef struct {
 
 typedef struct {
   unsigned int wb;
-  unsigned int m;
+  unsigned int mem;
   unsigned int writeData;
   unsigned short rd;
   // maybe more
