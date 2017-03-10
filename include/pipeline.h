@@ -1,10 +1,11 @@
 #include "static.h"
 #ifndef __PIPELINE_HEADER__
-#define __PIPLINE_HEADER__
+#define __PIPELINE_HEADER__
 
 #define IS_PIPELINE         0
 #define RUNTOEND            0
 
+int tick;
 void IF() {
 
 }
@@ -25,8 +26,20 @@ void WB() {
 
 }
 
-void START() {
+void start_pipeline(void) {
+  WB();
+  MEM();
+  EX();
+  ID();
+  IF();
+}
 
+void start(void) {
+  IF();
+  ID();
+  EX();
+  MEM();
+  WB();
 }
 
 #endif
