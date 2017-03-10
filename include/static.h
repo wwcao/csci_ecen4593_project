@@ -52,6 +52,7 @@ typedef struct {
   unsigned int flush;
   unsigned int nextPC;
   unsigned int PC;
+  unsigned int add; //? not sure, according to the diagram
   // maybe more
 } IFID_Register;
 
@@ -59,6 +60,7 @@ typedef struct {
   unsigned int wb; //?
   unsigned int mem; //?
   unsigned int ex; //?
+  unsigned int add; //?
   unsigned int regWrite;
   unsigned int memToReg;
   unsigned int branch;
@@ -80,6 +82,7 @@ typedef struct {
 typedef struct {
   unsigned int wb; //?
   unsigned int mem; //?
+  unsigned int addResult; // according to the diagram
   unsigned int regWrite;
   unsigned int memToReg;
   unsigned int branch;
@@ -100,6 +103,7 @@ typedef struct {
   unsigned int memToReg;
   unsigned int aluResult;
   unsigned int writeData;
+  unsigned int writeReg;
   unsigned short rd;
   // maybe more
 } MEMWB_Register;
