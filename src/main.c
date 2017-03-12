@@ -2,8 +2,9 @@
 #include "utils.h"
 #include "static.h"
 #include "units.h"
+#include "pipeline.h"
 
-unsigned memory[MEMORY_SIZE];
+unsigned int memory[MEMORY_SIZE];
 int main() {
     readInstruction();
     int i = 0;
@@ -14,6 +15,7 @@ int main() {
         printf("rt: %d\n", getRegNum(memory[i], REG_RT));
 
         i+=1;
+        start();
     }
 
     return 0;

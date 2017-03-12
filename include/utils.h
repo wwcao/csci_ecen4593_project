@@ -1,9 +1,10 @@
 
+#include "memory.h"
+#include "static.h"
+
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
 
-#include "memory.h"
-#include "static.h"
 
 unsigned memory[MEMORY_SIZE];
 

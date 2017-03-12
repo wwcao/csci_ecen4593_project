@@ -88,19 +88,15 @@ typedef struct {
 } IFID_Register;
 
 typedef struct {
-  unsigned int wb; //?
-  unsigned int mem; //?
-  unsigned int ex; //?
-  unsigned int add; //?
-  unsigned int regWrite;
-  unsigned int memToReg;
-  unsigned int branch;
-  unsigned int memRead;
-  unsigned int memWrite;
-  unsigned int regDst;
-  unsigned int aluOP;
-  unsigned int aluSrc; //?
-  
+  char regWrite;
+  char MemToReg;
+  char branch;
+  char memRead;
+  char memWrite;
+  char regDst;
+  char aluOP;
+  char aluSrc; //?
+  unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
   unsigned int imm; // ?signextend
@@ -111,32 +107,24 @@ typedef struct {
 } IDEX_Register;
 
 typedef struct {
-  unsigned int wb; //?
-  unsigned int mem; //?
-  unsigned int addResult; // according to the diagram
-  unsigned int regWrite;
-  unsigned int memToReg;
-  unsigned int branch;
-  unsigned int memRead;
-  unsigned int memWrite;
-  unsigned int branchAddr; //address
-  unsigned int addResult;
-  unsigned int zero; //alu zero
-  unsigned int aluResult;
+  char regWrite;
+  char MemToReg;
+  char branch;
+  char memRead;
+  char memWrite;
+  unsigned int branchAddr; 	//address
+  unsigned int zero; 		//alu zero
+  unsigned int aluResult;	// ALU output
   unsigned int writeData; //read data2
   unsigned short rd;
 } EXMEM_Register;
 
 typedef struct {
-  unsigned int wb; //?
-  unsigned int mem; //?
-  unsigned int regWrite;
-  unsigned int memToReg;
-  unsigned int aluResult;
-  unsigned int writeData;
-  unsigned int writeReg;
-  unsigned short rd;
-  // maybe more
+  char regWrite;			// 1 or ~1
+  char MemtoReg;			// 1 or ~1
+  unsigned short rd;		// 0-31	to forward
+  unsigned int memValue;	// 32-bit value
+  unsigned int exValue;		// 32-bit value from EX
 } MEMWB_Register;
 
 typedef struct {
