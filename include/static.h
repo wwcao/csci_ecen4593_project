@@ -83,7 +83,14 @@ typedef struct {
   unsigned int flush;
   unsigned int nextPC;
   unsigned int PC;
-  unsigned int add; //? not sure, according to the diagram
+  unsigned int OpCode;
+  unsigned int rs;
+  unsigned int rt;
+  unsigned int rd;
+  unsigned int shamt;
+  unsigned int func;
+  unsigned int immediate; // R-format ExtendValue
+  unsigned int target; // J-format
   // maybe more
 } IFID_Register;
 
@@ -99,8 +106,7 @@ typedef struct {
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
-  unsigned int imm; // ?signextend
-  unsigned int extendValue; // ?signextend
+  unsigned int extendValue; // immediate
   unsigned short rs;
   unsigned short rt;
   unsigned short rd;
