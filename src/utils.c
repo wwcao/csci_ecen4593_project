@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int readInstruction() {
-    unsigned counter;
+unsigned int readInstruction() {
+    unsigned int counter;
     char buffer[INSTRUCTION_LEN*2+4];
     FILE* f;
     if(!(f = fopen(INSTRUCTION_PATH, "r"))) Error("Failed to read file\n");
@@ -15,12 +15,15 @@ int readInstruction() {
         char addr_s[24];
         int addr;
         int ins;
-        sscanf(buffer+2, "%s%x", addr_s, &ins);
-        addr_s[8] = '\0';
+        sscanf(buffer, "%s%x", addr_s, &ins);
+        if(addr_s[1] == 'x')
+					addr_s[10] = '\0';
+				else
+					addr_s[8] = '\0';
         sscanf(addr_s, "%x", &addr);
         if(addr > INS_END_POS) Error("Out of Bound\n");
         memory[addr>>2] = ins;
-        //printf("[%s]\tchunk[%d], 0x%x [0x%x]\n", buffer, addr>>2, ins, memory[addr>>2]);
+        printf("[%s]\tchunk[%d], 0x%x [0x%x]\n", buffer, addr>>2, ins, memory[addr>>2]);
         counter++;
     }
     fclose(f);
