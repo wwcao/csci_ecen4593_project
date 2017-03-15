@@ -5,17 +5,16 @@
 #include "pipeline.h"
 
 unsigned int memory[MEMORY_SIZE];
+unsigned int instruction;
+
 int main() {
     readInstruction();
-    int i = 0;
-    while(i < 10){
-        printf("type: %d\n", getInsFormat(memory[i]));
-        printf("rs: %d\n", getRegNum(memory[i], REG_RS));
-        printf("rd: %d\n", getRegNum(memory[i], REG_RD));
-        printf("rt: %d\n", getRegNum(memory[i], REG_RT));
+    instruction = 0;
+    while(instruction < 10){
+	
 
-        i+=1;
-        start();
+	start();
+        instruction+=1;
     }
 
     return 0;
