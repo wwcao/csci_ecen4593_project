@@ -20,13 +20,16 @@
 #define SH_MASK               0x000007c0
 #define FN_MASK               0x0000003f
 #define IM_MASK               0x0000ffff
+#define TG_MASK		      0x03ffffff
+
+#define PC_MASK		      0xf0000000
 
 // SHIFT
-//#define OP_SHF              26
-#define RS_SHF                21
-#define RT_SHF                16
-#define RD_SHF                11
-#define SHM_SHF               6
+#define OP_SHF              26
+#define RS_SHF              21
+#define RT_SHF              16
+#define RD_SHF              11
+#define SHM_SHF              6
 
 //Instruction Op
 // I format -- OPcode
@@ -72,7 +75,7 @@
 #define J_JAL		      0x03
 
 typedef enum {FORMAT_I, FORMAT_R,FORMAT_J} op_format;
-typedef enum {REG_RS, REG_RT, REG_RD} reg_type;
+typedef enum {REG_OP, REG_RS, REG_RT, REG_RD, REG_SHM, REG_FUNC, REG_IMM, REG_TARGET} reg_type;
 
 //
 // pipeline register types
@@ -89,7 +92,7 @@ typedef struct {
   unsigned int rd;
   unsigned int shamt;
   unsigned int func;
-  unsigned int immediate; // R-format ExtendValue
+  signed int immediate; // R-format ExtendValue
   unsigned int target; // J-format
   // maybe more
 } IFID_Register;
@@ -106,7 +109,7 @@ typedef struct {
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
-  unsigned int extendValue; // immediate
+  signed int extendValue; // immediate
   unsigned short rs;
   unsigned short rt;
   unsigned short rd;
