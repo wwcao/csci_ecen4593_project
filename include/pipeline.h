@@ -120,22 +120,41 @@ void ID(void) {
                 idex_reg.aluOP = 'xx';
                 idex_reg.aluSrc = 'x';
 		break;
+	default:
+		idex_reg.regWrite = 'x';
+		idex_reg.MemToReg = 'x';
+		idex_reg.branch = 'x';
+		idex_reg.memRead = 'x';
+		idex_reg.memWrite = 'x';
+		idex_reg.regDst = 'x';
+		idex_reg.aluOP = 'xx';
+		idex_reg.aluSrc = 'x';
 }
 
  idex_reg.nextPC = ifid_reg.nextPC;
 
- //idex_reg.reg1Value?
- //idex_reg.reg2Value?
+ idex_reg.reg1Value = ifid_reg.rs;
+ idex_reg.reg2Value = ifid_reg.rt;
 
- idex_reg.rs = ifid_reg.rs;
- idex_reg.rt = ifid_reg.rt;
- idex_reg.rd = ifid_reg.rd; // need to identify about R-format
- 
- // I-format
- idex_reg.extendValue = ifid_reg.immediate>>16; //need help- not sure-immediate is 16bit, signext is 32bit
+ switch(ifid_reg.OpCode){
+	// R-format
+	case 0:
+		idex_reg.rd = ifid_reg.rd;
+		break;
+	// J-format
+	case 2||3:
+		idex_reg.branchAddr = ifid_reg.PC + (ifid_reg.target<<2); //need to fix this
+	// use default to identify other opcodes aka I-format
+		break;
+	default:
+		if((1<<15) & value) == 0){
+		idex_reg.extendValue = ifid_reg.immediate;
+		break;
+		}
+		idex_reg.extendValue = (((1<<16)-1)<<16) || ifid_reg.immediate;
+		break;
+}
 
- // J-format
- idex_reg.bracnAddr = (ifid_reg.target<<2); // need to mask nextPC first 4 bit and add to in front of the shifted target
 }
 
 void EX(void) {

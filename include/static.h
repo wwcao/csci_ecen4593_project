@@ -92,7 +92,7 @@ typedef struct {
   unsigned int rd;
   unsigned int shamt;
   unsigned int func;
-  signed int immediate; // R-format ExtendValue
+  unsigned int immediate; // R-format ExtendValue
   unsigned int target; // J-format
   // maybe more
 } IFID_Register;
@@ -109,9 +109,7 @@ typedef struct {
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
-  signed int extendValue; // immediate
-  unsigned short rs;
-  unsigned short rt;
+  signed int extendValue;
   unsigned short rd;
 } IDEX_Register;
 
