@@ -73,6 +73,7 @@
 
 typedef enum {FORMAT_I, FORMAT_R,FORMAT_J} op_format;
 typedef enum {REG_RS, REG_RT, REG_RD} reg_type;
+typedef enum {AND, OR, ADD, SUB, SLT, NOR} alu_ctl;
 
 //
 // pipeline register types
@@ -94,7 +95,8 @@ typedef struct {
   char memRead;
   char memWrite;
   char regDst;
-  char aluOP;
+  op_format aluOP;
+  unsigned int op;
   char aluSrc; //?
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
@@ -104,6 +106,8 @@ typedef struct {
   unsigned short rs;
   unsigned short rt;
   unsigned short rd;
+  unsigned int shamt;
+  unsigned int func;
 } IDEX_Register;
 
 typedef struct {

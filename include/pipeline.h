@@ -23,48 +23,68 @@ void ID(void) {
 
 void EX(void) {
 	// Based on figure 4.41
+	unsigned int aluSrc1;
 	unsigned int aluSrc2;
+	unsigned int aluResult;
+	alu_ctl aluCtl;
 	
 	exmem_reg.branchAddr = (idex_reg.extendValue << 2)
 															+ idex_reg.nextPC;
 	exmem_reg.rd = idex_reg.regDst?idex_reg.rd:	// true rd
 																	idex_reg.rt; // else rt
+	
+	// ALU sources
+	aluSrc1 = idex_reg.reg1Value; // expected 3-way mux
 	aluSrc2 = idex_reg.aluSrc?idex_reg.extendValue: // true extened value
 																	idex_reg.reg2Value; // else reg2
-	// ALU
-	if (idex_reg.aluOP == 0x2) {
-		switch (idex_reg.imm&FN_MASK) {
-			case R_ADD:
-				exmem_reg.aluResult = idex_reg.reg1Value + aluSrc2;
-				break;
-			case R_SUB:
-				exmem_reg.aluResult = idex_reg.reg1Value - aluSrc2;
-				break;
-			case R_AND:
-				exmem_reg.aluResult = idex_reg.reg1Value & aluSrc2;
-				break;
-			case R_OR:
-				exmem_reg.aluResult = idex_reg.reg1Value | aluSrc2;
-				break;
-			case R_SLT:
-				exmem_reg.aluResult = idex_reg.reg1Value - aluSrc2;
-				exmem_reg.zero = (int)exmem_reg.aluResult < 0? 1:0;
-				break;
-			// more operation SLL
+	// ALU Controll Input
+	aluResult = 0;
+	switch(idex_reg.aluOP) {
+		case FORMAT_R: {
+			switch (idex_reg.imm&FN_MASK) {
+				case R_ADD:
+					aluResult = (int)aluSrc1 + (int)aluSrc2;
+					break;
+				case R_ADDU:
+					aluSrc2 = aluSrc2&0x0000ffff;
+					aluResult = aluSrc1 + aluSrc2;
+				case R_SUB:
+					aluResult = (int)aluSrc1 - (int)aluSrc2;
+					break;
+				case R_AND:
+					aluResult = (int)aluSrc1 & (int)aluSrc2;
+					break;
+				case R_OR:
+					aluResult = (int)aluSrc1 | (int)aluSrc2;
+					break;
+				case R_SLT:
+					aluResult = (int)aluSrc1 - (int)aluSrc2;
+					exmem_reg.zero = (int)aluResult < 0? 1:0;
+					break;
+				case R_SLL:
+					aluResult = ((int)aluSrc1)<<idex_reg.shamt;
+					break;
+			}
+		}
+		case FORMAT_I: {
+			aluResult = aluSrc1 + aluSrc2;
+		}
+		case FORMAT_J: {
+			aluResult = aluSrc1 - aluSrc2;
 		}
 	}
-	else if(idex_reg.aluOP == 0x1) {
-		// Branch Equal
-		exmem_reg.aluResult = idex_reg.reg1Value - aluSrc2;
-	}
-	else {
-		// LW SW
-		exmem_reg.aluResult = idex_reg.reg1Value + aluSrc2;
-	}
+	exmem_reg.aluResult = aluResult;
 }
 
 void MEM(void) {
-	
+	memwb_reg.exValue = exmem_reg.aluResult;
+	unsigned int addr = (exmem_reg.aluResult) >> 2;
+	if(exmem_reg.memWrite) {
+		memory[addr] = exmem_reg.writeData;
+	}
+	if(exmem_reg.memRead) {
+		memwb_reg.memValue = memory[addr];
+	}
 }
 
 void WB(void) {
