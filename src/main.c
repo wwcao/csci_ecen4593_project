@@ -9,7 +9,6 @@ unsigned int pc;
 int main() {
 	unsigned int i;
 	i = readInstruction();
-	init
 	while((i--) > 0){
 			printf("type: %d\n", getInsFormat(memory[pc]));
 			printf("rs: %d\n", getRegNum(memory[pc], REG_RS));
