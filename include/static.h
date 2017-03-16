@@ -26,12 +26,12 @@
 
 // SHIFT
 #define OP_SHF              26
-#define RS_SHF              21
-#define RT_SHF              16
-#define RD_SHF              11
-#define SHM_SHF              6
+#define RS_SHF                21
+#define RT_SHF                16
+#define RD_SHF                11
+#define SHM_SHF               6
 
-//Instruction Op
+//Instruction Op  
 // I format -- OPcode
 #define I_ADDI                0x08
 #define I_ADDIU               0x09
@@ -104,13 +104,16 @@ typedef struct {
   char memRead;
   char memWrite;
   char regDst;
-  char aluOP;
+  op_format aluOP;
+  unsigned int opCode;
   char aluSrc; //?
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
   signed int extendValue;
   unsigned short rd;
+  unsigned int shamt;
+  unsigned int func;
 } IDEX_Register;
 
 typedef struct {

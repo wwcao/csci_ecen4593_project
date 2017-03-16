@@ -8,7 +8,7 @@
 
 unsigned memory[MEMORY_SIZE];
 
-int readInstruction();
+unsigned int readInstruction();
 op_format getInsFormat(int);
 unsigned getRegNum(int, reg_type);
 void printInstr(int);
