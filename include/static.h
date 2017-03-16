@@ -22,13 +22,13 @@
 #define IM_MASK               0x0000ffff
 
 // SHIFT
-//#define OP_SHF              26
+#define OP_SHF              26
 #define RS_SHF                21
 #define RT_SHF                16
 #define RD_SHF                11
 #define SHM_SHF               6
 
-//Instruction Op
+//Instruction Op  
 // I format -- OPcode
 #define I_ADDI                0x08
 #define I_ADDIU               0x09
@@ -73,7 +73,6 @@
 
 typedef enum {FORMAT_I, FORMAT_R,FORMAT_J} op_format;
 typedef enum {REG_RS, REG_RT, REG_RD} reg_type;
-typedef enum {AND, OR, ADD, SUB, SLT, NOR} alu_ctl;
 
 //
 // pipeline register types
@@ -96,7 +95,7 @@ typedef struct {
   char memWrite;
   char regDst;
   op_format aluOP;
-  unsigned int op;
+  unsigned int opCode;
   char aluSrc; //?
   unsigned int nextPC;
   unsigned int reg1Value; //read data1

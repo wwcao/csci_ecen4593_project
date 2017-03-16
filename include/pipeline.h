@@ -23,10 +23,10 @@ void ID(void) {
 
 void EX(void) {
 	// Based on figure 4.41
+	char zero;
 	unsigned int aluSrc1;
 	unsigned int aluSrc2;
 	unsigned int aluResult;
-	alu_ctl aluCtl;
 	
 	exmem_reg.branchAddr = (idex_reg.extendValue << 2)
 															+ idex_reg.nextPC;
@@ -38,6 +38,7 @@ void EX(void) {
 	aluSrc2 = idex_reg.aluSrc?idex_reg.extendValue: // true extened value
 																	idex_reg.reg2Value; // else reg2
 	// ALU Controll Input
+	zero = 0;
 	aluResult = 0;
 	switch(idex_reg.aluOP) {
 		case FORMAT_R: {
@@ -45,40 +46,42 @@ void EX(void) {
 				case R_ADD:
 					aluResult = (int)aluSrc1 + (int)aluSrc2;
 					break;
-				case R_ADDU:
-					aluSrc2 = aluSrc2&0x0000ffff;
-					aluResult = aluSrc1 + aluSrc2;
 				case R_SUB:
 					aluResult = (int)aluSrc1 - (int)aluSrc2;
 					break;
 				case R_AND:
-					aluResult = (int)aluSrc1 & (int)aluSrc2;
+					aluResult = aluSrc1 & aluSrc2;
 					break;
 				case R_OR:
-					aluResult = (int)aluSrc1 | (int)aluSrc2;
+					aluResult = aluSrc1 | aluSrc2;
 					break;
 				case R_SLT:
 					aluResult = (int)aluSrc1 - (int)aluSrc2;
-					exmem_reg.zero = (int)aluResult < 0? 1:0;
+					zero = (int)aluResult < 0? 1:0;
 					break;
 				case R_SLL:
 					aluResult = ((int)aluSrc1)<<idex_reg.shamt;
 					break;
+				case R_NOR:
+					aluResult = ~(aluSrc1|aluSrc2);
+					break;
 			}
 		}
 		case FORMAT_I: {
+			// some arithmetic operations are not basic MIPS Instructions
 			aluResult = aluSrc1 + aluSrc2;
 		}
 		case FORMAT_J: {
 			aluResult = aluSrc1 - aluSrc2;
 		}
 	}
+	exmem_reg.zero = zero;
 	exmem_reg.aluResult = aluResult;
 }
 
 void MEM(void) {
 	memwb_reg.exValue = exmem_reg.aluResult;
-	unsigned int addr = (exmem_reg.aluResult) >> 2;
+	unsigned int addr = exmem_reg.aluResult>>2;
 	if(exmem_reg.memWrite) {
 		memory[addr] = exmem_reg.writeData;
 	}
