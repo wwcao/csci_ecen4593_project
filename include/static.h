@@ -105,13 +105,13 @@ typedef struct {
   char memWrite;
   char regDst;
   op_format aluOP;
-  unsigned int opCode;
+  //unsigned int opCode; 
   char aluSrc; //?
   unsigned int nextPC;
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
   signed int extendValue;
-  unsigned short rd;
+  unsigned int rd;
   unsigned int shamt;
   unsigned int func;
 } IDEX_Register;
@@ -126,13 +126,13 @@ typedef struct {
   unsigned int zero; 		//alu zero
   unsigned int aluResult;	// ALU output
   unsigned int writeData; //read data2
-  unsigned short rd;
+  unsigned int rd;
 } EXMEM_Register;
 
 typedef struct {
   char regWrite;			// 1 or ~1
   char MemtoReg;			// 1 or ~1
-  unsigned short rd;		// 0-31	to forward
+  unsigned int rd;		// 0-31	to forward
   unsigned int memValue;	// 32-bit value
   unsigned int exValue;		// 32-bit value from EX
 } MEMWB_Register;
