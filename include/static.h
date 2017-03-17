@@ -82,19 +82,13 @@ typedef enum {REG_OP, REG_RS, REG_RT, REG_RD, REG_SHM, REG_FUNC, REG_IMM, REG_TA
 
 //
 typedef struct {
-  unsigned int ins;
+  unsigned int inst;
   unsigned int flush;
   unsigned int nextPC;
   unsigned int PC;
-  op_format OpCode;
-  unsigned int rs;
-  unsigned int rt;
-  unsigned int rd;
-  unsigned int shamt;
-  unsigned int func;
-  unsigned int immediate; // R-format ExtendValue
-  unsigned int target; // J-format
-  // maybe more
+  op_format insFormat;
+  unsigned int isJump;
+
 } IFID_Register;
 
 typedef struct {
@@ -104,16 +98,26 @@ typedef struct {
   char memRead;
   char memWrite;
   char regDst;
-  op_format aluOP;
-  //unsigned int opCode; 
+  unsigned int aluOP;
   char aluSrc; //?
   unsigned int nextPC;
-  unsigned int reg1Value; //read data1
-  unsigned int reg2Value; //read data2
-  signed int extendValue;
+  
+  unsigned int OpCode;
+  unsigned int rs;
+  unsigned int rt;
   unsigned int rd;
   unsigned int shamt;
   unsigned int func;
+  unsigned int immediate; // R-format ExtendValue
+  unsigned int target; // J-format
+
+  op_format instFormat;
+
+  unsigned int reg1Value; //read data1
+  unsigned int reg2Value; //read data2
+  signed int extendValue;
+
+  unsigned int destination;
 } IDEX_Register;
 
 typedef struct {
