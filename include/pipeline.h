@@ -66,68 +66,33 @@ void ID(void) {
  switch(ifid_reg.OpCode){
 	// case R-format
 	case 0:
-		idex_reg.regWrite = '1';
- 		idex_reg.MemToReg = '0';
-		idex_reg.branch = '0';
-		idex_reg.memRead = '0';
-		idex_reg.memWrite = '0';
-		idex_reg.regDst = '1';
+		idex_reg.regWrite = 1;
+		idex_reg.regDst = 1;
 		idex_reg.aluOP = '10';
-		idex_reg.aluSrc = '0';
 		break;
 	// case LW
 	case 35:
-                idex_reg.regWrite = '1';
-                idex_reg.MemToReg = '1';
-                idex_reg.branch = '0';
-                idex_reg.memRead = '1';
-                idex_reg.memWrite = '0';
-                idex_reg.regDst = '0';
+                idex_reg.regWrite = 1;
+                idex_reg.MemToReg = 1;
+                idex_reg.memRead = 1;
                 idex_reg.aluOP = '00';
-                idex_reg.aluSrc = '1';
+                idex_reg.aluSrc = 1;
 		break;
 	// case SW
 	case 43:
-                idex_reg.regWrite = '0';
-                idex_reg.MemToReg = 'x';
-                idex_reg.branch = '0';
-                idex_reg.memRead = '0';
-                idex_reg.memWrite = '1';
-                idex_reg.regDst = 'x';
-                idex_reg.aluOP = '00';
-                idex_reg.aluSrc = '1';
+                idex_reg.memWrite = 1;
+                idex_reg.aluSrc = 1;
 		break;
 	// case BEQ
 	case 4:
-                idex_reg.regWrite = '0';
-                idex_reg.MemToReg = 'x';
                 idex_reg.branch = '1';
-                idex_reg.memRead = '0';
-                idex_reg.memWrite = '0';
-                idex_reg.regDst = 'x';
                 idex_reg.aluOP = '01';
-                idex_reg.aluSrc = '0';
 		break;
 	// case J-format
 	case 2 || 3:
-                idex_reg.regWrite = '0';
-                idex_reg.MemToReg = 'x';
-                idex_reg.branch = '0';
-                idex_reg.memRead = '0';
-                idex_reg.memWrite = '0';
-                idex_reg.regDst = 'x';
-                idex_reg.aluOP = 'xx';
-                idex_reg.aluSrc = 'x';
 		break;
 	default:
-		idex_reg.regWrite = 'x';
-		idex_reg.MemToReg = 'x';
-		idex_reg.branch = 'x';
-		idex_reg.memRead = 'x';
-		idex_reg.memWrite = 'x';
-		idex_reg.regDst = 'x';
-		idex_reg.aluOP = 'xx';
-		idex_reg.aluSrc = 'x';
+		break;
 }
 
  idex_reg.nextPC = ifid_reg.nextPC;
@@ -142,7 +107,7 @@ void ID(void) {
 		break;
 	// J-format
 	case FORMAT_J:
-		idex_reg.branchAddr = ifid_reg.PC + (ifid_reg.target<<2); //need to fix this
+		idex_reg.branchAddr = (ifid_reg.PC&PC_MASK) + (ifid_reg.target<<2); //need to fix this
 	// use default to identify other opcodes aka I-format
 		break;
 	default:
