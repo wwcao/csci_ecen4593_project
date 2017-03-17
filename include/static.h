@@ -92,6 +92,8 @@ typedef struct {
 } IFID_Register;
 
 typedef struct {
+  unsgined int inst;
+
   char regWrite;
   char MemToReg;
   char branch;
