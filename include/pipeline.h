@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "static.h"
 #include "units.h"
 #ifndef __PIPELINE_HEADER__
@@ -141,10 +142,20 @@ void EX(void) {
 	zero = 0;
 	aluResult = 0;
 	switch(idex_reg.aluOP) {
-		case FORMAT_R: {
-			switch (idex_reg.imm&FN_MASK) {
+		case 0x0: {
+			// some arithmetic operations are not basic MIPS Instructions
+			aluResult = aluSrc1 + aluSrc2;
+		}
+		case 0x1: {
+			aluResult = aluSrc1 - aluSrc2;
+		}
+		case 0x2: {
+			switch (idex_reg.immediate&FN_MASK) {
 				case R_ADD:
 					aluResult = (int)aluSrc1 + (int)aluSrc2;
+					break;
+				case R_ADDU:
+					aluResult = aluSrc1 + aluSrc2;
 					break;
 				case R_SUB:
 					aluResult = (int)aluSrc1 - (int)aluSrc2;
@@ -159,20 +170,50 @@ void EX(void) {
 					aluResult = (int)aluSrc1 - (int)aluSrc2;
 					zero = (int)aluResult < 0? 1:0;
 					break;
+				case R_SLTU:
+					aluResult = aluSrc1 - aluSrc2;
+					zero = (int)aluResult < 0? 1:0;
+					break;
 				case R_SLL:
 					aluResult = ((int)aluSrc1)<<idex_reg.shamt;
+					break;
+				case R_SRA:
+					aluResult = aluSrc1 >> idex_reg.shamt;
+					break;
+				case R_SRL:
+					aluResult = (aluSrc1 >> idex_reg.shamt)&(0x1<<idex_reg.shamt);
 					break;
 				case R_NOR:
 					aluResult = ~(aluSrc1|aluSrc2);
 					break;
 			}
 		}
-		case FORMAT_I: {
-			// some arithmetic operations are not basic MIPS Instructions
-			aluResult = aluSrc1 + aluSrc2;
-		}
-		case FORMAT_J: {
-			aluResult = aluSrc1 - aluSrc2;
+		default:{
+			switch(idex_reg.OpCode) {
+				case I_ADDI:
+					aluResult = (int)aluSrc1 + (int)aluSrc2;
+					break;
+				case I_ADDIU:
+					aluResult = aluSrc1 + aluSrc2;
+					break;
+				case I_ANDI:
+					aluResult = aluSrc1 & (aluSrc2&IM_MASK);
+					break;
+				case I_ORI:
+					aluResult = aluSrc1 | (aluSrc2&IM_MASK);
+					break;
+				case I_SLTI:
+					aluResult = (int)aluSrc1 - (int)aluSrc2;
+					zero = aluResult < 0? 1: 0;
+					break;
+				case I_SLTIU:
+					aluResult = aluSrc - aluSrc2;
+					zero = aluResult < 0? 1: 0;
+					break;
+				default:
+					printf("Error @ pc: 0x%x\n", pc);
+					exit(1);
+			}
 		}
 	}
 	exmem_reg.zero = zero;
