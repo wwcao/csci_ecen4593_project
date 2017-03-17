@@ -81,7 +81,7 @@ void ID(void) {
 	         idex_reg.extendValue = ifid_reg.immediate;
        	         break;
                 }
-                idex_reg.extendValue = (((1<<16)-1)<<16) || ifid_reg.immediate;
+                idex_reg.extendValue = (((1<<16)-1)<<16) | ifid_reg.immediate;
 		break;
 	// case SW
 	case 43:
@@ -94,7 +94,7 @@ void ID(void) {
                  idex_reg.extendValue = idex_reg.immediate;
                  break;
                 }
-                idex_reg.extendValue = (((1<<16)-1)<<16) || ifid_reg.immediate;
+                idex_reg.extendValue = (((1<<16)-1)<<16) | ifid_reg.immediate;
 
 		break;
 	// case BEQ
@@ -108,12 +108,12 @@ void ID(void) {
                  idex_reg.extendValue = idex_reg.immediate;
                  break;
                 }
-                idex_reg.extendValue = (((1<<16)-1)<<16) || ifid_reg.immediate;
+                idex_reg.extendValue = (((1<<16)-1)<<16) | ifid_reg.immediate;
 
 		break;
 	// case J-format
 	case 2 || 3:
-                idex_reg.branchAddr = (idex_reg.nextPC&PC_MASK) + (idex_reg.target<<2); // targetJump
+                idex_reg.jumpTarget = (idex_reg.nextPC&PC_MASK) + (idex_reg.target<<2); // targetJump
 		break;
 	default:
 		break;

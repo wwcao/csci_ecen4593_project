@@ -93,6 +93,7 @@ typedef struct {
 
 typedef struct {
   unsgined int inst;
+  unsigned int isJump;
 
   char regWrite;
   char MemToReg;
@@ -114,6 +115,7 @@ typedef struct {
   unsigned int target; // J-format
 
   op_format instFormat;
+  unsgined int jumpTarget;
 
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
