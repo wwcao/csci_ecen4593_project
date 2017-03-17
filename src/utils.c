@@ -1,4 +1,3 @@
-
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +30,7 @@ unsigned int readInstruction() {
 }
 
 op_format getInsFormat(int ins) {
-    if(ins&OP_MASK == 2 || ins&OP_MASK == 3){
+    if((ins&OP_MASK) == 2 || (ins&OP_MASK) == 3){
       // 0x02 0x03
       printf("0x%x is J Format\n",ins);
       return FORMAT_J;
@@ -46,25 +45,25 @@ op_format getInsFormat(int ins) {
 }
 
 unsigned getRegNum(int ins, reg_type rtype) {
-    switch(rtype) {
-        case REG_OP:
-	    return (ins&OP_MASK)>>OP_SHF;
-	case REG_RS:
-            return (ins&RS_MASK)>>RS_SHF;
-        case REG_RT:
-            return (ins&RT_MASK)>>RT_SHF;
-        case REG_RD:
-            return (ins&RD_MASK)>>RD_SHF;
-        case REG_SHM:
-            return (ins&SHM_MASK)>>SHM_SHF;
-	case REG_FUNC:
-	    return (ins&FN_MASK);
-	case REG_IMM:
-	    return (ins&IM_MASK)
-	default:
-            Error("Instruction: Wrong format\n");
-            return 0;
-    }
+	switch(rtype) {
+		case REG_OP:
+			return (ins&OP_MASK)>>OP_SHF;
+		case REG_RS:
+			return (ins&RS_MASK)>>RS_SHF;
+		case REG_RT:
+			return (ins&RT_MASK)>>RT_SHF;
+		case REG_RD:
+			return (ins&RD_MASK)>>RD_SHF;
+		case REG_SHM:
+			return (ins&SH_MASK)>>SHM_SHF;
+		case REG_FUNC:
+			return (ins&FN_MASK);
+		case REG_IMM:
+			return (ins&IM_MASK);
+		default:
+			Error("Instruction: Wrong format\n");
+			exit(1);
+	}
 }
 
 void Error(const char* msg) {

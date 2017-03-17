@@ -92,7 +92,7 @@ typedef struct {
 } IFID_Register;
 
 typedef struct {
-  unsgined int inst;
+  unsigned int inst;
   unsigned int isJump;
 
   char regWrite;
@@ -115,7 +115,7 @@ typedef struct {
   unsigned int target; // J-format
 
   op_format instFormat;
-  unsgined int jumpTarget;
+  unsigned int jumpTarget;
 
   unsigned int reg1Value; //read data1
   unsigned int reg2Value; //read data2
