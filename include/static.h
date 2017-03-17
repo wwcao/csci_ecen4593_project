@@ -31,7 +31,7 @@
 #define RD_SHF                11
 #define SHM_SHF               6
 
-//Instruction Op  
+//Instruction Op
 // I format -- OPcode
 #define I_ADDI                0x08
 #define I_ADDIU               0x09
@@ -86,7 +86,7 @@ typedef struct {
   unsigned int flush;
   unsigned int nextPC;
   unsigned int PC;
-  unsigned int OpCode;
+  op_format OpCode;
   unsigned int rs;
   unsigned int rt;
   unsigned int rd;

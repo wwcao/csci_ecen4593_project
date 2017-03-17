@@ -62,7 +62,6 @@ void IF(void) {
 }
 
 void ID(void) {
-
  // Control Signal
  switch(ifid_reg.OpCode){
 	// case R-format
@@ -138,11 +137,11 @@ void ID(void) {
 
  switch(ifid_reg.OpCode){
 	// R-format
-	case 0:
+	case FORMAT_R:
 		idex_reg.rd = ifid_reg.rd;
 		break;
 	// J-format
-	case 2||3:
+	case FORMAT_J:
 		idex_reg.branchAddr = ifid_reg.PC + (ifid_reg.target<<2); //need to fix this
 	// use default to identify other opcodes aka I-format
 		break;
