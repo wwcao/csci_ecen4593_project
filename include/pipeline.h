@@ -15,22 +15,28 @@ MEMWB_Register memwb_reg;
 
 void IF(void) {
 
-	ifid_reg.ins = instruction;
+	ifid_reg.inst = memory[instruction];
 	ifid_reg.pc = instruction<<2;
 	ifid_reg.nextPC = pc+4;
 	//ifid_reg.flush = 0;
-	
-	unsigned int i = ifid_reg.ins;
-        
-	op_format instFormat = getInsFormat(memory[i]);
-        printf("type: %d\n", instFormat);
+	ifid_reg.instFormat = getInsFormat(ifid_reg.inst)
+	if( ifid_reg.instFormat == FORMAT_J){
+	  ifid_reg.isJump = 1;
+	}
+}
+
+void ID(void) {
+
+ idex_reg.nextPC = ifid_reg.nextPC;
+
+ // Decode Instruction
         switch(instFormat){
          case FORMAT_I:
-		ifid_reg.OpCode = getRegNum(memory[i],REG_OP);
-		ifid_reg.rs = getRegNum(memory[i],REG_RS);
-		ifid_reg.rt = getRegNum(memory[i], REG_RT);
-		ifid_reg.immediate = getRegNum(memory[i],REG_IMM);
-	
+                ifid_reg.OpCode = getRegNum(memory[i],REG_OP);
+                ifid_reg.rs = getRegNum(memory[i],REG_RS);
+                ifid_reg.rt = getRegNum(memory[i], REG_RT);
+                ifid_reg.immediate = getRegNum(memory[i],REG_IMM);
+
                 printf("OpCode: %d\n", ifid_reg.OpCode);
                 printf("rs: %d\n", ifid_reg.rs);
                 printf("rt: %d\n", ifid_reg.rt);
@@ -42,26 +48,21 @@ void IF(void) {
                 printf("OpCode: %d\n", getRegNum(memory[i], REG_OP));
                 printf("branch target: %d", getRegNum(memory[i], REG_TARGET));
          default://FORMAT_R
-		ifid_reg.OpCode = getRegNum(memory[i],REG_OP);
-		ifid_reg.rs = getRegNum(memory[i],REG_RS);
+                ifid_reg.OpCode = getRegNum(memory[i],REG_OP);
+                ifid_reg.rs = getRegNum(memory[i],REG_RS);
                 ifid_reg.rt = getRegNum(memory[i], REG_RT);
-		ifid_reg.rd = getRegNum(memory[i], REG_RD);
-		ifid_reg.shamt = getRegNum(memory[i], REG_SHM);
-		ifid_reg.func = getRegNum(memory[i], REG_FUNC);
-		
+                ifid_reg.rd = getRegNum(memory[i], REG_RD);
+                ifid_reg.shamt = getRegNum(memory[i], REG_SHM);
+                ifid_reg.func = getRegNum(memory[i], REG_FUNC);
+
 
                 printf("rs: %d\n", getRegNum(memory[i], REG_RS));
                 printf("rt: %d\n", getRegNum(memory[i], REG_RT));
                 printf("rd: %d\n", getRegNum(memory[i], REG_RD));
                 printf("shamt: %d\n", getRegNum(memory[i], REG_SHM));
                 printf("func: %d\n", getRegNum(memory[i], REG_FUNC);
-        } 
+        }
 
-
-
-}
-
-void ID(void) {
  // Control Signal
  switch(ifid_reg.OpCode){
 	// case R-format
@@ -75,7 +76,6 @@ void ID(void) {
                 idex_reg.regWrite = 1;
                 idex_reg.MemToReg = 1;
                 idex_reg.memRead = 1;
-                idex_reg.aluOP = '00';
                 idex_reg.aluSrc = 1;
 		break;
 	// case SW
@@ -85,7 +85,7 @@ void ID(void) {
 		break;
 	// case BEQ
 	case 4:
-                idex_reg.branch = '1';
+                idex_reg.branch = 1;
                 idex_reg.aluOP = '01';
 		break;
 	// case J-format
