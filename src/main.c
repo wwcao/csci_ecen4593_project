@@ -23,14 +23,21 @@ int main() {
 unsigned int pc;
 int main() {
 	unsigned int i;
+	pc = 0;
 	i = readInstruction();
-	while((i--) > 0){
+	while(1){
+			/*
 			printf("type: %d\n", getInsFormat(memory[pc]));
 			printf("rs: %d\n", getRegNum(memory[pc], REG_RS));
 			printf("rd: %d\n", getRegNum(memory[pc], REG_RD));
 			printf("rt: %d\n", getRegNum(memory[pc], REG_RT));
+			* */
 			start();
-			pc++;
+			//pc++;
+			if(pc > i) {
+				printf("Done\n");
+				break;
+			}
 	}
 
 	return 0;
