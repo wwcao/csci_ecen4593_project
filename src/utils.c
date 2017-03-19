@@ -41,26 +41,25 @@ op_format getInsFormat(int ins) {
         printf("0x%x is I Format\n", ins);
         return FORMAT_I;
     }
-
     printf("0x%x is R Format\n", ins);
     return FORMAT_R;
 }
 
-unsigned getRegNum(int ins, reg_type rtype) {
-	switch(rtype) {
-		case REG_OP:
+unsigned getPartNum(int ins, part_type ptype) {
+	switch(ptype) {
+		case PART_OP:
 			return (ins&OP_MASK)>>OP_SHF;
-		case REG_RS:
+		case PART_RS:
 			return (ins&RS_MASK)>>RS_SHF;
-		case REG_RT:
+		case PART_RT:
 			return (ins&RT_MASK)>>RT_SHF;
-		case REG_RD:
+		case PART_RD:
 			return (ins&RD_MASK)>>RD_SHF;
-		case REG_SHM:
+		case PART_SHM:
 			return (ins&SH_MASK)>>SHM_SHF;
-		case REG_FUNC:
+		case PART_FUNC:
 			return (ins&FN_MASK);
-		case REG_IMM:
+		case PART_IMM:
 			return (ins&IM_MASK);
 		default:
 			Error("Instruction: Wrong format\n");

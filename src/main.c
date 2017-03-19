@@ -21,10 +21,10 @@ int main() {
 
     return 0;
 */
-unsigned int pc;
+unsigned int PC;
 int main() {
 	unsigned int i;
-	pc = 0;
+	PC = 0;
 	i = readInstruction();
 	memory[100] = 4593;
 	while(1){
@@ -37,7 +37,7 @@ int main() {
 			start();
 			printf("$t0:[%d], $s0:[%d]\n", register_file[8], register_file[16]);
 			//pc++;
-			if(pc == i) {
+			if((PC>>2) == i) {
 				printf("Done\n");
 				break;
 			}

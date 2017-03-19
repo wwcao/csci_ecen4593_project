@@ -10,7 +10,7 @@ unsigned memory[MEMORY_SIZE];
 
 unsigned int readInstruction();
 op_format getInsFormat(int);
-unsigned getRegNum(int, reg_type);
+unsigned getPartNum(int, part_type);
 void printInstr(int);
 
 // TODO: Function to initialize all units
