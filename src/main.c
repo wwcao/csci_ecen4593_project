@@ -26,7 +26,7 @@ int main() {
 	unsigned int i;
 	pc = 0;
 	i = readInstruction();
-	register_file[8] = 100;
+	memory[100] = 4593;
 	while(1){
 			/*
 			printf("type: %d\n", getInsFormat(memory[pc]));
@@ -42,6 +42,6 @@ int main() {
 				break;
 			}
 	}
-
+	printf("memory[100] = %d, should be 4000\n", memory[100]);
 	return 0;
 }

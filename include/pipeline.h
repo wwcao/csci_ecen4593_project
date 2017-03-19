@@ -103,8 +103,8 @@ void ID(void) {
 			idex_reg.destination = idex_reg.rt;
 			
 			idex_reg.extendValue = idex_reg.immediate&0x00008000?
-															ifid_reg.inst^0xffff0000:
-															ifid_reg.inst|0x0000ffff;
+											(ifid_reg.inst&0xffff0000)|ifid_reg.inst:
+											ifid_reg.inst&0x0000ffff;
 			break;
 		// case SW
 		case 43:
@@ -114,8 +114,8 @@ void ID(void) {
 			idex_reg.reg2Value = register_file[idex_reg.rt];
 			idex_reg.destination = idex_reg.rt;
 			idex_reg.extendValue = idex_reg.immediate&0x00008000?
-															ifid_reg.inst^0xffff0000:
-															ifid_reg.inst|0x0000ffff;
+											(ifid_reg.inst&0xffff0000)|ifid_reg.inst:
+											ifid_reg.inst&0x0000ffff;
 			break;
 		// case BEQ
 		case 4:
@@ -125,8 +125,8 @@ void ID(void) {
 			idex_reg.reg1Value = register_file[idex_reg.rs];
 			idex_reg.reg2Value = register_file[idex_reg.rt];
 			idex_reg.extendValue = idex_reg.immediate&0x00008000?
-															ifid_reg.inst^0xffff0000:
-															ifid_reg.inst|0x0000ffff;
+											(ifid_reg.inst&0xffff0000)|ifid_reg.inst:
+											ifid_reg.inst&0x0000ffff;
 			break;
 			
 		// case J-format
@@ -180,10 +180,13 @@ void EX(void) {
 	aluResult = 0;
 	switch(idex_reg.aluOP) {
 		case 0:
-			// some arithmetic operations are not basic MIPS pcs
+			// LWSW
+			printf("LWSW in EX, ");
 			aluResult = aluSrc1 + aluSrc2;
+			printf("aluSrc1[%d],aluSrc2[%d],aluResult[%d]\n", aluSrc1, aluSrc2, aluResult);
 			break;
 		case 1:
+			// BNE
 			aluResult = aluSrc1 - aluSrc2;
 			break;
 		case 2: {
@@ -193,7 +196,7 @@ void EX(void) {
 					case I_ADDI:
 						printf("%d + %d = ", aluSrc1, aluSrc2);
 						aluResult = (int)aluSrc1 + (int)aluSrc2;
-						printf("ADDI, %d, ", aluResult);
+						printf("%d, ", aluResult);
 						break;
 					case I_ADDIU:
 						aluResult = aluSrc1 + aluSrc2;
@@ -250,7 +253,8 @@ void EX(void) {
 						aluResult = aluSrc1 >> idex_reg.shamt;
 						break;
 					case R_SRL:
-						aluResult = (aluSrc1 >> idex_reg.shamt)&(0x1<<idex_reg.shamt);
+						aluResult = (aluSrc1 >> idex_reg.shamt)&
+													(~(0x80000000>>idex_reg.shamt));
 						break;
 					case R_NOR:
 						aluResult = ~(aluSrc1|aluSrc2);
@@ -264,7 +268,7 @@ void EX(void) {
 	}
 	exmem_reg.zero = zero;
 	exmem_reg.aluResult = aluResult;
-	
+	exmem_reg.writeData = idex_reg.reg2Value;
 	// set next state
 	nStage = STAGE_MEM;
 }
@@ -283,9 +287,11 @@ void MEM(void) {
 	addr = exmem_reg.aluResult>>2;
 	
 	if(exmem_reg.memWrite) {
+		printf("Writing, addr[%d]\n", addr);
 		memory[addr] = exmem_reg.writeData;
 	}
 	if(exmem_reg.memRead) {
+		printf("Loading, addr[%d]\n", addr);
 		memwb_reg.memValue = memory[addr];
 	}
 	// set next state

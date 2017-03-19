@@ -14,7 +14,7 @@ unsigned int readInstruction() {
         char addr_s[24];
         int addr;
         int ins;
-        printf("%s\n", buffer);
+        printf("%s", buffer);
         if(buffer[0] == '#') continue;
         sscanf(buffer, "%s%x", addr_s, &ins);
         if(addr_s[1] == 'x')
