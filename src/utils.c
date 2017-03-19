@@ -5,15 +5,17 @@
 
 unsigned int readInstruction() {
     unsigned int counter;
-    char buffer[INSTRUCTION_LEN*2+4];
+    char buffer[MAX_READLINE];
     FILE* f;
     if(!(f = fopen(INSTRUCTION_PATH, "r"))) Error("Failed to read file\n");
     counter = 0;
-    while(fgets(buffer, INSTRUCTION_LEN*2+4, f)
+    while(fgets(buffer, MAX_READLINE, f)
             && buffer[0] != '\n') {
         char addr_s[24];
         int addr;
         int ins;
+        printf("%s\n", buffer);
+        if(buffer[0] == '#') continue;
         sscanf(buffer, "%s%x", addr_s, &ins);
         if(addr_s[1] == 'x')
 					addr_s[10] = '\0';

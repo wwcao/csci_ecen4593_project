@@ -3,6 +3,7 @@
 
 #define INSTRUCTION_PATH      "ins_test.ass"
 #define INSTRUCTION_LEN       12
+#define MAX_READLINE					256
 
 #define MEMORY_SIZE           4096
 #define DMEMORY_SIZE          4096
@@ -76,7 +77,7 @@
 
 typedef enum {FORMAT_I, FORMAT_R,FORMAT_J} op_format;
 typedef enum {REG_OP, REG_RS, REG_RT, REG_RD, REG_SHM, REG_FUNC, REG_IMM, REG_TARGET} reg_type;
-typedef enum {PS_IF=0x0, PS_ID, PS_EX, PS_MEM, PS_WB} pipeline_state;
+typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 
 //
 // pipeline register types

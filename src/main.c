@@ -5,6 +5,7 @@
 #include "pipeline.h"
 
 unsigned int memory[MEMORY_SIZE];
+unsigned int register_file[REGISTER_NUM];
 /* used pc instead
 unsigned int instruction;
 
@@ -25,6 +26,7 @@ int main() {
 	unsigned int i;
 	pc = 0;
 	i = readInstruction();
+	register_file[8] = 100;
 	while(1){
 			/*
 			printf("type: %d\n", getInsFormat(memory[pc]));
@@ -33,8 +35,9 @@ int main() {
 			printf("rt: %d\n", getRegNum(memory[pc], REG_RT));
 			* */
 			start();
+			printf("$t0:[%d], $s0:[%d]\n", register_file[8], register_file[16]);
 			//pc++;
-			if(pc > i) {
+			if(pc == i) {
 				printf("Done\n");
 				break;
 			}
