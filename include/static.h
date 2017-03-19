@@ -1,7 +1,7 @@
 #ifndef __STATIC_HEADER__
 #define __STATIC_HEADER__
 
-#define INSTRUCTION_PATH      "ins_test.ass"
+#define INSTRUCTION_PATH      "ins_test2.ass"
 #define INSTRUCTION_LEN       12
 #define MAX_READLINE					256
 

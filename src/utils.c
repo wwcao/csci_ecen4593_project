@@ -82,3 +82,15 @@ void Log(const char* format, ...) {
   */
   return;
 }
+
+void printRegisters() {
+	int i;
+	printf("PC[0x%08x]\n", PC);
+	for( i = 8; i < REGISTER_NUM-8; i+=4) {
+		printf("$%02d[0x%08x], ", i	, register_file[i]);
+		printf("$%02d[0x%08x], ", i+1, register_file[i+1]);
+		printf("$%02d[0x%08x], ", i+2, register_file[i+2]);
+		printf("$%02d[0x%08x]\n", i+3, register_file[i+3]);
+	}
+	
+}

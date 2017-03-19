@@ -11,20 +11,22 @@ void IF(void) {
 	if((!IS_PIPELINE) && (cStage != STAGE_IF)) {
 		return;
 	}
-	
-	printf("\nStage IF\n");
 	// IF Operation
-	ifid_reg.instruction = memory[PC >> 2];
-	printf("Instruction: 0x%x\n", ifid_reg.instruction);
-	pcSrc1 = PC + 4;
-	ifid_reg.PC = pcSrc1;
-	if(PCSrc&&IS_PIPELINE) {
+	printf("\nStage IF\n");
+	if(PCSrc) {
+		printf("select pc from src2\n");
 		PC = pcSrc2;
 		PCSrc = 0;
 	}
-	else if(IS_PIPELINE) {
+	else {
+		printf("select pc from src1\n");
 		PC = pcSrc1;
 	}
+	
+	ifid_reg.instruction = memory[PC >> 2];
+	printf("Instruction: 0x%x\n", ifid_reg.instruction);
+	pcSrc1 = PC+4;
+	ifid_reg.PC = PC;
 	
 	// set state ID after IF
 	nStage = STAGE_ID;
@@ -43,10 +45,13 @@ void ID(void) {
 	printf("\nStage ID, ");
 	
 	// ID Operation
+	memset(&idex_reg, 0, sizeof(IDEX_Register));
 	
 	// TODO: change to shadow reg
+	idex_reg.PC = ifid_reg.PC;
+	printf("\nPC in reg[0x%x]\n", idex_reg.PC);
+	
 	instruction = ifid_reg.instruction;
-  memset(&idex_reg, 0, sizeof(IDEX_Register));
   rs = getPartNum(instruction, PART_RS);
   rt = getPartNum(instruction, PART_RT);
   rd = getPartNum(instruction, PART_RD);
@@ -62,6 +67,7 @@ void ID(void) {
 	idex_reg.regValue1 = register_file[rs];
 	idex_reg.regValue2 = register_file[rt];
   idex_reg.opCode = opCode;
+
   
   printf("\nopCode[%d]\n", opCode);
   printf("rs:%d, rt:%d, rd%d\n", rs, rt, rd);
@@ -81,7 +87,7 @@ void EX(void) {
 	if((!IS_PIPELINE) && (cStage != STAGE_EX)) {
 		return;
 	}
-	printf("\nStage EX, ");
+	printf("\nStage EX\n");
 	
 	exmem_reg.RegWrite = idex_reg.RegWrite;
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
@@ -92,7 +98,10 @@ void EX(void) {
 	
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
 	exmem_reg.PC = (idex_reg.extendedValue << 2) + idex_reg.PC;
-	
+	printf("---- bran [%d]\n", exmem_reg.Branch);
+	printf("---- idex	[0x%x]\n", idex_reg.PC);
+	printf("---- exte [0x%x]\n", idex_reg.extendedValue<<2);
+	printf("---- Calc [0x%x]\n", exmem_reg.PC);
 	exmem_reg.dataToMem = idex_reg.regValue2;
 	
 	exmem_reg.rd = idex_reg.RegDst>0?idex_reg.rd:idex_reg.rt;
@@ -111,9 +120,11 @@ void MEM(void) {
 	// MEM Operation
 	
 	// Branch
+	
 	if(exmem_reg.Branch&&exmem_reg.zero) {
+		
 		pcSrc2 = exmem_reg.PC;
-		PCSrc = true;
+		PCSrc = 1;
 	}
 	
 	memwb_reg.RegWrite = exmem_reg.RegWrite;
@@ -152,8 +163,10 @@ void WB(void) {
 		register_file[memwb_reg.rd] = writedata;
 	printf("register: %d, value: %d\n", memwb_reg.rd, writedata);
 	// set next state
+	/*
 	if(!IS_PIPELINE)
 		PC = pcSrc1;
+		*/
 	nStage = STAGE_IF;
 }
 
@@ -163,8 +176,11 @@ void start(void) {
   EX();
   MEM();
   WB();
-  
+  if(cStage == STAGE_WB)
+		printRegisters();
   cStage = nStage;
+  //printf("Enter key...\n");
+  //getchar();
 }						
 
 
@@ -179,10 +195,12 @@ void aluUnitOperation(void) {
 	unsigned src2 = idex_reg.ALUSrc?idex_reg.extendedValue: // true extened value
 																	idex_reg.regValue2; // else reg2
 	result = 0;		
-	zero = 0;		
+	zero = 0;	
+	printf("src1[%d], src2[%d]\n", src1, src2);
 	shamt = getPartNum(idex_reg.extendedValue, PART_SHM);
 	if(idex_reg.ALUOp == ALUOP_BEQ) {
-		result = src1 - src2;
+		zero = src1==src2?1:0;
+		printf("----zero[%d]\n", zero);
 	}
 	else if(idex_reg.ALUOp == ALUOP_LWSW) {
 		result = src1 + src2;
@@ -192,7 +210,6 @@ void aluUnitOperation(void) {
 			// I and J
 			switch(idex_reg.opCode) {
 					case I_ADDI:
-						printf("ADDI MARK\n");
 						result = (int)src1 + (int)src2;
 						break;
 					case I_ADDIU:
@@ -205,14 +222,11 @@ void aluUnitOperation(void) {
 						result = src1 | (src2&IM_MASK);
 						break;
 					case I_SLTI:
-						result = (int)src1 - (int)src2;
-						zero = result < 0? 1: 0;
+						result = src1<src2?1:0;
 						break;
 					case I_SLTIU:
-						result = src1 - src2;
-						zero = result < 0? 1: 0;
+						result = src1<src2?1:0;
 						break;
-						
 					case J_J:
 					case J_JAL:
 						break;
@@ -241,12 +255,10 @@ void aluUnitOperation(void) {
 					result = src1 | src2;
 					break;
 				case R_SLT:
-					result = (int)src1 - (int)src2;
-					zero = (int)result < 0? 1:0;
+					result = src1<src2?1:0;
 					break;
 				case R_SLTU:
-					result = src1 - src2;
-					zero = (int)result < 0? 1:0;
+					result = src1<src2?1:0;
 					break;
 				case R_SLL:
 					result = ((int)src1) << shamt;
@@ -313,7 +325,6 @@ void ctlUnitOperation(unsigned int opCode) {
 			idex_reg.Branch = 1;
 			idex_reg.ALUOp = ALUOP_BEQ;
 			break;
-			
 		// case J-format
 		case 0x2:
 		case 0x3:
