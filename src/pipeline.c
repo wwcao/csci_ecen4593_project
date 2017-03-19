@@ -68,6 +68,7 @@ void ID(void) {
   printf("imm[%d][0x%x]\n", imm, imm);
   printf("imm&mask[%d][0x%x]\n", imm&0x00008000, imm&0x00008000);
   printf("extendedValue[%d][0x%x]\n\n", idex_reg.extendedValue,idex_reg.extendedValue);
+  
 	ctlUnitOperation(opCode);
 	
 	// set state after ID

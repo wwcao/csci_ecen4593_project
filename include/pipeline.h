@@ -12,10 +12,19 @@ unsigned int PC;
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
+
+// regular pipeline register
 IFID_Register ifid_reg;
 IDEX_Register idex_reg;
 EXMEM_Register exmem_reg;
 MEMWB_Register memwb_reg;
+
+// wired output storage == shadow pipeline register
+IFID_Register _ifid_reg;
+IDEX_Register _idex_reg;
+EXMEM_Register _exmem_reg;
+MEMWB_Register _memwb_reg;
+
 stage cStage;			// curent state for non_pipeline
 stage nStage;			// next state
 
