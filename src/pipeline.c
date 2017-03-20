@@ -26,7 +26,7 @@ void IF(void) {
 	ifid_reg.instruction = memory[PC >> 2];
 	printf("Instruction: 0x%x\n", ifid_reg.instruction);
 	pcSrc1 = PC+4;
-	ifid_reg.PC = PC;
+	ifid_reg.PC = PC+4;
 	
 	// set state ID after IF
 	nStage = STAGE_ID;
@@ -73,7 +73,8 @@ void ID(void) {
   printf("rs:%d, rt:%d, rd%d\n", rs, rt, rd);
   printf("imm[%d][0x%x]\n", imm, imm);
   printf("imm&mask[%d][0x%x]\n", imm&0x00008000, imm&0x00008000);
-  printf("extendedValue[%d][0x%x]\n\n", idex_reg.extendedValue,idex_reg.extendedValue);
+  printf("extendedValue[%d][0x%x]\n\n", 
+						idex_reg.extendedValue,idex_reg.extendedValue);
   
 	ctlUnitOperation(opCode);
 	
@@ -98,10 +99,10 @@ void EX(void) {
 	
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
 	exmem_reg.PC = (idex_reg.extendedValue << 2) + idex_reg.PC;
-	printf("---- bran [%d]\n", exmem_reg.Branch);
-	printf("---- idex	[0x%x]\n", idex_reg.PC);
-	printf("---- exte [0x%x]\n", idex_reg.extendedValue<<2);
-	printf("---- Calc [0x%x]\n", exmem_reg.PC);
+	printf("---- bran[%d]\n", exmem_reg.Branch);
+	printf("---- idex[0x%x]\n", idex_reg.PC);
+	printf("---- exte[0x%x]\n", idex_reg.extendedValue<<2);
+	printf("---- Calc[0x%x]\n", exmem_reg.PC);
 	exmem_reg.dataToMem = idex_reg.regValue2;
 	
 	exmem_reg.rd = idex_reg.RegDst>0?idex_reg.rd:idex_reg.rt;
@@ -122,7 +123,6 @@ void MEM(void) {
 	// Branch
 	
 	if(exmem_reg.Branch&&exmem_reg.zero) {
-		
 		pcSrc2 = exmem_reg.PC;
 		PCSrc = 1;
 	}
@@ -329,7 +329,14 @@ void ctlUnitOperation(unsigned int opCode) {
 		case 0x2:
 		case 0x3:
 			printf("Decode of Format J\n");
-			//idex_reg.jumpTarget = (idex_reg.nextPC&PC_MASK) + (idex_reg.target<<2); // targetJump
+			unsigned int jImm = (ifid_reg.instruction&0x03ffffff)<<2;
+			unsigned int msb = ifid_reg.PC&0xf0000000; 
+			pcSrc2 = jImm|msb;
+			PCSrc = 1;
+			memset(&idex_reg, 0, sizeof(IDEX_Register));
+			printf("jImm	[0x%8x]\n", jImm);
+			printf("msb		[0x%8x]\n", msb);
+			printf("pcSrc2[0x%8x]\n", pcSrc2);
 			break;
 		default:
 			printf("Decode of Format I\n");
