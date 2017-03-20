@@ -24,7 +24,9 @@ int main() {
 unsigned int PC;
 int main() {
 	unsigned int i;
+	unsigned int counter;
 	PC = 0;
+	counter = 0;
 	i = readInstruction();
 	while(1){
 			start();
@@ -33,7 +35,8 @@ int main() {
 				printf("Done\n");
 				break;
 			}
+			counter++;
 	}
-	printf("memory[100] = %d\n", memory[100]);
+	printf("Counter[%d]\n", counter++);
 	return 0;
 }
