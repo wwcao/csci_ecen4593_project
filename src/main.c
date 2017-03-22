@@ -36,6 +36,7 @@ int main() {
 				break;
 			}
 			counter++;
+			if(counter > 1000) break;
 	}
 	printf("Counter[%d]\n", counter++);
 	return 0;
