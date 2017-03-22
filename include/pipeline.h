@@ -30,6 +30,7 @@ stage nStage;			// next state
 
 unsigned int forwardA;		//rs fwding mux
 unsigned int forwardB;		//rt fwding mux
+unsigned int IS_FWDING;		// check fwding happen?
 
 void IF(void);
 void ID(void);
