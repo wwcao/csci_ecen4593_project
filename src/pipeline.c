@@ -24,7 +24,7 @@ void IF(void) {
 	}
 	
 	ifid_reg.instruction = memory[PC >> 2];
-	printf("Instruction: 0x%x\n", ifid_reg.instruction);
+	printf("0x%08x: 0x%x\n", PC, ifid_reg.instruction);
 	pcSrc1 = PC+4;
 	ifid_reg.PC = PC+4;
 	
@@ -36,6 +36,7 @@ void ID(void) {
 	unsigned int instruction;
 	unsigned short rs, rd, rt;
 	unsigned int opCode, imm;
+	unsigned int extendedValue;
 	
 	// handle is pipeline
 	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
@@ -61,9 +62,10 @@ void ID(void) {
   idex_reg.rs = rs;
   idex_reg.rt = rt;
   idex_reg.rd = rd;
-  idex_reg.extendedValue = imm&0x00008000?
+  extendedValue = imm&0x00008000?
 											imm|0xffff0000:
 											imm&0x0000ffff;
+	idex_reg.extendedValue = extendedValue;
 	idex_reg.regValue1 = register_file[rs];
 	idex_reg.regValue2 = register_file[rt];
   idex_reg.opCode = opCode;
@@ -76,8 +78,14 @@ void ID(void) {
   printf("extendedValue[%d][0x%x]\n\n", 
 						idex_reg.extendedValue,idex_reg.extendedValue);
   
-	ctlUnitOperation(opCode);
-	
+	ctlUnitOperation(opCode,register_file[rs], register_file[rt],
+										extendedValue);
+	/*
+	if(exmem_reg.Branch&&exmem_reg.zero) {
+		pcSrc2 = exmem_reg.PC;
+		PCSrc = 1;
+	}
+	* */
 	// set state after ID
 	nStage = STAGE_EX;
 }
@@ -89,7 +97,7 @@ void EX(void) {
 		return;
 	}
 	printf("\nStage EX\n");
-	
+	//pcSrc2 = ifid_reg.PC+4;
 	exmem_reg.RegWrite = idex_reg.RegWrite;
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
 	
@@ -98,11 +106,6 @@ void EX(void) {
 	exmem_reg.Branch = idex_reg.Branch;
 	
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
-	exmem_reg.PC = (idex_reg.extendedValue << 2) + idex_reg.PC;
-	printf("---- bran[%d]\n", exmem_reg.Branch);
-	printf("---- idex[0x%x]\n", idex_reg.PC);
-	printf("---- exte[0x%x]\n", idex_reg.extendedValue<<2);
-	printf("---- Calc[0x%x]\n", exmem_reg.PC);
 	exmem_reg.dataToMem = idex_reg.regValue2;
 	
 	exmem_reg.rd = idex_reg.RegDst>0?idex_reg.rd:idex_reg.rt;
@@ -122,11 +125,12 @@ void MEM(void) {
 	
 	// Branch
 	
+	/*
 	if(exmem_reg.Branch&&exmem_reg.zero) {
 		pcSrc2 = exmem_reg.PC;
 		PCSrc = 1;
 	}
-	
+	*/
 	memwb_reg.RegWrite = exmem_reg.RegWrite;
 	memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	memwb_reg.aluResult = exmem_reg.aluResult;
@@ -284,7 +288,9 @@ void aluUnitOperation(void) {
 	printf("zero[%d], aluResult[%d]\n", zero, result);
 }
 
-void ctlUnitOperation(unsigned int opCode) {
+void ctlUnitOperation(unsigned int opCode,
+							unsigned int regVal1, unsigned regVal2,
+							unsigned int extendedValue) {
 	switch(opCode) {
 	// case R-format
 		case 0x0:
@@ -322,8 +328,24 @@ void ctlUnitOperation(unsigned int opCode) {
 		case 0x04:
 		case 0x05:
 			printf("Decode of Format BEQ\n");
-			idex_reg.Branch = 1;
 			idex_reg.ALUOp = ALUOP_BEQ;
+			if(regVal1 == regVal2) {
+				PCSrc = 1;
+				pcSrc2 = (extendedValue<<2)+ifid_reg.PC;
+				memset(&ifid_reg, 0, sizeof(IFID_Register));
+				idex_reg.MemtoReg = 0;
+				idex_reg.RegWrite = 0;
+				idex_reg.MemRead = 0;
+				idex_reg.MemWrite = 0;
+				idex_reg.ALUOp = 0;
+				idex_reg.ALUSrc = 0;
+				idex_reg.opCode = 0;
+				
+				exmem_reg.MemtoReg = 0;
+				exmem_reg.RegWrite = 0;
+				exmem_reg.MemRead = 0;
+				exmem_reg.MemWrite = 0;
+			}
 			break;
 		// case J-format
 		case 0x2:
@@ -334,6 +356,7 @@ void ctlUnitOperation(unsigned int opCode) {
 			pcSrc2 = jImm|msb;
 			PCSrc = 1;
 			memset(&idex_reg, 0, sizeof(IDEX_Register));
+			memset(&ifid_reg, 0, sizeof(IFID_Register));
 			printf("jImm	[0x%8x]\n", jImm);
 			printf("msb		[0x%8x]\n", msb);
 			printf("pcSrc2[0x%8x]\n", pcSrc2);
@@ -348,6 +371,7 @@ void ctlUnitOperation(unsigned int opCode) {
 }
 
 void hdUnitOperation(void) {
+	
   return;
 }
 
