@@ -106,6 +106,7 @@ void EX(void) {
 	exmem_reg.dataToMem = idex_reg.regValue2;
 	
 	exmem_reg.rd = idex_reg.RegDst>0?idex_reg.rd:idex_reg.rt;
+	fwdUnitOperation();
 	aluUnitOperation();
 	
 	// set next state
@@ -127,6 +128,7 @@ void MEM(void) {
 		PCSrc = 1;
 	}
 	
+		
 	memwb_reg.RegWrite = exmem_reg.RegWrite;
 	memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	memwb_reg.aluResult = exmem_reg.aluResult;
@@ -134,6 +136,8 @@ void MEM(void) {
 	addr = exmem_reg.aluResult>>2;
 	printf("Address[%d]\n", addr);
 	
+	fwdUnitOperation();	
+
 	if(exmem_reg.MemWrite) {
 		printf("Writing, addr[%d]\n", addr);
 		memory[addr] = exmem_reg.dataToMem;
