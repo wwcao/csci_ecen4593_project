@@ -356,5 +356,21 @@ void fwdUnitOperation(void) {
 	 * 1. change alu operation
 	 * 2. ...
 	 */
-  return;
+	//EX hazard
+	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rs)	{
+        forwardA = 2;
+	} 
+	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rt)	{
+        forwardB = 2;
+	} 
+
+
+	//Double Data MEM hazard
+	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rs)) and memwb_reg.rd==idex_reg.rs)	{
+        forwardA = 1;
+	} 
+	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rt)) and memwb_reg.rd==idex_reg.rt)	{
+        forwardB = 1;
+	} 
+
 }
