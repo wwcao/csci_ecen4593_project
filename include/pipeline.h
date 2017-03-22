@@ -9,9 +9,14 @@
 unsigned int memory[MEMORY_SIZE];
 unsigned int register_file[REGISTER_NUM];
 unsigned int PC;
+
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
+//bool PCdisable;
+bool Flush_if;
+bool Flush_id;
+bool Flush_ex;
 
 // regular pipeline register
 IFID_Register ifid_reg;
@@ -38,7 +43,9 @@ void start(void);
 void aluUnitOperation(void);
 // controll
 
-void ctlUnitOperation(unsigned int opCode);
+void ctlUnitOperation(unsigned int opCode,
+				unsigned int regVal1, unsigned int regVal2,
+				unsigned int extendedValue);
 void hdUnitOperation(void);
 void fwdUnitOperation(void);
 
