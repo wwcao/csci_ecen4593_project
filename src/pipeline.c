@@ -125,15 +125,6 @@ void MEM(void) {
 	printf("\nStage MEM, ");
 	// MEM Operation
 	
-	// Branch
-	
-	/*
-	if(exmem_reg.Branch&&exmem_reg.zero) {
-		pcSrc2 = exmem_reg.PC;
-		PCSrc = 1;
-	}
-	*/
-	
 	memwb_reg.RegWrite = exmem_reg.RegWrite;
 	memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	memwb_reg.aluResult = exmem_reg.aluResult;
@@ -203,22 +194,22 @@ void aluUnitOperation(void) {
 	
 	//forwarding
 	unsigned src1 = IS_FWDING?(forwardA?memwb_reg.rd:exmem_reg.rd):idex_reg.regValue1;
-	unsigned src2 = IS_FWDING?(forwardB?memwb_reg.rd:exmem_reg.rd):(idex_reg.ALUSrc?idex_reg.extendedValue:idex_reg.regValue2);
+	unsigned src2 = IS_FWDING?
+											(forwardB?
+													memwb_reg.rd:exmem_reg.rd):
+											(idex_reg.ALUSrc?
+													idex_reg.extendedValue:idex_reg.regValue2);
 
 	result = 0;		
 	zero = 0;	
 	printf("src1[%d], src2[%d]\n", src1, src2);
 	shamt = getPartNum(idex_reg.extendedValue, PART_SHM);
-	if(idex_reg.ALUOp == ALUOP_BEQ) {
-		zero = src1==src2?1:0;
-		printf("----zero[%d]\n", zero);
-	}
-	else if(idex_reg.ALUOp == ALUOP_LWSW) {
+	if(idex_reg.ALUOp == ALUOP_LWSW) {
 		result = src1 + src2;
 	}
-	else {
+	else if(idex_reg.ALUOp == ALUOP_R) {
 		if(idex_reg.opCode) {
-			// I and J
+			// I && J
 			switch(idex_reg.opCode) {
 					case I_ADDI:
 						result = (int)src1 + (int)src2;
@@ -298,14 +289,28 @@ void aluUnitOperation(void) {
 void ctlUnitOperation(unsigned int opCode,
 							unsigned int regVal1, unsigned regVal2,
 							unsigned int extendedValue) {
+	idex_reg.ALUOp = 0x3;
 	switch(opCode) {
 	// case R-format
-		case 0x0:
-			printf("Decode of Format R\n");
-			idex_reg.RegWrite= 1;
-			idex_reg.RegDst = 1;
-			idex_reg.ALUOp = ALUOP_R;
+		case 0x0: {
+			unsigned int func = extendedValue&FN_MASK;
+			switch (func) {
+				case J_R:
+					printf("Decoded:  Format R\n");
+					pcSrc2 = regVal1;
+					PCSrc = 1;
+					memset(&idex_reg, 0, sizeof(IDEX_Register));
+					memset(&ifid_reg, 0, sizeof(IFID_Register));
+					break;
+				default:
+					printf("Decoded:  Format R\n");
+					idex_reg.RegWrite= 1;
+					idex_reg.RegDst = 1;
+					idex_reg.ALUOp = ALUOP_R;
+					break;
+			}
 			break;
+		}
 		// case LW
 		case 0x20:
 		case 0x21:
@@ -313,7 +318,7 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x24:
 		case 0x25:
 		case 0x26:
-			printf("Decode of Format LW\n");
+			printf("Decoded:  Format LW\n");
 			idex_reg.RegWrite = 1;
 			idex_reg.MemtoReg = 1;
 			idex_reg.MemRead = 1;
@@ -326,16 +331,16 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x2a:
 		case 0x2b:
 		case 0x2e: // swr
-			printf("Decode of Format SW\n");
+			printf("Decoded:  Format SW\n");
 			idex_reg.MemWrite = 1;
 			idex_reg.ALUSrc = 1;
 			idex_reg.ALUOp = ALUOP_LWSW;
 			break;
-		// case BEQ
+		// case B
 		case 0x04:
+			printf("Decoded:  Format BEQ\n");
 		case 0x05:
-			printf("Decode of Format BEQ\n");
-			idex_reg.ALUOp = ALUOP_BEQ;
+			printf("Decoded:  Format BNE\n");
 			if(regVal1 == regVal2) {
 				PCSrc = 1;
 				pcSrc2 = (extendedValue<<2)+ifid_reg.PC;
@@ -355,21 +360,23 @@ void ctlUnitOperation(unsigned int opCode,
 			}
 			break;
 		// case J-format
-		case 0x2:
 		case 0x3:
-			printf("Decode of Format J\n");
+			printf("Decoded:  Format JAL\n");
+			register_file[31] = ifid_reg.PC +4;
+		case 0x2:
+			printf("Decoded:  Format J\n");
 			unsigned int jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			unsigned int msb = ifid_reg.PC&0xf0000000; 
 			pcSrc2 = jImm|msb;
 			PCSrc = 1;
 			memset(&idex_reg, 0, sizeof(IDEX_Register));
 			memset(&ifid_reg, 0, sizeof(IFID_Register));
-			printf("jImm	[0x%8x]\n", jImm);
-			printf("msb		[0x%8x]\n", msb);
-			printf("pcSrc2[0x%8x]\n", pcSrc2);
+			printf("	jImm	[0x%8x]\n", jImm);
+			printf("	msb		[0x%8x]\n", msb);
+			printf("	pcSrc2[0x%8x]\n", pcSrc2);
 			break;
 		default:
-			printf("Decode of Format I\n");
+			printf("Decoded:  Format I\n");
 			idex_reg.RegWrite = 1;
 			idex_reg.ALUOp = ALUOP_R;
 			idex_reg.ALUSrc = 1; 
@@ -385,22 +392,22 @@ void hdUnitOperation(void) {
 void fwdUnitOperation(void) {
 	IS_FWDING = 0;
 	//EX hazard
-	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rs)	{
+	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==idex_reg.rs)	{
         forwardA = 0;
 	IS_FWDING = 1;
 	} 
-	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rt)	{
+	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==idex_reg.rt)	{
         forwardB = 0;
 	IS_FWDING = 1;
 	} 
 
 
 	//Double Data MEM hazard
-	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rs)) and memwb_reg.rd==idex_reg.rs)	{
+	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == idex_reg.rs)) && memwb_reg.rd==idex_reg.rs)	{
         forwardA = 1;
 	IS_FWDING = 1;
 	} 
-	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rt)) and memwb_reg.rd==idex_reg.rt)	{
+	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == idex_reg.rt)) && memwb_reg.rd==idex_reg.rt)	{
         forwardB = 1;
 	IS_FWDING = 1;
 	} 
