@@ -97,7 +97,9 @@ void EX(void) {
 		return;
 	}
 	printf("\nStage EX\n");
-	//pcSrc2 = ifid_reg.PC+4;
+
+	fwdUnitOperation();	
+
 	exmem_reg.RegWrite = idex_reg.RegWrite;
 	exmem_reg.MemtoReg = idex_reg.MemtoReg;
 	
@@ -131,13 +133,14 @@ void MEM(void) {
 		PCSrc = 1;
 	}
 	*/
+	
 	memwb_reg.RegWrite = exmem_reg.RegWrite;
 	memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	memwb_reg.aluResult = exmem_reg.aluResult;
 	memwb_reg.rd = exmem_reg.rd;
 	addr = exmem_reg.aluResult>>2;
 	printf("Address[%d]\n", addr);
-	
+
 	if(exmem_reg.MemWrite) {
 		printf("Writing, addr[%d]\n", addr);
 		memory[addr] = exmem_reg.dataToMem;
@@ -195,9 +198,13 @@ void aluUnitOperation(void) {
 	unsigned zero;
 	unsigned shamt;
 	// forwarding should change these two lines
-	unsigned src1 = idex_reg.regValue1;
-	unsigned src2 = idex_reg.ALUSrc?idex_reg.extendedValue: // true extened value
-																	idex_reg.regValue2; // else reg2
+	//unsigned src1 = idex_reg.regValue1;
+	//unsigned src2 = idex_reg.ALUSrc?idex_reg.extendedValue:idex_reg.regValue2;
+	
+	//forwarding
+	unsigned src1 = IS_FWDING?(forwardA?memwb_reg.rd:exmem_reg.rd):idex_reg.regValue1;
+	unsigned src2 = IS_FWDING?(forwardB?memwb_reg.rd:exmem_reg.rd):(idex_reg.ALUSrc?idex_reg.extendedValue:idex_reg.regValue2);
+
 	result = 0;		
 	zero = 0;	
 	printf("src1[%d], src2[%d]\n", src1, src2);
@@ -376,9 +383,26 @@ void hdUnitOperation(void) {
 }
 
 void fwdUnitOperation(void) {
-	/*
-	 * 1. change alu operation
-	 * 2. ...
-	 */
-  return;
+	IS_FWDING = 0;
+	//EX hazard
+	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rs)	{
+        forwardA = 0;
+	IS_FWDING = 1;
+	} 
+	if(exmem_reg.RegWrite and exmem_reg.rd!=0 and exmem_reg.rd==idex_reg.rt)	{
+        forwardB = 0;
+	IS_FWDING = 1;
+	} 
+
+
+	//Double Data MEM hazard
+	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rs)) and memwb_reg.rd==idex_reg.rs)	{
+        forwardA = 1;
+	IS_FWDING = 1;
+	} 
+	if(memwb_reg.RegWrite and exmem_reg.rd!=0 and !(exmem_reg.RegWrite and (exmem_reg.rd!=0 and exmem_reg.rd == idex_reg.rt)) and memwb_reg.rd==idex_reg.rt)	{
+        forwardB = 1;
+	IS_FWDING = 1;
+	} 
+
 }

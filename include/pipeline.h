@@ -33,6 +33,10 @@ MEMWB_Register _memwb_reg;
 stage cStage;			// curent state for non_pipeline
 stage nStage;			// next state
 
+unsigned int forwardA;		//rs fwding mux
+unsigned int forwardB;		//rt fwding mux
+unsigned int IS_FWDING;		// check fwding happen?
+
 void IF(void);
 void ID(void);
 void EX(void);
