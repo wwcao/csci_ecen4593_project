@@ -14,9 +14,9 @@ int main() {
 	PC = 0;
 	counter = 0;
 	i = readInstruction();
+	init_pipeline();
 	while(1){
 			start();
-			printRegisters();
 			if(((PC+4)>>2) > i) {
 				printf("Done\n");
 				break;

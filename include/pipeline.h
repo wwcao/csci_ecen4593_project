@@ -3,7 +3,7 @@
 #ifndef __PIPELINE_HEADER__
 #define __PIPELINE_HEADER__
 
-#define IS_PIPELINE             0
+#define IS_PIPELINE             1
 #define RUNTOEND                0
 
 unsigned int memory[MEMORY_SIZE];
@@ -17,6 +17,7 @@ bool PCSrc;
 bool Flush_if;
 bool Flush_id;
 bool Flush_ex;
+bool init_ins;
 
 // regular pipeline register
 IFID_Register ifid_reg;
@@ -50,7 +51,10 @@ void aluUnitOperation(void);
 void ctlUnitOperation(unsigned int opCode,
 				unsigned int regVal1, unsigned int regVal2,
 				unsigned int extendedValue);
-void hdUnitOperation(void);
+void brhdUnitOperation(unsigned int instruction);
 void fwdUnitOperation(void);
+void wirtetoPipelineRegs(void);
+
+void init_pipeline();
 
 #endif
