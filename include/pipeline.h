@@ -54,7 +54,7 @@ void aluUnitOperation(unsigned int src1, unsigned int src2);
 void ctlUnitOperation(unsigned int opCode,
 				unsigned int regVal1, unsigned int regVal2,
 				unsigned int extendedValue);
-void brhdUnitOperation(unsigned int instruction);
+void hdUnitOperation(void);
 void fwdUnitOperation(unsigned int *src1, unsigned int *src2);
 void wirtetoPipelineRegs(void);
 

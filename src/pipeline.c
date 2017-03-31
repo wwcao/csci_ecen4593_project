@@ -13,12 +13,12 @@ void IF(void) {
 	}
 	// IF Operation
 	//printf("\nStage IF, ");
-	
-	if(Flush_if) {
+
+	if(Flush_if || Stall) {
 		//printf("Flush IF stage\n");
 		return;
 	}
-	
+
 	if(!init_ins && PCSrc) {
 		//printf("select pc from src2\n");
 		PC = pcSrc2;
@@ -28,17 +28,17 @@ void IF(void) {
 		//printf("select pc from src1\n");
 		PC = pcSrc1;
 	}
-	if(init_ins) 
+	if(init_ins)
 		init_ins = false;
-	
+
 	_ifid_reg.progCounter = PC;
 	//printf("Operating: [%04d]0x%08x\n", PC, memory[PC]);
-	
+
 	_ifid_reg.instruction = memory[PC];
-	
+
 	pcSrc1 = PC+1;
 	_ifid_reg.nPC = pcSrc1;
-	
+
 	// set state ID after IF
 	nStage = STAGE_ID;
 }
@@ -48,26 +48,26 @@ void ID(void) {
 	unsigned short rs, rd, rt;
 	unsigned int opCode, imm;
 	unsigned int extendedValue;
-	
+
 	// handle is pipeline
 	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
 		return;
 	}
-	
+
 	// ID Operation
 	memset(&_idex_reg, 0, sizeof(IDEX_Register));
-	
+
 	//printf("\nStage ID, ");
 	_idex_reg.progCounter = ifid_reg.progCounter;
 	//printf("Operating: [%04d]0x%08x\n", ifid_reg.progCounter, memory[ifid_reg.progCounter]);
-	
+
 	instruction = ifid_reg.instruction;
   rs = getPartNum(instruction, PART_RS);
   rt = getPartNum(instruction, PART_RT);
   rd = getPartNum(instruction, PART_RD);
   imm = getPartNum(instruction, PART_IMM);
   opCode = getPartNum(instruction, PART_OP);
-  
+
   _idex_reg.rs = rs;
   _idex_reg.rt = rt;
   _idex_reg.rd = rd;
@@ -81,7 +81,7 @@ void ID(void) {
 
 	ctlUnitOperation(opCode,register_file[rs], register_file[rt],
 										extendedValue);
-	
+
 	nStage = STAGE_EX;
 }
 
@@ -91,12 +91,13 @@ void EX(void) {
 	if((!IS_PIPELINE) && (cStage != STAGE_EX)) {
 		return;
 	}
-	
-	
+
+
 	_exmem_reg.progCounter = idex_reg.progCounter;
 
   src1 = idex_reg.regValue1;
-  src2 = idex_reg.ALUSrc == 1?idex_reg.extendedValue:idex_reg.regValue2;
+  src2 = idex_reg.regValue2;
+
 	fwdUnitOperation(&src1, &src2);
 
 	_exmem_reg.RegWrite = idex_reg.RegWrite;
@@ -107,9 +108,11 @@ void EX(void) {
 	_exmem_reg.Branch = idex_reg.Branch;
 
 	_exmem_reg.MemtoReg = idex_reg.MemtoReg;
-	_exmem_reg.dataToMem = idex_reg.regValue2;
+	_exmem_reg.dataToMem = src2;
 
-	_exmem_reg.rd = idex_reg.RegDst>0?idex_reg.rd:idex_reg.rt;
+	_exmem_reg.rd = idex_reg.RegDst?idex_reg.rd:idex_reg.rt;
+
+	src2 = idex_reg.ALUSrc?idex_reg.extendedValue:src2;
 	aluUnitOperation(src1, src2);
 
 	// set next state
@@ -122,9 +125,9 @@ void MEM(void) {
 	if((!IS_PIPELINE) && (cStage != STAGE_MEM)) {
 		return;
 	}
-	
+
 	_memwb_reg.progCounter = exmem_reg.progCounter;
-	
+
 	// MEM Operation
 	_memwb_reg.RegWrite = exmem_reg.RegWrite;
 	_memwb_reg.MemtoReg = exmem_reg.MemtoReg;
@@ -138,48 +141,50 @@ void MEM(void) {
 	if(exmem_reg.MemRead) {
 		_memwb_reg.memValue = memory[addr];
 	}
-	
+
 	nStage = STAGE_WB;
 }
 
 void WB(void) {
-	
+
 	if((!IS_PIPELINE) & (cStage != STAGE_WB)) {
 		return;
 	}
-	
+
 	writedata = memwb_reg.MemtoReg? memwb_reg.memValue:
 																	memwb_reg.aluResult;
-	
+
 	if(memwb_reg.RegWrite)
 		register_file[memwb_reg.rd] = writedata;
-	
+
 	if(!IS_PIPELINE)
 		printRegisters();
 	nStage = STAGE_IF;
-	
+
 	return;
 }
 
 void start(void) {
+
+  hdUnitOperation();
   IF();
-  
+
   if(IS_PIPELINE)
 		WB();
-  
+
   ID();
   EX();
   MEM();
-	
+
 	if(!IS_PIPELINE)
 		WB();
-	
+
 	wirtetoPipelineRegs();
 	cStage = nStage;
-	
+
 	if(IS_PIPELINE)
 		printRegisters();
-}						
+}
 
 
 
@@ -188,9 +193,9 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 	unsigned result;
 	unsigned zero;
 	unsigned shamt;
-	
-	result = 0;		
-	zero = 0;	
+
+	result = 0;
+	zero = 0;
 	//printf("src1[%d], src2[%d]\n", src1, src2);
 	shamt = getPartNum(idex_reg.extendedValue, PART_SHM);
 	if(idex_reg.ALUOp == ALUOP_LWSW) {
@@ -339,7 +344,7 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x04:
 			//printf("Decoded:  Format BEQ\n");
 			if(regVal1 != regVal2) break;
-			
+
 			PCSrc = 1;
 			pcSrc2 = extendedValue + ifid_reg.nPC;
 			if(IS_PIPELINE) {
@@ -351,7 +356,7 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x05:
 			//printf("Decoded:  Format BNE\n");
 			if(regVal1 == regVal2) break;
-			
+
 			PCSrc = 1;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			if(IS_PIPELINE) {
@@ -365,7 +370,7 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x3:
 			//printf("Decoded:  Format JAL, ");
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
-			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000; 
+			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = 1;
 			register_file[31] = (ifid_reg.nPC + 1);
@@ -379,7 +384,7 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x2:
 			//printf("Decoded:  Format J, ");
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
-			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000; 
+			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = 1;
 			if(IS_PIPELINE) {
@@ -393,7 +398,7 @@ void ctlUnitOperation(unsigned int opCode,
 			//printf("Decoded:  Format I\n");
 			_idex_reg.RegWrite = 1;
 			_idex_reg.ALUOp = ALUOP_R;
-			_idex_reg.ALUSrc = 1; 
+			_idex_reg.ALUSrc = 1;
 			break;
 	}
 }
@@ -437,32 +442,42 @@ void fwdUnitOperation(unsigned int *src1, unsigned int *src2) {
 	//IS_FWDING = 1;
 	}
 
-    if(!forwardA && !forwardB)
-        return;
+  if(!forwardA && !forwardB)
+       return;
 
 	//forwarding
-    switch(forwardA) {
-        case 1:
-            *src1 = writedata;
-            break;
-        case 2:
-            *src1 = exmem_reg.aluResult;
-            break;
-    }
-    switch(forwardB) {
-        case 1:
-             *src2 = writedata;
-            break;
-        case 2:
-            *src2 = exmem_reg.aluResult;
-            break;
-    }
-    return;
+  switch(forwardA) {
+    case 1:
+      *src1 = writedata;
+      break;
+    case 2:
+      *src1 = exmem_reg.aluResult;  //
+      break;
+  }
+  switch(forwardB) {
+    case 1:
+      *src2 = writedata;
+      break;
+    case 2:
+      *src2 = exmem_reg.aluResult;
+      break;
+  }
+  return;
 }
 
 void wirtetoPipelineRegs() {
+
+  //printf("\nCopying results:\n");
+	if(!Stall) {
+    memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
+    memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
+	}
+
+	memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
+	memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
+
 	if(IS_PIPELINE) {
-		if(Flush_id) {
+		if(Flush_id||Stall) {
 			//printf("Flush signel from Cotroll Unit\n");
 			idex_reg.MemtoReg = 0;
 			idex_reg.RegWrite = 0;
@@ -471,15 +486,16 @@ void wirtetoPipelineRegs() {
 			idex_reg.ALUOp = ALUOP_NOP;
 			idex_reg.ALUSrc = 0;
 			idex_reg.opCode = 0;
+			idex_reg.progCounter = 0;
 		}
-		
+
 		if(Flush_ex) {
 			exmem_reg.MemtoReg = 0;
 			exmem_reg.RegWrite = 0;
 			exmem_reg.MemRead = 0;
 			exmem_reg.MemWrite = 0;
 		}
-		
+
 		if(Flush_if)
 			//memset(&_ifid_reg, 0, sizeof(IFID_Register));
 			memset(&ifid_reg, 0, sizeof(IFID_Register));
@@ -488,13 +504,8 @@ void wirtetoPipelineRegs() {
 		Flush_if = false;
 		Flush_id = false;
 		Flush_ex = false;
+		Stall = false;
 	}
-	
-	//printf("\nCopying results:\n");
-	memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
-	memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
-	memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
-	memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
 	return;
 }
 
@@ -505,6 +516,7 @@ void init_pipeline() {
 	Flush_if = false;
 	Flush_id = false;
 	Flush_ex = false;
+	Stall = false;
 	cStage = STAGE_IF;
 	nStage = STAGE_IF;
 	forwardA = 0;

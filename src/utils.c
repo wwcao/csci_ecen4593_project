@@ -34,10 +34,10 @@ unsigned int readInstruction() {
 int loadInstructions() {
 	int count;
 	const unsigned int instructions[] = {
-		
+
 0x00000fa0,		//   $sp = 4000
 0x00000fa0,		//   $fp = 4000
-0x00000000,	
+0x00000000,
 0x00000000,
 0x00000000,
 0x00000032,		//	$pc = 50
@@ -163,7 +163,7 @@ void Error(const char* msg) {
 }
 
 void Log(const char* format, ...) {
-  // log 
+  // log
   /*
   va_list argptr = NULL;
   va_start(argptr, format);
@@ -182,5 +182,5 @@ void printRegisters() {
 		printf("$%02d[0x%08x], ", i+2, register_file[i+2]);
 		printf("$%02d[0x%08x]\n", i+3, register_file[i+3]);
 	}
-	
+
 }
