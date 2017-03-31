@@ -1,9 +1,11 @@
 # Ignore the build and lib dirs
 build/*
 lib/*
+obj/*
 
 # Ignore any executables
 bin/*
+
 
 # Ignore vim buffer
 .*.swp

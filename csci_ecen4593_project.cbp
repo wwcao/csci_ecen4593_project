@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="csci_ecen4593_project" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/csci_ecen4593_project" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="/home/weipcao/Desktop/ComputerOrgProject/csci_ecen4593_project/" />
+				</ResourceCompiler>
+				<Linker>
+					<Add directory="include" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/csci_ecen4593_project" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="include/pipeline.h" />
+		<Unit filename="include/static.h" />
+		<Unit filename="include/units.h" />
+		<Unit filename="include/utils.h" />
+		<Unit filename="src/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pipeline.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/units.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -12,27 +12,24 @@ void IF(void) {
 		return;
 	}
 	// IF Operation
-	//printf("\nStage IF, ");
-
-	if(Flush_if || Stall) {
-		//printf("Flush IF stage\n");
-		return;
+	if(PC==0) {
+    run_pipeline--;
+    return;
 	}
 
+	if(Flush_if || Stall) return;
+
 	if(!init_ins && PCSrc) {
-		//printf("select pc from src2\n");
 		PC = pcSrc2;
 		PCSrc = false;
 	}
 	else if(!init_ins && !PCSrc) {
-		//printf("select pc from src1\n");
 		PC = pcSrc1;
 	}
-	if(init_ins)
-		init_ins = false;
+
+	if(init_ins)init_ins = false;
 
 	_ifid_reg.progCounter = PC;
-	//printf("Operating: [%04d]0x%08x\n", PC, memory[PC]);
 
 	_ifid_reg.instruction = memory[PC];
 
@@ -522,4 +519,5 @@ void init_pipeline() {
 	forwardA = 0;
 	forwardB = 0;
 	IS_FWDING = 0;
+	run_pipeline = 3;
 }
