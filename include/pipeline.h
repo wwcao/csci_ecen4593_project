@@ -38,6 +38,9 @@ unsigned int forwardA;		//rs fwding mux
 unsigned int forwardB;		//rt fwding mux
 unsigned int IS_FWDING;		// check fwding happen?
 
+unsigned int writedata;
+bool Stall;
+
 void IF(void);
 void ID(void);
 void EX(void);
@@ -45,14 +48,14 @@ void MEM(void);
 void WB(void);
 void start(void);
 
-void aluUnitOperation(void);
+void aluUnitOperation(unsigned int src1, unsigned int src2);
 // controll
 
 void ctlUnitOperation(unsigned int opCode,
 				unsigned int regVal1, unsigned int regVal2,
 				unsigned int extendedValue);
 void brhdUnitOperation(unsigned int instruction);
-void fwdUnitOperation(void);
+void fwdUnitOperation(unsigned int *src1, unsigned int *src2);
 void wirtetoPipelineRegs(void);
 
 void init_pipeline();
