@@ -41,6 +41,8 @@ unsigned int IS_FWDING;		// check fwding happen?
 unsigned int writedata;
 bool Stall;
 
+unsigned int run_pipeline;
+
 void IF(void);
 void ID(void);
 void EX(void);
