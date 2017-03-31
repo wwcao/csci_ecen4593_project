@@ -12,9 +12,9 @@ int main() {
 	while(1){
 			start();
 			counter++;
-			if(PC == 0||PC==30) break;
-			if(memory[74+721+2] > 0)
-        continue;
+			if(PC == 0)
+        printf("asdf");
+			if(!run_pipeline) break;
 	}
 	printf("Counter[%d]\n", counter++);
 	printf("result: \n[0x%08x]\n[0x%08x]\n[0x%08x]\n[0x%08x]\n",
