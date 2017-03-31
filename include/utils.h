@@ -11,6 +11,7 @@ unsigned memory[MEMORY_SIZE];
 unsigned register_file[REGISTER_NUM];
 
 unsigned int readInstruction();
+int loadInstructions();
 op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);

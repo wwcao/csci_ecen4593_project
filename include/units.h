@@ -14,4 +14,6 @@ extern IDEX_Register idex_reg;
 extern EXMEM_Register exmem_reg;
 extern MEMWB_Register memwb_reg;
 
+void init_units();
+
 #endif

@@ -1,8 +1,7 @@
 #ifndef __STATIC_HEADER__
 #define __STATIC_HEADER__
 
-#define INSTRUCTION_PATH      "ins_test2.ass"
-#define INSTRUCTION_LEN       12
+#define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
 
 #define MEMORY_SIZE           4096
@@ -35,7 +34,7 @@
 //Instruction Op
 // I format -- OPcode
 #define I_ADDI                0x08
-#define I_ADDIU               0x09
+#define I_ADDIU               0x09	// LI
 #define I_SLTI                0x0a
 #define I_SLTIU               0x0b    // For preview TODO: change it back
 //#define I_SLTIU
@@ -69,16 +68,21 @@
 #define R_SRL		      	0x02
 #define R_SRA		      	0x03
 #define R_SUB		      	0x22
-#define R_SUBU                0x23
+#define R_SUBU          0x23
+#define R_MOVN					0x0b
 
 // J Format -- OpCode
 #define J_J		      0x02
 #define J_JAL		      0x03
 #define J_R					0x08
 
+// Register Numbers
+#define $sp							29
+#define $fp							30
+
 typedef enum {FORMAT_I = 0, FORMAT_R,FORMAT_J} op_format;
 typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_IMM} part_type;
-typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R } alu_op;
+typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
 typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {false = 0, true = 1} bool;
 
@@ -89,8 +93,11 @@ typedef struct {
   bool HFlush;
   bool CFlush;
   bool PCWrite;
-  unsigned int PC;
+  unsigned int nPC;
   unsigned int instruction;
+  
+  // used for error ONLY
+  unsigned int progCounter;
 } IFID_Register;
 
 typedef struct {
@@ -107,9 +114,6 @@ typedef struct {
 	alu_op ALUOp;
 	unsigned opCode;
 	
-	unsigned int ins; // used for error ONLY
-	
-	unsigned int PC;
 	unsigned int regValue1;
 	unsigned int regValue2;
 	unsigned int extendedValue;
@@ -117,6 +121,9 @@ typedef struct {
 	unsigned short rs;
 	unsigned short rt;
 	unsigned short rd;
+	
+	// used for error ONLY
+	unsigned int progCounter;
 } IDEX_Register;
 
 typedef struct {
@@ -128,11 +135,13 @@ typedef struct {
 	bool MemRead;
 	bool MemWrite;
 	
-	unsigned int PC;
 	bool zero;
 	unsigned int aluResult;
 	unsigned int dataToMem;
 	unsigned short rd;
+	
+	// used for error ONLY
+	unsigned int progCounter;
 } EXMEM_Register;
 
 typedef struct {
@@ -143,6 +152,9 @@ typedef struct {
 	unsigned int memValue;
 	unsigned int aluResult;
 	unsigned short rd;
+	
+	// used for error ONLY
+	unsigned int progCounter;
 } MEMWB_Register;
 
 typedef struct {

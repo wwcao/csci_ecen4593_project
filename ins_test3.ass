@@ -1,0 +1,77 @@
+0x00000fa0		//   $sp = 4000
+0x00000fa0		//   $fp = 4000
+0x00000000	
+0x00000000
+0x00000000
+0x00000032		//	$pc = 50
+0x00000000		//	reserved for answer
+0x00000000		//	reserved for answer
+0x00000000		//	reserved for answer
+0x00000000		//	reserved for answer
+0x00001025     // 	move	v0zero    <load_arrays>:
+0x24060064     // 	li	a2100
+0x8c830000     // 	lw	v10(a0)
+0x00621821     // 	addu	v1v1v0
+0xac830000     // 	sw	v10(a0)
+0x8ca30000     // 	lw	v10(a1)
+0x00621821     // 	addu	v1v1v0
+0xaca30000     // 	sw	v10(a1)
+0x24420001     // 	addiu	v0v01
+0x24840004     // 	addiu	a0a04
+0x1446fff7     // 	bne	v0a2400838 <load_arrays+0x8>
+0x24a50004     // 	addiu	a1a14
+0x8d090f90		//lw $t1 3576($t0)
+0xad090018		//sw $t1 24($t0)
+0x8d080418		//lw $t0 1048($t0)
+0x03e00008     // 	jr	ra
+0xac030018     // 	sw v1 24($zer0)
+0x00000000     // 	nop
+0x00000000     // 	nop
+0x00000000     // 	nop
+0x00801825    //  	move	v1a0		<check_result>:
+0x24870190    // 	addiu	a3a0400
+0x00001025    // 	move	v0zero
+0x24080001    // 	li	t01
+0x8c640000    // 	lw	a00(v1)
+0x8ca60000    // 	lw	a20(a1)
+0x00862026    // 	xor	a0a0a2
+0x0104100b    // 	movn	v0t0a0
+0x24630004    // 	addiu	v1v14
+0x1467fffa    // 	bne	v1a3400878 <check_result+0x10>
+0x24a50004    // 	addiu	a1a14
+0xac02001c		//sw $v0 28($zero)
+0x8c18041c		//lw $t8 1052($zero)
+0xac030020		//sw $v1 32($zero)
+0x8c180420		//lw $t8 1056($zero)
+0x03e00008    // 	jr	ra
+0x00000000    // 	nop
+0x00000000    // 	nop
+0x00000000    // 	nop
+0x00000000    // 	nop
+0x27bdfcb0    // 	addiu	spsp-848   <main>:
+0xafbf034c    // 	sw	ra844(sp)
+0xafb20348    // 	sw	s2840(sp)
+0xafb10344    // 	sw	s1836(sp)
+0xafb00340    // 	sw	s0832(sp)
+0xafa2033c    // 	sw	v0828(sp)
+0x27b101ac    // 	addiu	s1sp428
+0x02202825    // 	move	a1s1
+0x27b0001c    // 	addiu	s0sp28
+0x02002025    // 	move	a0s0
+0x0c00000a    // 	jal	10 <load_arrays>
+0x00000000    // 	nop
+0x02202825    // 	move	a1s1
+0x02002025    // 	move	a0s0
+0x0c00001e    // 	jal	30 <check_result>
+0x00000000    // 	nop
+0x8fa4033c    // 	lw	a0828(sp)
+0x8e430000    // 	lw	v10(s2)
+0x10830004    // 	beq	a0v1400914 <main+0x78>
+0x8fbf034c    // 	lw	ra844(sp)
+0x00000000    // 	nop
+0x8fb20348    // 	lw	s2840(sp)
+0x8fb10344    // 	lw	s1836(sp)
+0x8fb00340    // 	lw	s0832(sp)
+0x00000008    // 	jr	$zero
+0x00000000	   //
+0x00000000   //
