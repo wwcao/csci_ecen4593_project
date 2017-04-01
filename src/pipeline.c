@@ -1,10 +1,4 @@
 #include "pipeline.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <strings.h>
-#include "static.h"
-#include "units.h"
-#include "utils.h"
 
 void IF(void) {
 	// handle is pipeline

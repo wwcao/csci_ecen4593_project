@@ -1,6 +1,4 @@
 #include "units.h"
-#include <stdio.h>
-
 
 void init_units() {
 	register_file[$sp] = memory[0];

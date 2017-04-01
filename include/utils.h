@@ -1,4 +1,7 @@
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "memory.h"
 #include "units.h"
 #include "static.h"

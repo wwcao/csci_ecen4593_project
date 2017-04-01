@@ -1,5 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
 #include "static.h"
 #include "units.h"
+#include "utils.h"
+
 #ifndef __PIPELINE_HEADER__
 #define __PIPELINE_HEADER__
 

@@ -9,9 +9,8 @@
 typedef struct {
   bool valid;
   unsigned int tag;
-  unsigned int value;
+  unsigned int data;
 } Cache;
 
-Cache cacheL1[];
 
 #endif // __CACHE_HEADER__

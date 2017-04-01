@@ -1,7 +1,4 @@
 #include "utils.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 unsigned int readInstruction() {
     unsigned int counter;
