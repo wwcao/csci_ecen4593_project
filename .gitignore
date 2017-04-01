@@ -11,8 +11,13 @@ bin/*
 .*.swp
 .*.swo
 
-# Ignore Code Blocks file
+# specific to CodeBlocks IDE
+*.cbp
 *.layout
+*.depend
+
+# generated directories
+bin/
 
 
 # Ignore Mac specific files
