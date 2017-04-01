@@ -12,8 +12,6 @@ int main() {
 	while(1){
 			start();
 			counter++;
-			if(PC == 0)
-        printf("asdf");
 			if(!run_pipeline) break;
 	}
 	printf("Counter[%d]\n", counter++);

@@ -11,6 +11,8 @@ bin/*
 .*.swp
 .*.swo
 
+# Ignore Code Blocks file
+*.layout
 
 
 # Ignore Mac specific files
