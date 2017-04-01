@@ -6,10 +6,6 @@
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
 
-
-unsigned memory[MEMORY_SIZE];
-unsigned register_file[REGISTER_NUM];
-
 unsigned int readInstruction();
 int loadInstructions();
 op_format getInsFormat(int);

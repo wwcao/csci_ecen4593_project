@@ -30,7 +30,6 @@ void IF(void) {
 	if(init_ins)init_ins = false;
 
 	_ifid_reg.progCounter = PC;
-
 	_ifid_reg.instruction = memory[PC];
 
 	pcSrc1 = PC+1;
@@ -293,7 +292,7 @@ void ctlUnitOperation(unsigned int opCode,
 				case J_R:
 					//printf("Decoded:  Format R\n");
 					pcSrc2 = regVal1;
-					PCSrc = 1;
+					PCSrc = true;
 					if(IS_PIPELINE) {
 						//Flush_if = true;
 						//Flush_id = true;
@@ -305,8 +304,8 @@ void ctlUnitOperation(unsigned int opCode,
 					if(regVal2 == 0) break;
 				default:
 					//printf("Decoded:  Format R\n");
-					_idex_reg.RegWrite= 1;
-					_idex_reg.RegDst = 1;
+					_idex_reg.RegWrite= true;
+					_idex_reg.RegDst = true;
 					_idex_reg.ALUOp = ALUOP_R;
 					break;
 			}
@@ -320,10 +319,10 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x25:
 		case 0x26:
 			//printf("Decoded:  Format LW\n");
-			_idex_reg.RegWrite = 1;
-			_idex_reg.MemtoReg = 1;
-			_idex_reg.MemRead = 1;
-			_idex_reg.ALUSrc = 1;
+			_idex_reg.RegWrite = true;
+			_idex_reg.MemtoReg = true;
+			_idex_reg.MemRead = true;
+			_idex_reg.ALUSrc = true;
 			_idex_reg.ALUOp = ALUOP_LWSW;
 			break;
 		// case SW
@@ -333,8 +332,8 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x2b:
 		case 0x2e: // swr
 			//printf("Decoded:  Format SW\n");
-			_idex_reg.MemWrite = 1;
-			_idex_reg.ALUSrc = 1;
+			_idex_reg.MemWrite = true;
+			_idex_reg.ALUSrc = true;
 			_idex_reg.ALUOp = ALUOP_LWSW;
 			break;
 		// case Branch
@@ -342,7 +341,7 @@ void ctlUnitOperation(unsigned int opCode,
 			//printf("Decoded:  Format BEQ\n");
 			if(regVal1 != regVal2) break;
 
-			PCSrc = 1;
+			PCSrc = true;
 			pcSrc2 = extendedValue + ifid_reg.nPC;
 			if(IS_PIPELINE) {
 				//Flush_if = true;
@@ -354,7 +353,7 @@ void ctlUnitOperation(unsigned int opCode,
 			//printf("Decoded:  Format BNE\n");
 			if(regVal1 == regVal2) break;
 
-			PCSrc = 1;
+			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			if(IS_PIPELINE) {
 				//Flush_if = true;
@@ -369,7 +368,7 @@ void ctlUnitOperation(unsigned int opCode,
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
-			PCSrc = 1;
+			PCSrc = true;
 			register_file[31] = (ifid_reg.nPC + 1);
 			if(IS_PIPELINE) {
 				//Flush_if = true;
@@ -383,7 +382,7 @@ void ctlUnitOperation(unsigned int opCode,
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
-			PCSrc = 1;
+			PCSrc = true;
 			if(IS_PIPELINE) {
 				//Flush_if = true;
 				//Flush_id = true;
@@ -393,9 +392,9 @@ void ctlUnitOperation(unsigned int opCode,
 			break;
 		default:
 			//printf("Decoded:  Format I\n");
-			_idex_reg.RegWrite = 1;
+			_idex_reg.RegWrite = true;
 			_idex_reg.ALUOp = ALUOP_R;
-			_idex_reg.ALUSrc = 1;
+			_idex_reg.ALUSrc = true;
 			break;
 	}
 }
@@ -413,9 +412,9 @@ void hdUnitOperation(void) {
 }
 
 void fwdUnitOperation(unsigned int *src1, unsigned int *src2) {
-	IS_FWDING = 0;
-	forwardA = 0;
-	forwardB = 0;
+	IS_FWDING = false;
+	forwardA = false;
+	forwardB = false;
 	//EX hazard
 
 	if(!IS_PIPELINE) return;
@@ -476,21 +475,21 @@ void wirtetoPipelineRegs() {
 	if(IS_PIPELINE) {
 		if(Flush_id||Stall) {
 			//printf("Flush signel from Cotroll Unit\n");
-			idex_reg.MemtoReg = 0;
-			idex_reg.RegWrite = 0;
-			idex_reg.MemRead = 0;
-			idex_reg.MemWrite = 0;
+			idex_reg.MemtoReg = false;
+			idex_reg.RegWrite = false;
+			idex_reg.MemRead = false;
+			idex_reg.MemWrite = false;
 			idex_reg.ALUOp = ALUOP_NOP;
-			idex_reg.ALUSrc = 0;
-			idex_reg.opCode = 0;
-			idex_reg.progCounter = 0;
+			idex_reg.ALUSrc = false;
+			idex_reg.opCode = false;
+			idex_reg.progCounter = false;
 		}
 
 		if(Flush_ex) {
-			exmem_reg.MemtoReg = 0;
-			exmem_reg.RegWrite = 0;
-			exmem_reg.MemRead = 0;
-			exmem_reg.MemWrite = 0;
+			exmem_reg.MemtoReg = false;
+			exmem_reg.RegWrite = false;
+			exmem_reg.MemRead = false;
+			exmem_reg.MemWrite = false;
 		}
 
 		if(Flush_if)
@@ -516,8 +515,8 @@ void init_pipeline() {
 	Stall = false;
 	cStage = STAGE_IF;
 	nStage = STAGE_IF;
-	forwardA = 0;
-	forwardB = 0;
-	IS_FWDING = 0;
+	forwardA = false;
+	forwardB = false;
+	IS_FWDING = false;
 	run_pipeline = 3;
 }

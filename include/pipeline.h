@@ -6,10 +6,6 @@
 #define IS_PIPELINE             1
 #define RUNTOEND                0
 
-unsigned int memory[MEMORY_SIZE];
-unsigned int register_file[REGISTER_NUM];
-unsigned int PC;
-
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
