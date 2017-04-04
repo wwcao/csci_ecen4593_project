@@ -58,7 +58,8 @@ void ctlUnitOperation(unsigned int opCode,
 				unsigned int regVal1, unsigned int regVal2,
 				unsigned int extendedValue);
 void hdUnitOperation(void);
-void fwdUnitOperation(unsigned int *src1, unsigned int *src2);
+void fwdUnitEX(unsigned int *src1, unsigned int *src2);
+void fwdUnitID(unsigned int rs, unsigned int rt, unsigned int *src1, unsigned int *src2);
 void wirtetoPipelineRegs(void);
 
 void init_pipeline();

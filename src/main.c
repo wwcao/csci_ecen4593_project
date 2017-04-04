@@ -4,14 +4,21 @@
 #include "units.h"
 #include "pipeline.h"
 
+unsigned int counter;
+
 int main() {
-	unsigned int counter;
 	loadInstructions();
 	init_units();
 	init_pipeline();
 	while(1){
 			start();
 			counter++;
+			if(counter > 200000) {
+        printf("counter is too larger\n");
+        exit(1);
+			}
+			if(PC == 159)
+        printf("stop");
 			if(!run_pipeline) break;
 	}
 	printf("Counter[%d]\n", counter++);

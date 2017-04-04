@@ -4,7 +4,7 @@
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
 
-#define MEMORY_SIZE           4096
+#define MEMORY_SIZE           16384
 #define DMEMORY_SIZE          4096
 #define IMEMORY_SIZE          4096
 #define INS_END_POS           256
@@ -20,12 +20,11 @@
 #define SH_MASK               0x000007c0
 #define FN_MASK               0x0000003f
 #define IM_MASK               0x0000ffff
-#define TG_MASK		      0x03ffffff
-
-#define PC_MASK		      0xf0000000
+#define TG_MASK		            0x03ffffff
+#define PC_MASK		            0xf0000000
 
 // SHIFT
-#define OP_SHF              26
+#define OP_SHF                26
 #define RS_SHF                21
 #define RT_SHF                16
 #define RD_SHF                11
@@ -51,7 +50,7 @@
 #define I_SW		      	0x2b
 
 // R format -- FUNC
-#define R_ADD                 0x20    // For preview TODO: change it back
+#define R_ADD           0x20
 #define R_ADDU		      0x21
 #define R_AND		      	0x24
 #define R_DIV		      	0x1a
@@ -70,6 +69,7 @@
 #define R_SUB		      	0x22
 #define R_SUBU          0x23
 #define R_MOVN					0x0b
+#define R_MOVZ          0x0a
 
 // J Format -- OpCode
 #define J_J		      0x02
@@ -95,7 +95,7 @@ typedef struct {
   bool PCWrite;
   unsigned int nPC;
   unsigned int instruction;
-  
+
   // used for error ONLY
   unsigned int progCounter;
 } IFID_Register;
@@ -113,15 +113,15 @@ typedef struct {
 	bool RegDst;
 	alu_op ALUOp;
 	unsigned opCode;
-	
+
 	unsigned int regValue1;
 	unsigned int regValue2;
 	unsigned int extendedValue;
-	
+
 	unsigned short rs;
 	unsigned short rt;
 	unsigned short rd;
-	
+
 	// used for error ONLY
 	unsigned int progCounter;
 } IDEX_Register;
@@ -134,12 +134,12 @@ typedef struct {
 	bool Branch; // present in 4.51
 	bool MemRead;
 	bool MemWrite;
-	
+
 	bool zero;
 	unsigned int aluResult;
 	unsigned int dataToMem;
 	unsigned short rd;
-	
+
 	// used for error ONLY
 	unsigned int progCounter;
 } EXMEM_Register;
@@ -148,17 +148,17 @@ typedef struct {
   // WB
 	bool MemtoReg;
 	bool RegWrite;
-	
+
 	unsigned int memValue;
 	unsigned int aluResult;
 	unsigned short rd;
-	
+
 	// used for error ONLY
 	unsigned int progCounter;
 } MEMWB_Register;
 
 typedef struct {
-  
+
 } shadow_registers;
 
 #endif

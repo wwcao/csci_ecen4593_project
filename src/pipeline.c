@@ -29,6 +29,8 @@ void IF(void) {
 	pcSrc1 = PC+1;
 	_ifid_reg.nPC = pcSrc1;
 
+  if(PC == 12)
+    printf("stop");
 	// set state ID after IF
 	nStage = STAGE_ID;
 }
@@ -38,6 +40,7 @@ void ID(void) {
 	unsigned short rs, rd, rt;
 	unsigned int opCode, imm;
 	unsigned int extendedValue;
+	unsigned int regVal1, regVal2;
 
 	// handle is pipeline
 	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
@@ -69,9 +72,17 @@ void ID(void) {
 	_idex_reg.regValue2 = register_file[rt];
   _idex_reg.opCode = opCode;
 
-	ctlUnitOperation(opCode,register_file[rs], register_file[rt],
-										extendedValue);
 
+  regVal1 = register_file[rs];
+  regVal2 = register_file[rt];
+
+  // small forwarding
+  fwdUnitID(rs, rt, &regVal1, &regVal2);
+
+	ctlUnitOperation(opCode, regVal1, regVal2, extendedValue);
+
+  if(ifid_reg.progCounter == 12)
+    printf("stop");
 	nStage = STAGE_EX;
 }
 
@@ -88,7 +99,7 @@ void EX(void) {
   src1 = idex_reg.regValue1;
   src2 = idex_reg.regValue2;
 
-	fwdUnitOperation(&src1, &src2);
+	fwdUnitEX(&src1, &src2);
 
 	_exmem_reg.RegWrite = idex_reg.RegWrite;
 	_exmem_reg.MemtoReg = idex_reg.MemtoReg;
@@ -107,6 +118,8 @@ void EX(void) {
 
 	// set next state
 	nStage = STAGE_MEM;
+	if(idex_reg.progCounter == 12)
+    printf("stop");
 	return;
 }
 
@@ -125,8 +138,14 @@ void MEM(void) {
 	_memwb_reg.rd = exmem_reg.rd;
 	addr = exmem_reg.aluResult>>2;
 
+
+
 	if(exmem_reg.MemWrite) {
+    if(addr > 16384) {
+      printf("Out Of Index\n");
+    }
 		memory[addr] = exmem_reg.dataToMem;
+		printf("Out Of Index\n");
 	}
 	if(exmem_reg.MemRead) {
 		_memwb_reg.memValue = memory[addr];
@@ -172,8 +191,10 @@ void start(void) {
 	wirtetoPipelineRegs();
 	cStage = nStage;
 
+  /*
 	if(IS_PIPELINE)
 		printRegisters();
+		*/
 }
 
 
@@ -202,13 +223,13 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 						result = src1 + src2;
 						break;
 					case I_ANDI:
-						result = src1 & (src2&IM_MASK);
+						result = (int)src1 & (int)(src2&IM_MASK);
 						break;
 					case I_ORI:
 						result = src1 | (src2&IM_MASK);
 						break;
 					case I_SLTI:
-						result = src1<src2?1:0;
+						result = (int)src1<(int)src2?1:0;
 						break;
 					case I_SLTIU:
 						result = src1<src2?1:0;
@@ -231,6 +252,9 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 				case R_SUB:
 					result = (int)src1 - (int)src2;
 					break;
+        case R_SUBU:
+					result = src1 - src2;
+					break;
 				case R_AND:
 					result = src1 & src2;
 					break;
@@ -241,26 +265,39 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 				case R_XOR:
 					result = src1^src2;
 				case R_SLT:
-					result = src1<src2?1:0;
+					result = (int)src1<(int)src2?1:0;
 					break;
 				case R_SLTU:
 					result = src1<src2?1:0;
 					break;
 				case R_SLL:
-					result = ((int)src1) << shamt;
+					result = src2 << shamt;
 					break;
 				case R_SRA:
-					result = ((int)src1) >> shamt;
+					result = ((int)src2) >> shamt;
 					break;
 				case R_SRL:
-					result = src1 >> shamt;
+					result = src2 >> shamt;
 					break;
 				case R_NOR:
 					result = ~(src1|src2);
 					break;
 				case R_MOVN:
-					result = src2 != 0? src1:0;
+				  if(src2 != 0) {
+            result = src1;
+				  }
+				  else {
+            _exmem_reg.RegWrite = false;
+				  }
 					break;
+        case R_MOVZ:
+          if(src2 == 0) {
+            result = src1;
+				  }
+				  else {
+            _exmem_reg.RegWrite = false;
+				  }
+          break;
 				default:
 					printf("Error @ pc: %04d, instruction: [0x%x]\n", idex_reg.progCounter, memory[idex_reg.progCounter]);
 					exit(1);
@@ -278,6 +315,7 @@ void ctlUnitOperation(unsigned int opCode,
 	unsigned int jImm;
 	unsigned int msb;
 	_idex_reg.ALUOp = ALUOP_NOP;
+
 	switch(opCode) {
 	// case R-format
 		case 0x0: {
@@ -287,11 +325,6 @@ void ctlUnitOperation(unsigned int opCode,
 					//printf("Decoded:  Format R\n");
 					pcSrc2 = regVal1;
 					PCSrc = true;
-					if(IS_PIPELINE) {
-						//Flush_if = true;
-						//Flush_id = true;
-						//Flush_ex = true;
-					}
 					break;
 				case R_MOVN:
 					//printf("Decoded: R_MOVEN\n");
@@ -306,12 +339,15 @@ void ctlUnitOperation(unsigned int opCode,
 			break;
 		}
 		// case LW
+		/*
 		case 0x20:
 		case 0x21:
-		case 0x23:
+
 		case 0x24:
 		case 0x25:
 		case 0x26:
+		*/
+    case 0x23:
 			//printf("Decoded:  Format LW\n");
 			_idex_reg.RegWrite = true;
 			_idex_reg.MemtoReg = true;
@@ -320,11 +356,13 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.ALUOp = ALUOP_LWSW;
 			break;
 		// case SW
+		/*
 		case 0x28:
 		case 0x29:
 		case 0x2a:
-		case 0x2b:
 		case 0x2e: // swr
+		*/
+    case 0x2b:
 			//printf("Decoded:  Format SW\n");
 			_idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
@@ -332,44 +370,40 @@ void ctlUnitOperation(unsigned int opCode,
 			break;
 		// case Branch
 		case 0x04:
-			//printf("Decoded:  Format BEQ\n");
+			// BEQ
 			if(regVal1 != regVal2) break;
 
 			PCSrc = true;
 			pcSrc2 = extendedValue + ifid_reg.nPC;
-			if(IS_PIPELINE) {
-				//Flush_if = true;
-				//Flush_id = true;
-				//Flush_ex = true;
-			}
 			break;
 		case 0x05:
-			//printf("Decoded:  Format BNE\n");
+			// BNE
 			if(regVal1 == regVal2) break;
-
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
-			if(IS_PIPELINE) {
-				//Flush_if = true;
-				//Flush_id = true;
-				//Flush_ex = true;
-			}
-			//printf("pcSrc2[0x%x]\n", pcSrc2);
 			break;
+
+    case 0x06:
+			// BLEZ
+			if(regVal1 > regVal2) break;
+			PCSrc = true;
+			pcSrc2 = extendedValue+ifid_reg.nPC;
+			break;
+    case 0x07:
+      // BGTZ
+      if(regVal1 <= 0) break;
+			PCSrc = true;
+			pcSrc2 = extendedValue+ifid_reg.nPC;
+      break;
 		// case J-format
 		case 0x3:
-			//printf("Decoded:  Format JAL, ");
+			// JAL
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
 			register_file[31] = (ifid_reg.nPC + 1);
-			if(IS_PIPELINE) {
-				//Flush_if = true;
-				//Flush_id = true;
-				//Flush_ex = true;
-			}
-			//printf("pcSrc2[0x%8x]\n", pcSrc2);
+
 			break;
 		case 0x2:
 			//printf("Decoded:  Format J, ");
@@ -377,13 +411,42 @@ void ctlUnitOperation(unsigned int opCode,
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
-			if(IS_PIPELINE) {
-				//Flush_if = true;
-				//Flush_id = true;
-				//Flush_ex = true;
-			}
-			//printf("pcSrc2[0x%8x]\n", pcSrc2);
+
 			break;
+    case 0x1:
+      switch(_idex_reg.rt) {
+        case 0x0:
+          //bltz
+          if(regVal1 < 0) {
+          PCSrc = true;
+          pcSrc2 = extendedValue+ifid_reg.nPC;
+          }
+          break;
+        case 0x1:
+          // bgez
+          if(regVal1 >= 0) {
+            PCSrc = true;
+            pcSrc2 = extendedValue+ifid_reg.nPC;
+          }
+          break;
+        case 0x10:
+          // bltzal
+          if(regVal1 < 0) {
+            register_file[31] = (ifid_reg.nPC+1);
+            PCSrc = true;
+            pcSrc2 = extendedValue+ifid_reg.nPC;
+          }
+        break;
+        case 0x11:
+          // bgezal
+          if(regVal1 >= 0) {
+            register_file[31] = (ifid_reg.nPC+1);
+            PCSrc = true;
+            pcSrc2 = extendedValue+ifid_reg.nPC;
+          }
+        break;
+        }
+      break;
 		default:
 			//printf("Decoded:  Format I\n");
 			_idex_reg.RegWrite = true;
@@ -396,44 +459,111 @@ void ctlUnitOperation(unsigned int opCode,
 // TODO: instruction index 15
 void hdUnitOperation(void) {
     unsigned int rs, rt;
+    bool isBranch;
     rs = getPartNum(ifid_reg.instruction, PART_RS);
     rt = getPartNum(ifid_reg.instruction, PART_RT);
+    isBranch = false;
+
     if(idex_reg.MemRead &&
         ((idex_reg.rt == rs)||(idex_reg.rt == rt))) {
-        Stall = true;
+      Stall = true;
     }
+
+    // stall without forwarding in ID Stage
+    switch(getPartNum(ifid_reg.instruction, PART_OP)){
+      case 0x1:
+      case 0x4:
+      case 0x5:
+      case 0x6:
+      case 0x7:
+        isBranch = true;
+        break;
+    }
+
+    if(isBranch && idex_reg.RegWrite &&
+        (((rs != 0) && (idex_reg.rd == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
+      Stall = true;
+    }
+
+    if(isBranch && exmem_reg.RegWrite &&
+        (((rs != 0) && (exmem_reg.rd == rs)) || ((rt != 0) && (exmem_reg.rd == rt)))) {
+      Stall = true;
+    }
+
     return;
 }
 
-void fwdUnitOperation(unsigned int *src1, unsigned int *src2) {
+void fwdUnitID(unsigned int rs, unsigned int rt, unsigned int *src1, unsigned int *src2) {
+	forwardA = false;
+	forwardB = false;
+
+  return;//  disabled!!
+
+  if(!IS_PIPELINE) return;
+
+  if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==rs)	{
+    forwardA = 2;
+	}
+	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==rt)	{
+    forwardB = 2;
+	}
+
+	//Double Data MEM hazard
+	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == rs)) && memwb_reg.rd==rs)	{
+    forwardA = 1;
+	}
+	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == rt)) && memwb_reg.rd==rt)	{
+    forwardB = 1;
+	}
+
+	if(!forwardA && !forwardB)
+    return;
+
+	//forwarding
+  switch(forwardA) {
+    case 1:
+      *src1 = writedata;
+      break;
+    case 2:
+      *src1 = exmem_reg.aluResult;  //
+      break;
+  }
+  switch(forwardB) {
+    case 1:
+      *src2 = writedata;
+      break;
+    case 2:
+      *src2 = exmem_reg.aluResult;
+      break;
+  }
+  return;
+}
+
+void fwdUnitEX(unsigned int *src1, unsigned int *src2) {
 	IS_FWDING = false;
 	forwardA = false;
 	forwardB = false;
-	//EX hazard
 
+	//EX hazard
 	if(!IS_PIPELINE) return;
 
 	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==idex_reg.rs)	{
-        forwardA = 2;
-	//IS_FWDING = 1;
+    forwardA = 2;
 	}
 	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==idex_reg.rt)	{
-        forwardB = 2;
-	//IS_FWDING = 1;
+    forwardB = 2;
 	}
 
 	//Double Data MEM hazard
 	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == idex_reg.rs)) && memwb_reg.rd==idex_reg.rs)	{
-        forwardA = 1;
-	//IS_FWDING = 1;
+    forwardA = 1;
 	}
 	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == idex_reg.rt)) && memwb_reg.rd==idex_reg.rt)	{
-        forwardB = 1;
-	//IS_FWDING = 1;
+    forwardB = 1;
 	}
 
   if(!forwardA && !forwardB)
-       return;
+    return;
 
 	//forwarding
   switch(forwardA) {
@@ -477,6 +607,7 @@ void wirtetoPipelineRegs() {
 			idex_reg.ALUSrc = false;
 			idex_reg.opCode = false;
 			idex_reg.progCounter = false;
+			PCSrc = false;
 		}
 
 		if(Flush_ex) {
