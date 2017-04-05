@@ -11,9 +11,13 @@ void IF(void) {
     return;
 	}
 
-	if(Flush_if || Stall_harzard) return;
+	if(Flush_if || Stall_harzard) {
+    numNop++;
+    return;
+	}
 
 	if(!init_ins && PCSrc) {
+    numBranch++;
 		PC = pcSrc2;
 		PCSrc = false;
 	}
@@ -29,6 +33,7 @@ void IF(void) {
 	pcSrc1 = PC+1;
 	_ifid_reg.nPC = pcSrc1;
 
+  numIns++;
 	// set state ID after IF
 	nStage = STAGE_ID;
 }
@@ -130,7 +135,6 @@ void MEM(void) {
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
-    printf("asdf");
 		memory[addr] = exmem_reg.dataToMem;
 	}
 	if(exmem_reg.MemRead) {
@@ -149,7 +153,7 @@ void WB(void) {
 	writedata = memwb_reg.MemtoReg? memwb_reg.memValue:
 																	memwb_reg.aluResult;
 
-	if(memwb_reg.RegWrite)
+	if(memwb_reg.RegWrite && (memwb_reg.rd != 0))
 		register_file[memwb_reg.rd] = writedata;
 
 	if(!IS_PIPELINE)
@@ -191,9 +195,11 @@ void aluUnitOperation(int src1, int src2) {
 
 	shamt = getPartNum(idex_reg.extendedValue, PART_SHM);
 	if(idex_reg.ALUOp == ALUOP_LWSW) {
+    numLWSW++;
 		result = src1 + src2;
 	}
 	else if(idex_reg.ALUOp == ALUOP_R) {
+	  numR_I++;
 		if(idex_reg.opCode) {
 			// I
 			switch(idex_reg.opCode) {
