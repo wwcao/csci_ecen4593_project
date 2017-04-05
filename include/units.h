@@ -6,7 +6,7 @@
 unsigned int memory[MEMORY_SIZE];
 unsigned int imemory[IMEMORY_SIZE];
 unsigned int dmemory[DMEMORY_SIZE];
-unsigned int register_file[REGISTER_NUM];
+int register_file[REGISTER_NUM];
 
 unsigned int PC;
 

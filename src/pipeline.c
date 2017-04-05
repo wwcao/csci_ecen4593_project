@@ -39,8 +39,8 @@ void ID(void) {
 	unsigned int instruction;
 	unsigned short rs, rd, rt;
 	unsigned int opCode, imm;
-	unsigned int extendedValue;
-	unsigned int regVal1, regVal2;
+	int extendedValue;
+	int regVal1, regVal2;
 
 	// handle is pipeline
 	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
@@ -51,7 +51,7 @@ void ID(void) {
     printf("Stop");
 
 	// ID Operation
-	memset(&_idex_reg, 0, sizeof(IDEX_Register));
+	//memset(&_idex_reg, 0, sizeof(IDEX_Register));
 
 	//printf("\nStage ID, ");
 	_idex_reg.progCounter = ifid_reg.progCounter;
@@ -71,13 +71,13 @@ void ID(void) {
 											imm|0xffff0000:
 											imm&0x0000ffff;
 	_idex_reg.extendedValue = extendedValue;
-	_idex_reg.regValue1 = register_file[rs];
-	_idex_reg.regValue2 = register_file[rt];
+	_idex_reg.regValue1 = (int)register_file[rs];
+	_idex_reg.regValue2 = (int)register_file[rt];
   _idex_reg.opCode = opCode;
 
 
-  regVal1 = register_file[rs];
-  regVal2 = register_file[rt];
+  regVal1 = (int)register_file[rs];
+  regVal2 = (int)register_file[rt];
 
   // small forwarding
   fwdUnitID(rs, rt, &regVal1, &regVal2);
@@ -90,7 +90,7 @@ void ID(void) {
 }
 
 void EX(void) {
-	unsigned src1, src2;
+	int src1, src2;
 
 	if((!IS_PIPELINE) && (cStage != STAGE_EX)) {
 		return;
@@ -119,6 +119,8 @@ void EX(void) {
 	src2 = idex_reg.ALUSrc?idex_reg.extendedValue:src2;
 	aluUnitOperation(src1, src2);
 
+  if( _exmem_reg.aluResult == -5917 && (idex_reg.rt == 11||idex_reg.rd == 11))
+    printf("sdf");
 	// set next state
 	nStage = STAGE_MEM;
 	if(idex_reg.progCounter == 12)
@@ -139,7 +141,7 @@ void MEM(void) {
 	_memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	_memwb_reg.aluResult = exmem_reg.aluResult;
 	_memwb_reg.rd = exmem_reg.rd;
-	addr = exmem_reg.aluResult>>2;
+	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
     if(addr > 16384) {
@@ -201,10 +203,10 @@ void start(void) {
 
 
 // controll
-void aluUnitOperation(unsigned int src1, unsigned int src2) {
-	unsigned result;
-	unsigned zero;
-	unsigned shamt;
+void aluUnitOperation(int src1, int src2) {
+	int result;
+	unsigned int zero;
+	unsigned int shamt;
 
 	result = 0;
 	zero = 0;
@@ -218,19 +220,19 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 			// I
 			switch(idex_reg.opCode) {
 					case I_ADDI:
-						result = (int)src1 + (int)src2;
+						result = src1 + src2;
 						break;
 					case I_ADDIU:
 						result = src1 + src2;
 						break;
 					case I_ANDI:
-						result = (int)src1 & (int)(src2&IM_MASK);
+						result = src1 & (int)(src2&IM_MASK);
 						break;
 					case I_ORI:
-						result = src1 | (src2&IM_MASK);
+						result = src1 | (int)(src2&IM_MASK);
 						break;
 					case I_SLTI:
-						result = (int)src1<(int)src2?1:0;
+						result = src1<src2?1:0;
 						break;
 					case I_SLTIU:
 						result = src1<src2?1:0;
@@ -245,16 +247,16 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 			unsigned int func = getPartNum(idex_reg.extendedValue, PART_FUNC);
 			switch (func) {
 				case R_ADD:
-					result = (int)src1 + (int)src2;
+					result = src1 + src2;
 					break;
 				case R_ADDU:
-					result = (int)src1 + (int)src2;
+					result = src1 + src2;
 					break;
 				case R_SUB:
-					result = (int)src1 - (int)src2;
+					result = src1 - src2;
 					break;
         case R_SUBU:
-					result = (int)src1 - (int)src2;
+					result = src1 - src2;
 					break;
 				case R_AND:
 					result = src1 & src2;
@@ -266,19 +268,19 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 				case R_XOR:
 					result = src1^src2;
 				case R_SLT:
-					result = (int)src1<(int)src2?1:0;
+					result = src1 < src2?1:0;
 					break;
 				case R_SLTU:
-					result = src1<src2?1:0;
+					result = src1 < src2?1:0;
 					break;
 				case R_SLL:
-					result = src2 << shamt;
+					result = src2<<shamt;
 					break;
 				case R_SRA:
-					result = ((int)src2) >> shamt;
+					result = src2>>shamt;
 					break;
 				case R_SRL:
-					result = src2 >> shamt;
+					result = ((unsigned int)src2)>>shamt;
 					break;
 				case R_NOR:
 					result = ~(src1|src2);
@@ -306,13 +308,13 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 		}
 	}
 	_exmem_reg.zero = zero;
-	_exmem_reg.aluResult = result;
+	_exmem_reg.aluResult = (unsigned int)result;
 	//printf("zero[%d], aluResult[%d]\n", zero, result);
 }
 
 void ctlUnitOperation(unsigned int opCode,
-							unsigned int regVal1, unsigned regVal2,
-							unsigned int extendedValue) {
+							int regVal1, int regVal2,
+							int extendedValue) {
 	unsigned int jImm;
 	unsigned int msb;
 	_idex_reg.ALUOp = ALUOP_NOP;
@@ -502,9 +504,9 @@ void hdUnitOperation(void) {
     return;
 }
 
-void fwdUnitID(unsigned int rs, unsigned int rt, unsigned int *src1, unsigned int *src2) {
-	forwardA = false;
-	forwardB = false;
+void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
+	unsigned short forwardA = false;
+	unsigned short forwardB = false;
 
   return;//  disabled!!
 
@@ -548,10 +550,9 @@ void fwdUnitID(unsigned int rs, unsigned int rt, unsigned int *src1, unsigned in
   return;
 }
 
-void fwdUnitEX(unsigned int *src1, unsigned int *src2) {
-	IS_FWDING = false;
-	forwardA = false;
-	forwardB = false;
+void fwdUnitEX(int *src1, int *src2) {
+	unsigned short forwardA = false;
+	unsigned short forwardB = false;
 
 	//EX hazard
 	if(!IS_PIPELINE) return;
@@ -636,6 +637,11 @@ void wirtetoPipelineRegs() {
 		Flush_ex = false;
 		Stall = false;
 	}
+
+	memset(&_ifid_reg, 0, sizeof(IFID_Register));
+	memset(&_idex_reg, 0, sizeof(IDEX_Register));
+	memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
+	memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
 	return;
 }
 
@@ -649,8 +655,5 @@ void init_pipeline() {
 	Stall = false;
 	cStage = STAGE_IF;
 	nStage = STAGE_IF;
-	forwardA = false;
-	forwardB = false;
-	IS_FWDING = false;
 	run_pipeline = 3;
 }

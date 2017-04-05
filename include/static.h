@@ -114,9 +114,9 @@ typedef struct {
 	alu_op ALUOp;
 	unsigned opCode;
 
-	unsigned int regValue1;
-	unsigned int regValue2;
-	unsigned int extendedValue;
+	int regValue1;
+	int regValue2;
+	int extendedValue;
 
 	unsigned short rs;
 	unsigned short rt;
@@ -136,8 +136,8 @@ typedef struct {
 	bool MemWrite;
 
 	bool zero;
-	unsigned int aluResult;
-	unsigned int dataToMem;
+	int aluResult;
+	int dataToMem;
 	unsigned short rd;
 
 	// used for error ONLY
@@ -149,8 +149,8 @@ typedef struct {
 	bool MemtoReg;
 	bool RegWrite;
 
-	unsigned int memValue;
-	unsigned int aluResult;
+	int memValue;
+	int aluResult;
 	unsigned short rd;
 
 	// used for error ONLY

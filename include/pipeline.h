@@ -35,11 +35,7 @@ MEMWB_Register _memwb_reg;
 stage cStage;			// curent state for non_pipeline
 stage nStage;			// next state
 
-unsigned int forwardA;		//rs fwding mux
-unsigned int forwardB;		//rt fwding mux
-unsigned int IS_FWDING;		// check fwding happen?
-
-unsigned int writedata;
+int writedata;
 bool Stall;
 
 unsigned int run_pipeline;
@@ -51,15 +47,15 @@ void MEM(void);
 void WB(void);
 void start(void);
 
-void aluUnitOperation(unsigned int src1, unsigned int src2);
+void aluUnitOperation(int src1, int src2);
 // controll
 
 void ctlUnitOperation(unsigned int opCode,
-				unsigned int regVal1, unsigned int regVal2,
-				unsigned int extendedValue);
+				int regVal1, int regVal2,
+				int extendedValue);
 void hdUnitOperation(void);
-void fwdUnitEX(unsigned int *src1, unsigned int *src2);
-void fwdUnitID(unsigned int rs, unsigned int rt, unsigned int *src1, unsigned int *src2);
+void fwdUnitEX(int *src1, int *src2);
+void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2);
 void wirtetoPipelineRegs(void);
 
 void init_pipeline();
