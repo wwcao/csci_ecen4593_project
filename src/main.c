@@ -7,16 +7,15 @@
 extern unsigned int clock;
 
 int main() {
+  clock = 0;
 	loadInstructions();
 	init_units();
 	init_pipeline();
-	clock = 0;
+	init_utils();
 	while(1){
 			start();
 			clock++;
 			if(PC==0) break;
-			if(PC==160)
-        printf("asdf");
 	}
 	printf("clock[%d]\n", clock++);
 	printf("result: \n[0x%08x]\n[0x%08x]\n[0x%08x]\n[0x%08x]\n",
