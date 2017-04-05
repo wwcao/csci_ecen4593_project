@@ -8,8 +8,15 @@
 
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
+// external
+unsigned int clock;
 
+// globals
 unsigned int numIns;
+unsigned int numBranch;
+unsigned int numLWSW;
+unsigned int numR_I;
+unsigned int numNop;
 unsigned int numRead;
 unsigned int numWrite;
 unsigned int numReadMissed;
@@ -29,5 +36,6 @@ void printSummary();
 void printPipelineStat();
 void printReadCacheStat();
 void printWriteCacheStat();
+void init_utils();
 
 #endif
