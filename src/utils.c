@@ -1,5 +1,17 @@
 #include "utils.h"
 
+void init_utils() {
+  numIns = 0;
+  numBranch = 0;
+  numLWSW = 0;
+  numR_I = 0;
+  numNop = 0;
+  numRead = 0;
+  numWrite = 0;
+  numReadMissed = 0;
+  numWriteMissed = 0;
+}
+
 unsigned int readInstruction() {
     unsigned int counter;
     char buffer[MAX_READLINE];
@@ -165,8 +177,17 @@ void printSummary() {
 }
 
 void printPipelineStat() {
+  float cpi;
   printf("\nPipeline\n");
   printf("_____________________________________\n");
+  cpi = clock/numIns;
+  printf("Total intruction [%u]\n", numIns);
+  printf("CPI: [%2.2f]\n", cpi);
+  printf("Total Branch [%u]\n", numBranch);
+  printf("Total LWSW [%u]\n", numBranch);
+  printf("Total R/I [%u]\n", numBranch);
+  printf("Total NOP [%u]\n", numNop);
+
 }
 
 void printReadCacheStat() {
@@ -175,7 +196,7 @@ void printReadCacheStat() {
 }
 
 void printWriteCacheStat() {
-  printf("Write Cache Stat\n");
+  printf("\nWrite Cache Stat\n");
   printf("_____________________________________\n");
 }
 
