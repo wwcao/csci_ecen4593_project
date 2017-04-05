@@ -248,13 +248,13 @@ void aluUnitOperation(unsigned int src1, unsigned int src2) {
 					result = (int)src1 + (int)src2;
 					break;
 				case R_ADDU:
-					result = src1 + src2;
+					result = (int)src1 + (int)src2;
 					break;
 				case R_SUB:
 					result = (int)src1 - (int)src2;
 					break;
         case R_SUBU:
-					result = src1 - src2;
+					result = (int)src1 - (int)src2;
 					break;
 				case R_AND:
 					result = src1 & src2;

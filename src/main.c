@@ -13,7 +13,7 @@ int main() {
 	while(1){
 			start();
 			counter++;
-			if(counter == 1000) {
+			if(counter == 990) {
         printf("counter is too larger\n");
 			}
 			if(PC == 70)
