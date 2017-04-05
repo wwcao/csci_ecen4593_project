@@ -47,6 +47,9 @@ void ID(void) {
 		return;
 	}
 
+  if(ifid_reg.progCounter == 81)
+    printf("Stop");
+
 	// ID Operation
 	memset(&_idex_reg, 0, sizeof(IDEX_Register));
 
@@ -137,8 +140,6 @@ void MEM(void) {
 	_memwb_reg.aluResult = exmem_reg.aluResult;
 	_memwb_reg.rd = exmem_reg.rd;
 	addr = exmem_reg.aluResult>>2;
-
-
 
 	if(exmem_reg.MemWrite) {
     if(addr > 16384) {
@@ -460,9 +461,11 @@ void ctlUnitOperation(unsigned int opCode,
 void hdUnitOperation(void) {
     unsigned int rs, rt;
     bool isBranch;
+    unsigned opCode;
     rs = getPartNum(ifid_reg.instruction, PART_RS);
     rt = getPartNum(ifid_reg.instruction, PART_RT);
     isBranch = false;
+    opCode = 0;
 
     if(idex_reg.MemRead &&
         ((idex_reg.rt == rs)||(idex_reg.rt == rt))) {
@@ -470,7 +473,8 @@ void hdUnitOperation(void) {
     }
 
     // stall without forwarding in ID Stage
-    switch(getPartNum(ifid_reg.instruction, PART_OP)){
+    opCode = getPartNum(ifid_reg.instruction, PART_OP);
+    switch(opCode) {
       case 0x1:
       case 0x4:
       case 0x5:
@@ -487,6 +491,11 @@ void hdUnitOperation(void) {
 
     if(isBranch && exmem_reg.RegWrite &&
         (((rs != 0) && (exmem_reg.rd == rs)) || ((rt != 0) && (exmem_reg.rd == rt)))) {
+      Stall = true;
+    }
+
+    if(isBranch && opCode && idex_reg.RegWrite &&
+        (((rs != 0) && (idex_reg.rt == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
       Stall = true;
     }
 

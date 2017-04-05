@@ -13,11 +13,10 @@ int main() {
 	while(1){
 			start();
 			counter++;
-			if(counter > 200000) {
+			if(counter == 1000) {
         printf("counter is too larger\n");
-        exit(1);
 			}
-			if(PC == 159)
+			if(PC == 70)
         printf("stop");
 			if(!run_pipeline) break;
 	}
