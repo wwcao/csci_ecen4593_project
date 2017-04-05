@@ -170,6 +170,7 @@ unsigned getPartNum(int ins, part_type ptype) {
 void printSummary() {
   printf("=====================================\n");
   printf("  Summary\n");
+  printf("Cycle[%u]\n", clock);
   printf("=====================================\n");
   printPipelineStat();
   printReadCacheStat();
@@ -178,14 +179,15 @@ void printSummary() {
 
 void printPipelineStat() {
   float cpi;
+  numIns = numBranch + numLWSW + numR_I;
   printf("\nPipeline\n");
   printf("_____________________________________\n");
-  cpi = clock/numIns;
+  cpi = (float)clock/numIns;
   printf("Total intruction [%u]\n", numIns);
-  printf("CPI: [%2.2f]\n", cpi);
+  printf("CPI: [%2.3f]\n", cpi);
   printf("Total Branch [%u]\n", numBranch);
-  printf("Total LWSW [%u]\n", numBranch);
-  printf("Total R/I [%u]\n", numBranch);
+  printf("Total LWSW [%u]\n", numLWSW);
+  printf("Total R/I [%u]\n", numR_I);
   printf("Total NOP [%u]\n", numNop);
 
 }
