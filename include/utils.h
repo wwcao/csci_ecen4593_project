@@ -9,6 +9,12 @@
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
 
+unsigned int numIns;
+unsigned int numRead;
+unsigned int numWrite;
+unsigned int numReadMissed;
+unsigned int numWriteMissed;
+
 unsigned int readInstruction();
 int loadInstructions();
 op_format getInsFormat(int);
@@ -17,10 +23,11 @@ void printInstr(int);
 
 // TODO: Function to initialize all units
 void printRegisters();
-
-
-
 void Error(const char*);
-
+void testSum(unsigned int total);
+void printSummary();
+void printPipelineStat();
+void printReadCacheStat();
+void printWriteCacheStat();
 
 #endif

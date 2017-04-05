@@ -11,6 +11,9 @@
 #define IS_PIPELINE             1
 #define RUNTOEND                0
 
+unsigned int clock;
+unsigned short missPenalty;
+
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
@@ -36,7 +39,7 @@ stage cStage;			// curent state for non_pipeline
 stage nStage;			// next state
 
 int writedata;
-bool Stall;
+bool Stall_harzard;
 
 unsigned int run_pipeline;
 

@@ -155,6 +155,30 @@ unsigned getPartNum(int ins, part_type ptype) {
 	}
 }
 
+void printSummary() {
+  printf("=====================================\n");
+  printf("  Summary\n");
+  printf("=====================================\n");
+  printPipelineStat();
+  printReadCacheStat();
+  printWriteCacheStat();
+}
+
+void printPipelineStat() {
+  printf("\nPipeline\n");
+  printf("_____________________________________\n");
+}
+
+void printReadCacheStat() {
+  printf("\nRead Cache Stat\n");
+  printf("_____________________________________\n");
+}
+
+void printWriteCacheStat() {
+  printf("Write Cache Stat\n");
+  printf("_____________________________________\n");
+}
+
 void Error(const char* msg) {
     printf("%s", msg);
     exit(1);
@@ -335,24 +359,24 @@ int loadInstructions() {
 0xafb007f4,   // 	sw	s0,2036(sp)
 0x8c420000,   // 	lw	v0,0(v0)
 0xafa207ec,   // 	sw	v0,2028(sp)
-0x2406000a,   // 	li	a2,250
+0x240600fa,   // 	li	a2,250
 0x27b10404,   // 	addiu	s1,sp,1028
 0x02202825,   // 	move	a1,s1
 0x27b0001c,   // 	addiu	s0,sp,28
 0x02002025,   // 	move	a0,s0
 0x0c00000a,   // 	jal	10 <copy_array>
 0x00000000,   // 	nop
-0x2405000a,   // 	li	a1,250
+0x240500fa,   // 	li	a1,250
 0x02002025,   // 	move	a0,s0
 0x0c00001e,   // 	jal	30 <bubble_sort>
 0x00000000,   // 	nop
 0x00409025,   // 	move	s2,v0
-0x2405000a,   // 	li	a1,250
+0x240500fa,   // 	li	a1,250
 0x02202025,   // 	move	a0,s1
 0x0c000046,   // 	jal 70 <insertion_sort>
 0x00000000,   // 	nop
 0x00409825,   // 	move	s3,v0
-0x2406000a,   // 	li	a2,250
+0x240600fa,   // 	li	a2,250
 0x02202825,   // 	move	a1,s1
 0x02002025,   // 	move	a0,s0
 0x0c000078,   // 	jal	120 <check_result>
@@ -680,10 +704,23 @@ int loadInstructions() {
 0x00f0f000,
 0x0f0f0000,
 0x0000e000
-		};
-		count = (int)sizeof(instructions)/sizeof(unsigned int);
-		if(!memcpy(&memory, &instructions, count*sizeof(unsigned int))) exit(1);
-		printf("Loaded[%d]\n", count);
-		return count;
+  };
+	count = (int)sizeof(instructions)/sizeof(unsigned int);
+	if(!memcpy(&memory, &instructions, count*sizeof(unsigned int))) exit(1);
+	printf("Loaded[%d]\n", count);
+
+	return count;
+}
+
+void testSum(unsigned int total) {
+  unsigned int i;
+  unsigned int start = 243;
+  int sum;
+
+  sum = 0;
+  for(i = start; i < total+start; i++) {
+    sum += memory[i];
+  }
+  printf("Sum: [%d][%08x]\n", sum, sum);
 }
 
