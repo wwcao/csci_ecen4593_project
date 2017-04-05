@@ -5,6 +5,7 @@ void IF(void) {
 	if((!IS_PIPELINE) && (cStage != STAGE_IF)) {
 		return;
 	}
+
 	// IF Operation
 	if(PC==0) {
     run_pipeline--;
@@ -21,6 +22,7 @@ void IF(void) {
 		PC = pcSrc2;
 		PCSrc = false;
 	}
+
 	else if(!init_ins && !PCSrc) {
 		PC = pcSrc1;
 	}
@@ -33,7 +35,6 @@ void IF(void) {
 	pcSrc1 = PC+1;
 	_ifid_reg.nPC = pcSrc1;
 
-  numIns++;
 	// set state ID after IF
 	nStage = STAGE_ID;
 }
@@ -114,8 +115,6 @@ void EX(void) {
 
 	// set next state
 	nStage = STAGE_MEM;
-	if(idex_reg.progCounter == 12)
-    printf("stop");
 	return;
 }
 
@@ -355,7 +354,6 @@ void ctlUnitOperation(unsigned int opCode,
 		case 0x2e: // swr
 		*/
     case 0x2b:
-			//printf("Decoded:  Format SW\n");
 			_idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
 			_idex_reg.ALUOp = ALUOP_LWSW;
@@ -398,7 +396,7 @@ void ctlUnitOperation(unsigned int opCode,
 
 			break;
 		case 0x2:
-			//printf("Decoded:  Format J, ");
+			// J
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
@@ -440,7 +438,7 @@ void ctlUnitOperation(unsigned int opCode,
         }
       break;
 		default:
-			//printf("Decoded:  Format I\n");
+			// I
 			_idex_reg.RegWrite = true;
 			_idex_reg.ALUOp = ALUOP_R;
 			_idex_reg.ALUSrc = true;
