@@ -9,6 +9,7 @@
 #define INS_START_POS         0
 
 #define REGISTER_SIZE         32
+#define WRBUFF_SIZE           16
 
 // MASKes
 #define OP_MASK               0xfc000000
@@ -170,7 +171,12 @@ typedef struct {
 
 typedef struct {
   bool valid;
-  cachedata *block;
+  cachedata block[4];
 } cache;
+
+typedef struct {
+  unsigned int addr;
+  unsigned int data;
+} writebuffer
 
 #endif
