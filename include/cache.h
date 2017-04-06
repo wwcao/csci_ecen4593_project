@@ -12,7 +12,9 @@
 
 char missedPenalty;
 
-cache* createCache(unsigned int size, unsigned int line);
-void cacheGC();
+bool readAddr(unsigned int addr, unsigned int data);
+bool writeAddr(unsigned int addr, unsigned int data);
 
+void policyWriteback();
+void policyWritethrough();
 #endif // __CACHE_HEADER__
