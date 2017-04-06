@@ -15,8 +15,9 @@ unsigned icacheBNum;
 unsigned dcacheBNum;
 unsigned cacheBSize;
 
-cache *icache;
-cache *dcache;
+cache icache[128];
+cache dcache[128];
+writebuffer wrbuffer[16];
 
 int register_file[REGISTER_SIZE];
 
