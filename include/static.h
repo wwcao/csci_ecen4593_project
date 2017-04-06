@@ -4,11 +4,11 @@
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
 
-#define MEMORY_SIZE           4096
+#define MEMORY_SIZE           2048
 #define INS_END_POS           256
 #define INS_START_POS         0
 
-#define REGISTER_NUM          32
+#define REGISTER_SIZE         32
 
 // MASKes
 #define OP_MASK               0xfc000000
@@ -161,5 +161,16 @@ typedef struct {
 typedef struct {
 
 } shadow_registers;
+
+
+typedef struct {
+  unsigned int tag;
+  unsigned int data;
+} cachedata;
+
+typedef struct {
+  bool valid;
+  cachedata *block;
+} cache;
 
 #endif

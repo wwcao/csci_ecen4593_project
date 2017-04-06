@@ -1,18 +1,24 @@
-#include <stdio.h>
+#include "static.h"
+#include "utils.h"
+#include "cache.h"
 
 #ifndef __UNITS_HEADER__
 #define __UNITS_HEADER__
 
-#include "static.h"
-#include "cache.h"
-#include "utils.h"
+extern int test[5];
+
+unsigned int clock;
 
 unsigned int memory[MEMORY_SIZE];
+
+unsigned icacheBNum;
+unsigned dcacheBNum;
+unsigned cacheBSize;
 
 cache *icache;
 cache *dcache;
 
-int register_file[REGISTER_NUM];
+int register_file[REGISTER_SIZE];
 
 unsigned int PC;
 

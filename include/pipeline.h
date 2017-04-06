@@ -1,13 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <strings.h>
-
-#ifndef __PIPELINE_HEADER__
-#define __PIPELINE_HEADER__
-
 #include "static.h"
 #include "units.h"
 #include "utils.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#ifndef __PIPELINE_HEADER__
+#define __PIPELINE_HEADER__
 
 #define IS_PIPELINE             1
 

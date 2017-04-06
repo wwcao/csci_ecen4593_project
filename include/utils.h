@@ -1,15 +1,15 @@
-
+#include "static.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "memory.h"
-#include "units.h"
-#include "static.h"
 
 #ifndef __UTILS_HEADER__
 #define __UTILS_HEADER__
-// external
-unsigned int clock;
+
+extern unsigned int memory[MEMORY_SIZE];
+extern int register_file[REGISTER_SIZE];
+extern unsigned int clock;
+extern unsigned int PC;
 
 // globals
 unsigned int numIns;
@@ -28,7 +28,6 @@ op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);
 
-// TODO: Function to initialize all units
 void printRegisters();
 void Error(const char*);
 void testSum(unsigned int total);

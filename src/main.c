@@ -1,50 +1,52 @@
-#include <stdio.h>
+#include "units.h"
 #include "pipeline.h"
 
-
-unsigned int clock;
-unsigned int testNum;
-int tests[8][5];
+unsigned int indexTest;
+int test[5];
 
 int main() {
-  clock = 0;
-  testNum = 0;
+  int tests[][5] = {
+    {0, 128, 256, 4, POLICY_WT},
+    {0, 128, 256, 4, POLICY_WB},
+    {0, 128, 256, 1, POLICY_WT},
+    {0, 128, 256, 1, POLICY_WB},
+    {0, 64,  256, 4, POLICY_WT},
+    {0, 64,  256, 4, POLICY_WB},
+    {0, 64,  256, 1, POLICY_WT},
+    {0, 64,  256, 1, POLICY_WB},
+    //
+    {1, 128, 256, 4, POLICY_WT},
+    {1, 128, 256, 4, POLICY_WB},
+    {1, 128, 256, 1, POLICY_WT},
+    {1, 128, 256, 1, POLICY_WB},
+    {1, 64,  256, 4, POLICY_WT},
+    {1, 64,  256, 4, POLICY_WB},
+    {1, 64,  256, 1, POLICY_WT},
+    {1, 64,  256, 1, POLICY_WB}
+  };
 
-	//loadInstructions();
-  while(testNum < 8) {
+  clock = 0;
+  while(indexTest < 8) {
+    printf("\n------\nRound %u\n------\n", indexTest);
+    memcpy(&test, &tests[indexTest], sizeof(int)*5);
     init_utils();
     init_units();
     init_pipeline();
+
     while(1){
         start();
         clock++;
         if(PC==0) break;
     }
     printSummary();
-    testNum++;
+    indexTest++;
     clock = 0;
+
   }
-  printf("DONE\n");
+  printf("try to access cache[%d]", icache[0].valid);
 	return 0;
 }
 
 /*
-{
-  {0, 128, 256, 4, POLICY_WT},
-  {0, 128, 256, 4, POLICY_WB},
-  {0, 128, 256, 1, POLICY_WT},
-  {0, 128, 256, 1, POLICY_WB},
-  {0, 64,  256, 4, POLICY_WT},
-  {0, 64,  256, 4, POLICY_WB},
-  {0, 64,  256, 1, POLICY_WT},
-  {0, 64,  256, 1, POLICY_WB},
-  //
-  {1, 128, 256, 4, POLICY_WT},
-  {1, 128, 256, 4, POLICY_WB},
-  {1, 128, 256, 1, POLICY_WT},
-  {1, 128, 256, 1, POLICY_WB},
-  {1, 64,  256, 4, POLICY_WT},
-  {1, 64,  256, 4, POLICY_WB},
-  {1, 64,  256, 1, POLICY_WT}
-};
+
 */
