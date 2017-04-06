@@ -41,7 +41,6 @@ int main() {
     printSummary();
     indexTest++;
     clock = 0;
-
   }
   printf("try to access cache[%d]", icache[0].valid);
 	return 0;
