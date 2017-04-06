@@ -78,6 +78,9 @@
 #define $sp							29
 #define $fp							30
 
+#define POLICY_WT              0
+#define POLICY_WB              1
+
 typedef enum {FORMAT_I = 0, FORMAT_R,FORMAT_J} op_format;
 typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_IMM} part_type;
 typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;

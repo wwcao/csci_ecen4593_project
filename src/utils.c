@@ -205,7 +205,7 @@ void printWriteCacheStat() {
 }
 
 void Error(const char* msg) {
-    printf("%s", msg);
+    printf("Error: %s\n", msg);
     exit(1);
 }
 

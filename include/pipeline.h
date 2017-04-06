@@ -11,8 +11,6 @@
 
 #define IS_PIPELINE             1
 
-unsigned int clock;
-
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;

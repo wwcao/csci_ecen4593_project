@@ -2,16 +2,16 @@
 
 void IF(void) {
 	// handle is pipeline
+	if((!PC)) {
+    //run_pipeline--;
+    return;
+	}
+
 	if((!IS_PIPELINE) && (cStage != STAGE_IF)) {
 		return;
 	}
 
 	// IF Operation
-	if(PC==0) {
-    run_pipeline--;
-    return;
-	}
-
 	if(Flush_if || Stall_harzard) {
     numNop++;
     return;
@@ -47,6 +47,10 @@ void ID(void) {
 	int regVal1, regVal2;
 
 	// handle is pipeline
+	if((!PC)) {
+    return;
+	}
+
 	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
 		return;
 	}
@@ -87,6 +91,10 @@ void ID(void) {
 void EX(void) {
 	int src1, src2;
 
+  if((!PC)) {
+    return;
+	}
+
 	if((!IS_PIPELINE) && (cStage != STAGE_EX)) {
 		return;
 	}
@@ -120,6 +128,11 @@ void EX(void) {
 
 void MEM(void) {
 	unsigned int addr;
+
+	if((!PC)) {
+    return;
+	}
+
 	if((!IS_PIPELINE) && (cStage != STAGE_MEM)) {
 		return;
 	}
@@ -144,8 +157,10 @@ void MEM(void) {
 }
 
 void WB(void) {
-
-	if((!IS_PIPELINE) & (cStage != STAGE_WB)) {
+  if((!PC)) {
+    return;
+	}
+	if((!IS_PIPELINE) & (cStage != STAGE_WB)|| (!PC)) {
 		return;
 	}
 
@@ -640,4 +655,8 @@ void init_pipeline() {
 	cStage = STAGE_IF;
 	nStage = STAGE_IF;
 	run_pipeline = 3;
+	memset(&ifid_reg, 0, sizeof(IFID_Register));
+	memset(&idex_reg, 0, sizeof(IDEX_Register));
+	memset(&exmem_reg, 0, sizeof(EXMEM_Register));
+	memset(&memwb_reg, 0, sizeof(MEMWB_Register));
 }

@@ -5,6 +5,7 @@
 
 #include "static.h"
 #include "cache.h"
+#include "utils.h"
 
 unsigned int memory[MEMORY_SIZE];
 
@@ -21,5 +22,6 @@ EXMEM_Register exmem_reg;
 MEMWB_Register memwb_reg;
 
 void init_units();
-
+void init_registers();
+void init_caches();
 #endif

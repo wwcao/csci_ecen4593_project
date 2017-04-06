@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifndef __CACHE_HEADER__
 #define __CACHE_HEADER__
 
