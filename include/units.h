@@ -1,11 +1,16 @@
 #include <stdio.h>
-#include "static.h"
+
 #ifndef __UNITS_HEADER__
 #define __UNITS_HEADER__
 
+#include "static.h"
+#include "cache.h"
+
 unsigned int memory[MEMORY_SIZE];
-unsigned int imemory[IMEMORY_SIZE];
-unsigned int dmemory[DMEMORY_SIZE];
+
+cache *icache;
+cache *dcache;
+
 int register_file[REGISTER_NUM];
 
 unsigned int PC;

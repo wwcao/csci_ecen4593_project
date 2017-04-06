@@ -1,18 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
-#include "static.h"
-#include "units.h"
-#include "utils.h"
 
 #ifndef __PIPELINE_HEADER__
 #define __PIPELINE_HEADER__
 
+#include "static.h"
+#include "units.h"
+#include "utils.h"
+
 #define IS_PIPELINE             1
-#define RUNTOEND                0
 
 unsigned int clock;
-unsigned short missPenalty;
 
 unsigned int pcSrc1;
 unsigned int pcSrc2;

@@ -168,6 +168,8 @@ unsigned getPartNum(int ins, part_type ptype) {
 }
 
 void printSummary() {
+  printf("result: \n[0x%08x]\n[0x%08x]\n[0x%08x]\n[0x%08x]\n",
+		memory[6],memory[7],memory[8],memory[9]);
   printf("=====================================\n");
   printf("  Summary\n");
   printf("Cycle[%u]\n", clock);

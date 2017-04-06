@@ -4,9 +4,7 @@
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
 
-#define MEMORY_SIZE           16384
-#define DMEMORY_SIZE          4096
-#define IMEMORY_SIZE          4096
+#define MEMORY_SIZE           4096
 #define INS_END_POS           256
 #define INS_START_POS         0
 
