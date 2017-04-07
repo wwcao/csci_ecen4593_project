@@ -177,6 +177,6 @@ typedef struct {
 typedef struct {
   unsigned int addr;
   unsigned int data;
-} writebuffer
+} writebuffer;
 
 #endif
