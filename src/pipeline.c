@@ -112,6 +112,7 @@ void EX(void) {
 	_exmem_reg.MemRead = idex_reg.MemRead;
 	_exmem_reg.MemWrite = idex_reg.MemWrite;
 	_exmem_reg.Branch = idex_reg.Branch;
+  _exmem_reg.dataLen = idex_reg.dataLen;
 
 	_exmem_reg.MemtoReg = idex_reg.MemtoReg;
 	_exmem_reg.dataToMem = src2;
@@ -128,6 +129,10 @@ void EX(void) {
 
 void MEM(void) {
 	unsigned int addr;
+	unsigned short offset;
+  unsigned short shamt;
+  unsigned int data;
+  unsigned int mask;
 
 	if((!PC)) {
     return;
@@ -144,13 +149,41 @@ void MEM(void) {
 	_memwb_reg.MemtoReg = exmem_reg.MemtoReg;
 	_memwb_reg.aluResult = exmem_reg.aluResult;
 	_memwb_reg.rd = exmem_reg.rd;
+
+	offset = exmem_reg.aluResult&0x3;
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
-		memory[addr] = exmem_reg.dataToMem;
+    switch(exmem_reg.dataLen) {
+      case DLEN_W:
+        memory[addr] = exmem_reg.dataToMem;
+        break;
+      case DLEN_B:
+        shamt = (3-offset)*8;
+        data = ((exmem_reg.dataToMem)&0xff)<<shamt;
+        mask = 0xff<<shamt;
+        memory[addr] = (memory[addr]&(~mask))|data;
+        break;
+      default:
+        printf("Error MEM_WRITE @ clock: %u, PC: %04d, instruction: [0x%x]\n",
+                    clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
+        exit(1);
+    }
 	}
 	if(exmem_reg.MemRead) {
-		_memwb_reg.memValue = memory[addr];
+    switch(exmem_reg.dataLen) {
+      case DLEN_W:
+        _memwb_reg.memValue = memory[addr];
+        break;
+      case DLEN_B:
+        shamt = (3-offset)*8;
+        _memwb_reg.memValue = (memory[addr]>>shamt)&0xff;
+        break;
+      default:
+        printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
+                    clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
+        exit(1);
+    }
 	}
 
 	nStage = STAGE_WB;
@@ -237,6 +270,10 @@ void aluUnitOperation(int src1, int src2) {
 						break;
           case I_LUI:
             result = idex_reg.extendedValue<<16;
+            break;
+          case I_SEB:
+            // breaking the format
+            result = idex_reg.extendedValue;
             break;
 					default:
 						printf("Error I @ clock: %u, PC: %04d, instruction: [0x%x]\n",
@@ -347,13 +384,13 @@ void ctlUnitOperation(unsigned int opCode,
 		}
 		// case LW
 		/*
-		case 0x20:
 		case 0x21:
-
 		case 0x24:
 		case 0x25:
 		case 0x26:
 		*/
+		case 0x20:
+		  _idex_reg.dataLen = DLEN_B;
     case 0x23:
 			_idex_reg.RegWrite = true;
 			_idex_reg.MemtoReg = true;
@@ -363,11 +400,12 @@ void ctlUnitOperation(unsigned int opCode,
 			break;
 		// case SW
 		/*
-		case 0x28:
 		case 0x29:
 		case 0x2a:
 		case 0x2e: // swr
 		*/
+		case 0x28:
+		  _idex_reg.dataLen = DLEN_B;
     case 0x2b:
 			_idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
@@ -451,6 +489,16 @@ void ctlUnitOperation(unsigned int opCode,
           }
         break;
         }
+      break;
+    case 0x1f:
+      // breaking I-Format
+      _idex_reg.rd = getPartNum(ifid_reg.instruction, PART_RD);
+      _idex_reg.extendedValue = regVal2&0x00000080?
+                                  regVal2|0xffffff00:
+                                  regVal2&0x000000ff;
+      _idex_reg.RegWrite = true;
+			_idex_reg.ALUOp = ALUOP_R;
+			_idex_reg.ALUSrc = true;
       break;
 		default:
 			// I

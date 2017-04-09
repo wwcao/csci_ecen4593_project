@@ -35,6 +35,8 @@
 #define I_ADDIU               0x09	// LI
 #define I_SLTI                0x0a
 #define I_SLTIU               0x0b    // For preview TODO: change it back
+#define I_SEB                 0x1f
+
 //#define I_SLTIU
 #define I_ANDI	 	      0x0c
 #define I_BEQ		      	0x04
@@ -87,6 +89,7 @@ typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_
 typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
 typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {false = 0, true = 1} bool;
+typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW} lwsw_len;
 
 //
 // pipeline register types
@@ -110,6 +113,8 @@ typedef struct {
 	bool Branch; // present in 4.51
 	bool MemRead;
 	bool MemWrite;
+  lwsw_len dataLen;
+
 	// EX
 	bool ALUSrc;
 	bool RegDst;
@@ -136,6 +141,7 @@ typedef struct {
 	bool Branch; // present in 4.51
 	bool MemRead;
 	bool MemWrite;
+	lwsw_len dataLen;
 
 	bool zero;
 	int aluResult;
