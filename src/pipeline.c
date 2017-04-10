@@ -273,7 +273,7 @@ void aluUnitOperation(int src1, int src2) {
             break;
           case I_SEB:
             // breaking the format
-            result = src2;
+            result = ((int)src2<<24)>>24;
             break;
 					default:
 						printf("Error I @ clock: %u, PC: %04d, instruction: [0x%x]\n",
