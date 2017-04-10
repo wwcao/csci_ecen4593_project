@@ -273,7 +273,7 @@ void aluUnitOperation(int src1, int src2) {
             break;
           case I_SEB:
             // breaking the format
-            result = idex_reg.extendedValue;
+            result = src2;
             break;
 					default:
 						printf("Error I @ clock: %u, PC: %04d, instruction: [0x%x]\n",
@@ -493,12 +493,9 @@ void ctlUnitOperation(unsigned int opCode,
     case 0x1f:
       // breaking I-Format
       _idex_reg.rd = getPartNum(ifid_reg.instruction, PART_RD);
-      _idex_reg.extendedValue = regVal2&0x00000080?
-                                  regVal2|0xffffff00:
-                                  regVal2&0x000000ff;
-      _idex_reg.RegWrite = true;
+			_idex_reg.RegWrite = true;
 			_idex_reg.ALUOp = ALUOP_R;
-			_idex_reg.ALUSrc = true;
+			_idex_reg.RegDst = true;
       break;
 		default:
 			// I
