@@ -48,7 +48,7 @@ void policyWritethrough() {
 
 }
 
-void fileCache(cache_t type, unsigned int addr){
+void fillCache(cache_t type, unsigned int addr){
   unsigned int blockInd;
   unsigned int lineInd;
   unsigned int tag;
@@ -58,28 +58,29 @@ void fileCache(cache_t type, unsigned int addr){
   lineInd = cacheBSize==4?addr&0x11:addr&0x0;
   switch(type) {
     case CACHE_D:
-
-
-
+      blockInd = (addr>>(cacheBSize>>1))&dcacheBMask;
+      cache_des = &dcache[blockInd];
       break;
     case CACHE_I:
-
-
+      blockInd = (addr>>(cacheBSize>>1))&icacheBMask;
+      cache_des = &icache[blockInd];
       break;
   }
-  if(!cache_des) Error("Error");
+
   cache_des->valid = true;
   cache_des->block[lineInd].data = memory[addr];
   cache_des->block[lineInd].tag = tag;
+  return;
 }
 
 unsigned int getTag(cache_t ctype, unsigned int addr) {
   int tag;
   if(ctype == CACHE_D) {
-
+    tag = (addr >> (cacheBSize>>1))>>dcacheBBits;
     return tag;
   }
   else {
+    tag = (addr >> (cacheBSize>>1))>>icacheBBits;
     return tag;
   }
 }
@@ -89,23 +90,23 @@ void initial_cacheCtl() {
   unsigned int bNum;
   unsigned int mask;
   bitNum = 0;
-  mask = 1;
+  mask = 0;
   bNum = dcacheBNum;
   while(bNum>1) {
-      bitNum++;
-      mask = (mask<<1)+1;
-      bNum >>= 1;
+    bitNum++;
+    mask = (mask<<1)+1;
+    bNum >>= 1;
   }
   dcacheBBits = bitNum;
   dcacheBMask = mask;
 
   bitNum = 0;
   bNum = icacheBNum;
-  mask = 1;
+  mask = 0;
   while(bNum>1) {
-      bitNum++;
-      mask = (mask<<1)+1;
-      bNum >>= 1;
+    bitNum++;
+    mask = (mask<<1)+1;
+    bNum >>= 1;
   }
   icacheBBits = bitNum;
   icacheBMask = mask;

@@ -27,7 +27,7 @@ bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offs
 void policyWriteback();
 void policyWritethrough();
 
-void fillCacheAddr(cache_t type, unsigned int addr);
+void fillCache(cache_t type, unsigned int addr);
 unsigned int getTag(cache_t type, unsigned int addr);
 
 void initial_cacheCtl();

@@ -21,20 +21,32 @@ void init_registers() {
 }
 
 void init_caches() {
-  int line, block;
-  int min, diff;
-  int curAddr;
-  cache *clarge;
+  unsigned int addr;
+  unsigned int dWordNum;
+  unsigned int iWordNum;
 
+  iWordNum = test[1]/4;
+  dWordNum = test[2]/4;
   cacheBSize = test[3];
-  icacheBNum = (test[1]/4/cacheBSize);
-  dcacheBNum = (test[2]/4/cacheBSize);
+  icacheBNum = (iWordNum/cacheBSize);
+  dcacheBNum = (dWordNum/cacheBSize);
 
   memset(&icache, 0, sizeof(cache));
   memset(&dcache, 0, sizeof(cache));
 
   initial_cacheCtl();
 
+  addr = 0;
+  while(addr < iWordNum) {
+    fillCache(CACHE_I, addr);
+    addr++;
+  }
 
+  addr = 0;
+  while (addr < dWordNum) {
+    fillCache(CACHE_D, addr);
+    addr++;
+  }
+  return;
 }
 

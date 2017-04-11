@@ -16,8 +16,8 @@ unsigned int icacheBNum;
 unsigned int dcacheBNum;
 unsigned int cacheBSize;
 
-cache icache[MAX_CACHE_SIZE/4/MAX_CACHE_LINE];
-cache dcache[MAX_CACHE_SIZE/4/MAX_CACHE_LINE];
+cache icache[MAX_CACHE_SIZE/4];
+cache dcache[MAX_CACHE_SIZE/4];
 writebuffer wrbuffer[16];
 char missedPenalty;
 

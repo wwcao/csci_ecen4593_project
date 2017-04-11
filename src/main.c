@@ -13,7 +13,8 @@ const char *progSources[128] = {
 int main() {
 
   int tests[][5] = {
-    {0, 128, 256, 4, POLICY_WT},
+    //{0, 128, 256, 4, POLICY_WT},
+    {0, 128, 256, 1, POLICY_WT},
     {0, 128, 256, 4, POLICY_WB},
     {0, 128, 256, 1, POLICY_WT},
     {0, 128, 256, 1, POLICY_WB},
