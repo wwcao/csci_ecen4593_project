@@ -1,6 +1,8 @@
 #include "pipeline.h"
 
 void IF(void) {
+  //unsigned int instruction;
+
 	// handle is pipeline
 	if((!PC)) {
     //run_pipeline--;
@@ -12,6 +14,7 @@ void IF(void) {
 	}
 
 	// IF Operation
+  //instruction = 0;
 	if(Flush_if || Stall_harzard) {
     numNop++;
     return;
@@ -22,7 +25,6 @@ void IF(void) {
 		PC = pcSrc2;
 		PCSrc = false;
 	}
-
 	else if(!init_ins && !PCSrc) {
 		PC = pcSrc1;
 	}
@@ -30,10 +32,15 @@ void IF(void) {
 	if(init_ins)init_ins = false;
 
 	_ifid_reg.progCounter = PC;
-	_ifid_reg.instruction = memory[PC];
 
-	pcSrc1 = PC+1;
-	_ifid_reg.nPC = pcSrc1;
+	if(readFromCache(CACHE_I, PC, &(_ifid_reg.instruction))) {
+    //_ifid_reg.instruction = memory[PC];
+    pcSrc1 = PC+1;
+    _ifid_reg.nPC = pcSrc1;
+	}
+	else {
+    pcSrc1 = PC;
+	}
 
 	// set state ID after IF
 	nStage = STAGE_ID;
@@ -132,7 +139,7 @@ void MEM(void) {
 	unsigned short offset;
   unsigned short shamt;
   unsigned int data;
-  unsigned int mask;
+  bool Success;
 
 	if((!PC)) {
     return;
@@ -154,30 +161,23 @@ void MEM(void) {
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
-    switch(exmem_reg.dataLen) {
-      case DLEN_W:
-        memory[addr] = exmem_reg.dataToMem;
-        break;
-      case DLEN_B:
-        shamt = (3-offset)*8;
-        data = ((exmem_reg.dataToMem)&0xff)<<shamt;
-        mask = 0xff<<shamt;
-        memory[addr] = (memory[addr]&(~mask))|data;
-        break;
-      default:
-        printf("Error MEM_WRITE @ clock: %u, PC: %04d, instruction: [0x%x]\n",
-                    clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
-        exit(1);
+    Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
+    if((!missedPenalty)&&!Success) {
+      printf("Error MEM_WRITE @ clock: %u, PC: %04d, instruction: [0x%x]\n",
+              clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
+      exit(0);
     }
 	}
+
 	if(exmem_reg.MemRead) {
     switch(exmem_reg.dataLen) {
       case DLEN_W:
-        _memwb_reg.memValue = memory[addr];
+        readFromCache(CACHE_D, addr, &(_memwb_reg.memValue));
         break;
       case DLEN_B:
+        readFromCache(CACHE_D, addr, &data);
         shamt = (3-offset)*8;
-        _memwb_reg.memValue = (memory[addr]>>shamt)&0xff;
+        _memwb_reg.memValue = (data>>shamt)&0xff;
         break;
       default:
         printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
@@ -211,8 +211,8 @@ void WB(void) {
 	return;
 }
 
-void start(void) {
-
+void startPipeline(void) {
+  if(missedPenalty != 0) return;
   hdUnitOperation();
   IF();
 
@@ -643,6 +643,14 @@ void fwdUnitEX(int *src1, int *src2) {
 }
 
 void wirtetoPipelineRegs() {
+  if(missedPenalty != 0) {
+    numNop++;
+    memset(&_ifid_reg, 0, sizeof(IFID_Register));
+    memset(&_idex_reg, 0, sizeof(IDEX_Register));
+    memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
+    memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
+    return;
+  }
 
 	if(!Stall_harzard) {
     memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));

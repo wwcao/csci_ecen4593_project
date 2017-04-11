@@ -1,9 +1,10 @@
-#include "static.h"
-#include "utils.h"
-#include "cache.h"
+
 
 #ifndef __UNITS_HEADER__
 #define __UNITS_HEADER__
+
+#include "static.h"
+#include "utils.h"
 
 extern int test[5];
 
@@ -11,13 +12,14 @@ unsigned int clock;
 
 unsigned int memory[MEMORY_SIZE];
 
-unsigned icacheBNum;
-unsigned dcacheBNum;
-unsigned cacheBSize;
+unsigned int icacheBNum;
+unsigned int dcacheBNum;
+unsigned int cacheBSize;
 
-cache icache[128];
-cache dcache[128];
+cache icache[MAX_CACHE_SIZE/4/MAX_CACHE_LINE];
+cache dcache[MAX_CACHE_SIZE/4/MAX_CACHE_LINE];
 writebuffer wrbuffer[16];
+char missedPenalty;
 
 int register_file[REGISTER_SIZE];
 
@@ -28,7 +30,10 @@ IDEX_Register idex_reg;
 EXMEM_Register exmem_reg;
 MEMWB_Register memwb_reg;
 
+#include "cache.h"
+
 void init_units();
 void init_registers();
 void init_caches();
+
 #endif

@@ -1,20 +1,34 @@
-#include "static.h"
-#include "utils.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 #ifndef __CACHE_HEADER__
 #define __CACHE_HEADER__
 
-#define   ICACHE_SIZE           0
-#define   MISS_PENALTY      8           // clock cycle
+#include "static.h"
+#include "utils.h"
+#include "units.h" //
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-char missedPenalty;
+#define CACHE_ENABLED          0
 
-bool readAddr(unsigned int addr, unsigned int data);
-bool writeAddr(unsigned int addr, unsigned int data);
+#define MISS_PENALTY           8           // clock cycle
+#define SUBLINE_PENALTY        2
+
+unsigned short icacheBBits;
+unsigned short dcacheBBits;
+unsigned int icacheBMask;
+unsigned int dcacheBMask;
+
+bool readFromCache(char type, unsigned int addr, unsigned int *data);
+bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
+
+bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 
 void policyWriteback();
 void policyWritethrough();
+
+void fillCacheAddr(cache_t type, unsigned int addr);
+unsigned int getTag(cache_t type, unsigned int addr);
+
+void initial_cacheCtl();
 #endif // __CACHE_HEADER__

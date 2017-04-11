@@ -1,5 +1,8 @@
+#include <stdint.h>
 #ifndef __STATIC_HEADER__
 #define __STATIC_HEADER__
+
+int32_t a;
 
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
@@ -81,15 +84,18 @@
 #define $sp							29
 #define $fp							30
 
+#define MAX_CACHE_SIZE         256
+#define MAX_CACHE_LINE         4
 #define POLICY_WT              0
 #define POLICY_WB              1
 
-typedef enum {FORMAT_I = 0, FORMAT_R,FORMAT_J} op_format;
+typedef enum {FORMAT_I = 0, FORMAT_R, FORMAT_J} op_format;
 typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_IMM} part_type;
 typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
 typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {false = 0, true = 1} bool;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW} lwsw_len;
+typedef enum {CACHE_I, CACHE_D} cache_t;
 
 //
 // pipeline register types
@@ -157,7 +163,7 @@ typedef struct {
 	bool MemtoReg;
 	bool RegWrite;
 
-	int memValue;
+	unsigned int memValue;
 	int aluResult;
 	unsigned short rd;
 
@@ -177,7 +183,7 @@ typedef struct {
 
 typedef struct {
   bool valid;
-  cachedata block[4];
+  cachedata block[MAX_CACHE_LINE];
 } cache;
 
 typedef struct {

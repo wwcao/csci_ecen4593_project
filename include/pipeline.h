@@ -1,12 +1,13 @@
+#ifndef __PIPELINE_HEADER__
+#define __PIPELINE_HEADER__
+
 #include "static.h"
 #include "units.h"
 #include "utils.h"
+#include "cache.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
-#ifndef __PIPELINE_HEADER__
-#define __PIPELINE_HEADER__
 
 #define IS_PIPELINE             1
 
@@ -44,11 +45,9 @@ void ID(void);
 void EX(void);
 void MEM(void);
 void WB(void);
-void start(void);
+void startPipeline(void);
 
 void aluUnitOperation(int src1, int src2);
-// controll
-
 void ctlUnitOperation(unsigned int opCode,
 				int regVal1, int regVal2,
 				int extendedValue);

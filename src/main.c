@@ -4,7 +4,14 @@
 unsigned int indexTest;
 int test[5];
 
+const char *progSources[128] = {
+  "program1File.txt",
+  "program2File.txt",
+  NULL
+};
+
 int main() {
+
   int tests[][5] = {
     {0, 128, 256, 4, POLICY_WT},
     {0, 128, 256, 4, POLICY_WB},
@@ -24,9 +31,10 @@ int main() {
     {1, 64,  256, 1, POLICY_WT},
     {1, 64,  256, 1, POLICY_WB}
   };
+//  filepaths = filenames;
 
   clock = 0;
-  while(indexTest < 8) {
+  while(indexTest < 16) {
     printf("\n------\nRound %u\n------\n", indexTest);
     memcpy(&test, &tests[indexTest], sizeof(int)*5);
     init_utils();
@@ -34,7 +42,7 @@ int main() {
     init_pipeline();
 
     while(1){
-        start();
+        startPipeline();
         clock++;
         if(PC==0) break;
     }

@@ -1,15 +1,18 @@
+
+
+#ifndef __UTILS_HEADER__
+#define __UTILS_HEADER__
+
 #include "static.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef __UTILS_HEADER__
-#define __UTILS_HEADER__
-
 extern unsigned int memory[MEMORY_SIZE];
 extern int register_file[REGISTER_SIZE];
 extern unsigned int clock;
 extern unsigned int PC;
+extern const char *progSources[128];
 
 // globals
 unsigned int numIns;
@@ -22,7 +25,7 @@ unsigned int numWrite;
 unsigned int numReadMissed;
 unsigned int numWriteMissed;
 
-unsigned int readInstruction();
+unsigned int readInstruction(const char* path);
 int loadInstructions();
 op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);

@@ -1,10 +1,128 @@
+#include <cache.h>
+
+bool readFromCache(char type, unsigned int addr, unsigned int *data) {
+  if(!CACHE_ENABLED) {
+    *data = memory[addr];
+    return true;
+  }
+
+  // CACHE READ OPERATION
+
+  return false;
+}
+
+bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
+  if(!CACHE_ENABLED) {
+    return handleWRCDisabled(addr, data, offset, wsize);
+  }
+
+  // CACHE WRITE OPERATION
+
+  return false;
+}
+
+bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
+  unsigned int shamt;
+  unsigned int mask;
+  switch(wsize) {
+    case DLEN_W:
+      memory[addr] = data;
+      return true;
+    case DLEN_B:
+      shamt = (3-offset)*8;
+      data = ((data)&0xff)<<shamt;
+      mask = 0xff<<shamt;
+      memory[addr] = (memory[addr]&(~mask))|data;
+      return true;
+    default:
+      break;
+  }
+  return false;
+}
+
+void policyWriteback() {
+
+}
+
+void policyWritethrough() {
+
+}
+
+void fileCache(cache_t type, unsigned int addr){
+  unsigned int blockInd;
+  unsigned int lineInd;
+  unsigned int tag;
+  cache *cache_des;
+
+  tag = getTag(type, addr);
+  lineInd = cacheBSize==4?addr&0x11:addr&0x0;
+  switch(type) {
+    case CACHE_D:
+
+
+
+      break;
+    case CACHE_I:
+
+
+      break;
+  }
+  if(!cache_des) Error("Error");
+  cache_des->valid = true;
+  cache_des->block[lineInd].data = memory[addr];
+  cache_des->block[lineInd].tag = tag;
+}
+
+unsigned int getTag(cache_t ctype, unsigned int addr) {
+  int tag;
+  if(ctype == CACHE_D) {
+
+    return tag;
+  }
+  else {
+    return tag;
+  }
+}
+
+void initial_cacheCtl() {
+  unsigned int bitNum;
+  unsigned int bNum;
+  unsigned int mask;
+  bitNum = 0;
+  mask = 1;
+  bNum = dcacheBNum;
+  while(bNum>1) {
+      bitNum++;
+      mask = (mask<<1)+1;
+      bNum >>= 1;
+  }
+  dcacheBBits = bitNum;
+  dcacheBMask = mask;
+
+  bitNum = 0;
+  bNum = icacheBNum;
+  mask = 1;
+  while(bNum>1) {
+      bitNum++;
+      mask = (mask<<1)+1;
+      bNum >>= 1;
+  }
+  icacheBBits = bitNum;
+  icacheBMask = mask;
+  return;
+}
+
+
+
+
+/*
 #include "static.h"
 #include <math.h>
 
 #ifndef __CACHE_HEADER__
 #define __CACHE_HEADER__
 
-#define L1_SIZE 
+#define L1_SIZE
 #define L1_CACHESIZE 3 // 3KB
 #define L1_BLOCKSIZE 16 // lines
 #define L1_ICACHE_SIZE 128 // bytes
@@ -30,12 +148,12 @@ bool readAddr(Cache cache[], char* addr_index){
 	if( tag == cache[index].tag && cache[index].valid == true ){
 		return true;
 	}
-	updateAddr(cache[],tag,index,addr_index);
+	//updateAddr(cache[],tag,index,addr_index);
 	return false;
 }
 
 void updateAddr(Cache cache[],char* tag, int index, char* addr_index){
-	
+
 	cache[index].valid = true;
 	cache[index].tag = tag;
 	cache[index].value = btoi(addr_index);
@@ -78,7 +196,7 @@ char* htob( char* address){
         	}
     	}
 	strcat(binary,"\0");
-    return binary;	
+    return binary;
 }
 
 char* get_tag(char* addr_index){
@@ -112,3 +230,5 @@ int set_penalty(bool is_hit){
 	if(is_hit) return 0;
 	return MISS_PENALTY;
 }
+*/
+

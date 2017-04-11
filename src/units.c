@@ -8,9 +8,10 @@ void init_units() {
     memory[i+2] = 0;
     memory[i+3] = 0;
   }
-  loadInstructions();
+  readInstruction(progSources[test[0]]);
   init_registers();
   init_caches();
+  missedPenalty = 0;
 }
 
 void init_registers() {
@@ -20,15 +21,20 @@ void init_registers() {
 }
 
 void init_caches() {
-  int i, j;
+  int line, block;
+  int min, diff;
+  int curAddr;
+  cache *clarge;
+
   cacheBSize = test[3];
   icacheBNum = (test[1]/4/cacheBSize);
   dcacheBNum = (test[2]/4/cacheBSize);
 
-  for(i = 0; i < 128; i++) {
-    for(j = 0; j < 128; j++) {
-      memset(icache, 0, sizeof(cache));
-      memset(dcache, 0, sizeof(cache));
-    }
-  }
+  memset(&icache, 0, sizeof(cache));
+  memset(&dcache, 0, sizeof(cache));
+
+  initial_cacheCtl();
+
+
 }
+
