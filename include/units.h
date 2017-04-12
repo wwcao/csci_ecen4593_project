@@ -16,8 +16,8 @@ unsigned int icacheBNum;
 unsigned int dcacheBNum;
 unsigned int cacheBSize;
 
-cache icache[MAX_CACHE_SIZE/4];
-cache dcache[MAX_CACHE_SIZE/4];
+cache *icache;
+cache *dcache;
 writebuffer wrbuffer[16];
 char missedPenalty;
 
@@ -36,4 +36,6 @@ void init_units();
 void init_registers();
 void init_caches();
 
+
+void destroyCaches();
 #endif

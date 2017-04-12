@@ -40,4 +40,7 @@ void printReadCacheStat();
 void printWriteCacheStat();
 void init_utils();
 
+cache* createCache(unsigned int blockNum, unsigned int lineNum);
+void destroyUnusedCache(cache* target, unsigned int blockNum);
+
 #endif

@@ -175,7 +175,7 @@ typedef struct {
 
 } shadow_registers;
 
-
+/*
 typedef struct {
   unsigned int tag;
   unsigned int data;
@@ -184,6 +184,17 @@ typedef struct {
 typedef struct {
   bool valid;
   cachedata block[MAX_CACHE_LINE];
+} cache;
+*/
+
+typedef struct {
+  unsigned int tag;
+  unsigned int data;
+} cachedata;
+
+typedef struct {
+  bool valid;
+  cachedata *block;
 } cache;
 
 typedef struct {

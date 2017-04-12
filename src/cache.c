@@ -54,22 +54,25 @@ void fillCache(cache_t type, unsigned int addr){
   unsigned int lineInd;
   unsigned int tag;
   cache *cache_des;
+  cachedata *block_des;
 
   lineInd = getLine(addr);
   tag = getTag(type, addr);
   blockInd = getBlock(type, addr);
   switch(type) {
     case CACHE_D:
-      cache_des = &dcache[blockInd];
+      cache_des = &(dcache[blockInd]);
       break;
     case CACHE_I:
-      cache_des = &icache[blockInd];
+      cache_des = &(icache[blockInd]);
       break;
   }
 
   cache_des->valid = true;
-  cache_des->block[lineInd].data = memory[addr];
-  cache_des->block[lineInd].tag = tag;
+  block_des = (cache_des->block);
+  block_des += lineInd;
+  block_des->data = memory[addr];
+  block_des->tag = tag;
   return;
 }
 
@@ -95,7 +98,7 @@ unsigned int getBlock(cache_t ctype, unsigned int addr) {
 }
 
 unsigned int getLine(unsigned int addr) {
-  return cacheBSize==4?addr&0x11:addr&0x0;;
+  return cacheBSize==4?addr&0x3:0;
 }
 
 void initial_cacheCtl() {

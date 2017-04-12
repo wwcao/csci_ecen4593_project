@@ -25,17 +25,22 @@ void init_caches() {
   unsigned int dWordNum;
   unsigned int iWordNum;
 
+  // Setup Cache Info
   iWordNum = test[1]/4;
   dWordNum = test[2]/4;
   cacheBSize = test[3];
+
   icacheBNum = (iWordNum/cacheBSize);
   dcacheBNum = (dWordNum/cacheBSize);
 
-  memset(&icache, 0, sizeof(cache));
-  memset(&dcache, 0, sizeof(cache));
-
+  // initalize cache control
   initial_cacheCtl();
 
+  // allocate caches
+  icache = createCache(icacheBNum, cacheBSize);
+  dcache = createCache(dcacheBNum, cacheBSize);
+
+  // setup caches
   addr = 0;
   while(addr < iWordNum) {
     fillCache(CACHE_I, addr);
@@ -48,5 +53,10 @@ void init_caches() {
     addr++;
   }
   return;
+}
+
+void destroyCaches() {
+  destroyUnusedCache(icache, icacheBNum);
+  destroyUnusedCache(dcache, dcacheBNum);
 }
 

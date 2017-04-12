@@ -32,5 +32,6 @@ unsigned int getTag(cache_t type, unsigned int addr);
 unsigned int getBlock(cache_t ctyp, unsigned int addr);
 unsigned int getLine(unsigned int addr);
 
+
 void initial_cacheCtl();
 #endif // __CACHE_HEADER__
