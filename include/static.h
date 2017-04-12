@@ -34,24 +34,29 @@ int32_t a;
 
 //Instruction Op
 // I format -- OPcode
-#define I_ADDI                0x08
-#define I_ADDIU               0x09	// LI
-#define I_SLTI                0x0a
-#define I_SLTIU               0x0b    // For preview TODO: change it back
-#define I_SEB                 0x1f
+#define I_ADDI              0x08
+#define I_ADDIU             0x09	// LI
+#define I_SLTI              0x0a
+#define I_SLTIU             0x0b    // For preview TODO: change it back
+#define I_ORI		      	    0x0d
+#define I_LUI		      	    0x0f
+#define I_SEB               0x1f
+#define I_ANDI	 	          0x0c
 
-//#define I_SLTIU
-#define I_ANDI	 	      0x0c
-#define I_BEQ		      	0x04
-#define I_BNE		      	0x05
-#define I_LBU		      	0x24
-#define I_LHU		      	0x25
-#define I_LUI		      	0x0f
-#define I_LW		      	0x23
-#define I_ORI		      	0x0d
-#define I_SD		      	0x28
-#define I_SH		      	0x29
-#define I_SW		      	0x2b
+#define I_BEQ		      	    0x04
+#define I_BNE		      	    0x05
+#define I_BLEZ              0x06
+#define I_BGTZ              0x07
+
+#define I_LB                0x20
+#define I_LH                0x21
+#define I_LW		      	    0x23
+#define I_LBU		      	    0x24
+#define I_LHU		      	    0x25
+
+#define I_SB		      	    0x28
+#define I_SH		      	    0x29
+#define I_SW		      	    0x2b
 
 // R format -- FUNC
 #define R_ADD           0x20
@@ -94,7 +99,7 @@ typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_
 typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
 typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {false = 0, true = 1} bool;
-typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW} lwsw_len;
+typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
 
 //
@@ -187,13 +192,11 @@ typedef struct {
 } cache;
 */
 
-typedef struct {
-  unsigned int tag;
-  unsigned int data;
-} cachedata;
+typedef unsigned int cachedata;
 
 typedef struct {
   bool valid;
+  unsigned int tag;
   cachedata *block;
 } cache;
 

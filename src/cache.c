@@ -69,10 +69,10 @@ void fillCache(cache_t type, unsigned int addr){
   }
 
   cache_des->valid = true;
+  cache_des->tag = tag;
   block_des = (cache_des->block);
   block_des += lineInd;
-  block_des->data = memory[addr];
-  block_des->tag = tag;
+  *block_des = memory[addr];
   return;
 }
 

@@ -17,7 +17,6 @@ unsigned int readInstruction(const char* path) {
     unsigned int ins;
     char buffer[MAX_READLINE];
 
-    printf("Filename: %s", path);
     FILE* f;
     if(!(f = fopen(path, "r"))) Error("Failed to read file\n");
 
@@ -73,11 +72,11 @@ unsigned getPartNum(int ins, part_type ptype) {
 cache* createCache(unsigned int blockNum, unsigned int lineNum) {
   cache* newCache;
   cachedata* newCData;
-  unsigned int memSize;
+  //unsigned int memSize;
   int i;
 
   newCache = NULL;
-  memSize = sizeof(cache)*blockNum;
+//  memSize = sizeof(cache)*blockNum;
   newCache = (cache*)calloc(blockNum, sizeof(cache));
   if(!newCache)  {
     Error("Error: Unable to allocate memory");
@@ -85,7 +84,7 @@ cache* createCache(unsigned int blockNum, unsigned int lineNum) {
 
   for(i = 0; i < blockNum; i++) {
     newCData = NULL;
-    newCData = (cachedata*)calloc(lineNum, sizeof(cachedata));
+    newCData = (cachedata*)calloc(lineNum, sizeof(unsigned int));
     if(!newCache) {
       destroyUnusedCache(newCache, blockNum);
       Error("Error: Unable to allocate memory");
