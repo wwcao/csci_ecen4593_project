@@ -11,6 +11,7 @@ extern int test[5];
 unsigned int clock;
 
 unsigned int memory[MEMORY_SIZE];
+bool MemBusy;
 
 unsigned int icacheBNum;
 unsigned int dcacheBNum;
@@ -20,6 +21,7 @@ cache *icache;
 cache *dcache;
 writebuffer wrbuffer[16];
 char missedPenalty;
+wr_policy wrPolicy;
 
 int register_file[REGISTER_SIZE];
 
@@ -30,12 +32,11 @@ IDEX_Register idex_reg;
 EXMEM_Register exmem_reg;
 MEMWB_Register memwb_reg;
 
-#include "cache.h"
-
 void init_units();
 void init_registers();
-void init_caches();
 
+#include "cache.h"
+void init_caches();
 
 void destroyCaches();
 #endif

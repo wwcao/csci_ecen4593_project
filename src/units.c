@@ -9,7 +9,10 @@ void init_units() {
     memory[i+3] = 0;
   }
   readInstruction(progSources[test[0]]);
+  MemBusy = false;
+
   init_registers();
+
   init_caches();
   missedPenalty = 0;
 }
@@ -29,6 +32,7 @@ void init_caches() {
   iWordNum = test[1]/4;
   dWordNum = test[2]/4;
   cacheBSize = test[3];
+  wrPolicy = test[4];
 
   icacheBNum = (iWordNum/cacheBSize);
   dcacheBNum = (dWordNum/cacheBSize);

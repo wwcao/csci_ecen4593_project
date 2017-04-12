@@ -14,6 +14,7 @@
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
 
+bool CacheBusy;
 unsigned short icacheBBits;
 unsigned short dcacheBBits;
 unsigned int icacheBMask;

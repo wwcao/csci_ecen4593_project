@@ -1,24 +1,60 @@
 #include <cache.h>
 
-bool readFromCache(char type, unsigned int addr, unsigned int *data) {
+bool readFromCache(char ctype, unsigned int addr, unsigned int *data) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
   if(!CACHE_ENABLED) {
     *data = memory[addr];
     return true;
   }
 
   // CACHE READ OPERATION
+  tag = getTag(ctype, addr);
+  block = getBlock(ctype, addr);
+  line = getLine(addr);
+  switch(ctype) {
+    case CACHE_D:
+      srcCache = dcache[block];
+      if(srcCache.valid&&(srcCache.tag = tag)) break;
+
+      // Cache Missd
+      missedPenalty = MISS_PENALTY+SUBLINE_PENALTY*line;
 
 
-  return false;
+
+      return false;
+    case CACHE_I:
+      srcCache = icache[block];
+      if(srcCache.valid&&(srcCache.tag = tag)) break;
+
+      // Cache Missd
+      missedPenalty = MISS_PENALTY+SUBLINE_PENALTY*line;
+
+
+
+      return false;
+      default:
+        Error("Error: Wrong Cache type");
+  }
+  *data = srcCache.block[line];
+  return true;
 }
 
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
   if(!CACHE_ENABLED) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }
-
   // CACHE WRITE OPERATION
 
+  switch(wrPolicy) {
+    case POLICY_WB:
+
+      break;
+    case POLICY_WT:
+
+      break;
+  }
   return false;
 }
 
@@ -37,8 +73,8 @@ bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offs
       return true;
     case DLEN_HW:
       shamt = (1-offset)*16;
-      data = ((data)&0xff)<<shamt;
-      mask = 0xff<<shamt;
+      data = ((data)&0xffff)<<shamt;
+      mask = 0xffff<<shamt;
       memory[addr] = (memory[addr]&(~mask))|data;
       return true;
     default:
@@ -132,11 +168,10 @@ void initial_cacheCtl() {
   }
   icacheBBits = bitNum;
   icacheBMask = mask;
+
+  CacheBusy = false;
   return;
 }
-
-
-
 
 /*
 #include "static.h"
