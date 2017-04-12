@@ -170,14 +170,32 @@ void MEM(void) {
 	}
 
 	if(exmem_reg.MemRead) {
+    readFromCache(CACHE_D, addr, &data);
     switch(exmem_reg.dataLen) {
       case DLEN_W:
-        readFromCache(CACHE_D, addr, &(_memwb_reg.memValue));
+        _memwb_reg.memValue = data;
         break;
       case DLEN_B:
-        readFromCache(CACHE_D, addr, &data);
         shamt = (3-offset)*8;
-        _memwb_reg.memValue = (data>>shamt)&0xff;
+        data >>= shamt;
+        data = data&0x80?(data|0xffffff00):data&0xff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_BU:
+        shamt = (3-offset)*8;
+        data = data&0xff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_HW:
+        shamt = (3-offset)*16;
+        data >>= shamt;
+        data = data&0x8000?(data|0xffff0000):data&0xffff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_HWU:
+        shamt = (3-offset)*16;
+        data = data&0xffff;
+        _memwb_reg.memValue = data;
         break;
       default:
         printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
@@ -364,15 +382,9 @@ void ctlUnitOperation(unsigned int opCode,
 			unsigned int func = extendedValue&FN_MASK;
 			switch (func) {
 				case J_R:
-					//printf("Decoded:  Format R\n");
 					pcSrc2 = regVal1;
 					PCSrc = true;
 					break;
-        /*
-				case R_MOVN:
-					// R_MOVEN\n"
-					if(regVal2 == 0) break;
-        */
 				default:
 					// Decoded R
 					_idex_reg.RegWrite= true;
@@ -382,79 +394,103 @@ void ctlUnitOperation(unsigned int opCode,
 			}
 			break;
 		}
+		// SPECIAL BEGIN
 		// case LW
-		/*
-		case 0x21:
-		case 0x24:
-		case 0x25:
-		case 0x26:
-		*/
-		case 0x20:
+		case 0x20|I_LB:
 		  _idex_reg.dataLen = DLEN_B;
-    case 0x23:
+
+		  _idex_reg.RegWrite = true;
+			_idex_reg.MemtoReg = true;
+			_idex_reg.MemRead = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+			break;
+    case 0x21|I_LH:
+      _idex_reg.dataLen = DLEN_HW;
+
+		  _idex_reg.RegWrite = true;
+			_idex_reg.MemtoReg = true;
+			_idex_reg.MemRead = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+      break;
+    case 0x23|I_LW:
 			_idex_reg.RegWrite = true;
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
 			_idex_reg.ALUOp = ALUOP_LWSW;
 			break;
+    case 0x24|I_LBU:
+      _idex_reg.dataLen = DLEN_BU;
+
+		  _idex_reg.RegWrite = true;
+			_idex_reg.MemtoReg = true;
+			_idex_reg.MemRead = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+      break;
+		case 0x25|I_LHU:
+      _idex_reg.dataLen = DLEN_HWU;
+
+		  _idex_reg.RegWrite = true;
+			_idex_reg.MemtoReg = true;
+			_idex_reg.MemRead = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+		  break;
 		// case SW
-		/*
-		case 0x29:
-		case 0x2a:
-		case 0x2e: // swr
-		*/
-		case 0x28:
+		case 0x28|I_SB:
 		  _idex_reg.dataLen = DLEN_B;
-    case 0x2b:
+		  _idex_reg.MemWrite = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+		  break;
+    case 0x29|I_SH:
+      _idex_reg.dataLen = DLEN_HW;
+		  _idex_reg.MemWrite = true;
+			_idex_reg.ALUSrc = true;
+			_idex_reg.ALUOp = ALUOP_LWSW;
+      break;
+    case 0x2b|I_SW:
 			_idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
 			_idex_reg.ALUOp = ALUOP_LWSW;
 			break;
 		// case Branch
-		case 0x04:
-			// BEQ
+		case 0x04|I_BEQ:
 			if(regVal1 != regVal2) break;
-
 			PCSrc = true;
 			pcSrc2 = extendedValue + ifid_reg.nPC;
 			break;
-		case 0x05:
-			// BNE
+		case 0x05|I_BNE:
 			if(regVal1 == regVal2) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			break;
-
-    case 0x06:
-			// BLEZ
+    case 0x06|I_BLEZ:
 			if(regVal1 > regVal2) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			break;
-    case 0x07:
-      // BGTZ
+    case 0x07|I_BGTZ:
       if(regVal1 <= 0) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
       break;
 		// case J-format
-		case 0x3:
-			// JAL
+		case 0x3|J_JAL:
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
 			register_file[31] = (ifid_reg.nPC + 1);
-
 			break;
-		case 0x2:
-			// J
+		case 0x2|J_J:
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
-
 			break;
     case 0x1:
       switch(_idex_reg.rt) {
@@ -490,13 +526,13 @@ void ctlUnitOperation(unsigned int opCode,
         break;
         }
       break;
-    case 0x1f:
-      // breaking I-Format
+    case 0x1f|I_SEB:
       _idex_reg.rd = getPartNum(ifid_reg.instruction, PART_RD);
 			_idex_reg.RegWrite = true;
 			_idex_reg.ALUOp = ALUOP_R;
 			_idex_reg.RegDst = true;
       break;
+    // SPECIAL END
 		default:
 			// I
 			_idex_reg.RegWrite = true;
@@ -530,7 +566,7 @@ void hdUnitOperation(void) {
       case 0x6:
       case 0x7:
         isBranch = true;
-        break;
+        //break;
     }
 
     if(isBranch && idex_reg.RegWrite &&
