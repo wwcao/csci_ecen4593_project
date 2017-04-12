@@ -35,6 +35,12 @@ bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offs
       mask = 0xff<<shamt;
       memory[addr] = (memory[addr]&(~mask))|data;
       return true;
+    case DLEN_HW:
+      shamt = (1-offset)*16;
+      data = ((data)&0xff)<<shamt;
+      mask = 0xff<<shamt;
+      memory[addr] = (memory[addr]&(~mask))|data;
+      return true;
     default:
       break;
   }

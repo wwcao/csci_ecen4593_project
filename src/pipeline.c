@@ -157,7 +157,7 @@ void MEM(void) {
 	_memwb_reg.aluResult = exmem_reg.aluResult;
 	_memwb_reg.rd = exmem_reg.rd;
 
-	offset = exmem_reg.aluResult&0x3;
+	offset = exmem_reg.aluResult;
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
@@ -187,13 +187,13 @@ void MEM(void) {
         _memwb_reg.memValue = data;
         break;
       case DLEN_HW:
-        shamt = (3-offset)*16;
+        shamt = (1-offset)*16;
         data >>= shamt;
         data = data&0x8000?(data|0xffff0000):data&0xffff;
         _memwb_reg.memValue = data;
         break;
       case DLEN_HWU:
-        shamt = (3-offset)*16;
+        shamt = (1-offset)*16;
         data = data&0xffff;
         _memwb_reg.memValue = data;
         break;
