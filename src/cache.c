@@ -8,6 +8,7 @@ bool readFromCache(char type, unsigned int addr, unsigned int *data) {
 
   // CACHE READ OPERATION
 
+
   return false;
 }
 
@@ -54,15 +55,14 @@ void fillCache(cache_t type, unsigned int addr){
   unsigned int tag;
   cache *cache_des;
 
+  lineInd = getLine(addr);
   tag = getTag(type, addr);
-  lineInd = cacheBSize==4?addr&0x11:addr&0x0;
+  blockInd = getBlock(type, addr);
   switch(type) {
     case CACHE_D:
-      blockInd = (addr>>(cacheBSize>>1))&dcacheBMask;
       cache_des = &dcache[blockInd];
       break;
     case CACHE_I:
-      blockInd = (addr>>(cacheBSize>>1))&icacheBMask;
       cache_des = &icache[blockInd];
       break;
   }
@@ -83,6 +83,19 @@ unsigned int getTag(cache_t ctype, unsigned int addr) {
     tag = (addr >> (cacheBSize>>1))>>icacheBBits;
     return tag;
   }
+}
+
+unsigned int getBlock(cache_t ctype, unsigned int addr) {
+  if(ctype == CACHE_D) {
+    return (addr>>(cacheBSize>>1))&dcacheBMask;
+  }
+  else {
+    return (addr>>(cacheBSize>>1))&icacheBMask;
+  }
+}
+
+unsigned int getLine(unsigned int addr) {
+  return cacheBSize==4?addr&0x11:addr&0x0;;
 }
 
 void initial_cacheCtl() {
