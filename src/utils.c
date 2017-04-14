@@ -186,3 +186,34 @@ void testSum(unsigned int total) {
   printf("Sum: [%d][%08x]\n", sum, sum);
 }
 
+bool findLBits(unsigned int num, unsigned short *bNum, unsigned int *mask) {
+  switch(num) {
+    case 1:
+      *bNum = 0;
+      *mask = 0x0;
+      return true;
+    case 2:
+      *bNum = 1;
+      *mask = 0x1;
+      return true;
+    case 4:
+      *bNum = 2;
+      *mask = 0x3;
+      return true;
+    case 8:
+      *bNum = 3;
+      *mask = 0x7;
+      return true;
+    case 16:
+      *bNum = 4;
+      *mask = 0xf;
+      return true;
+    case 32:
+      *bNum = 5;
+      *mask = 0x1f;
+      return true;
+    default:
+      Error("findLBits");
+  }
+  return false;
+}

@@ -42,5 +42,6 @@ void init_utils();
 
 cache* createCache(unsigned int blockNum, unsigned int lineNum);
 void destroyUnusedCache(cache* target, unsigned int blockNum);
+bool findLBits(unsigned int num, unsigned short *bitNum, unsigned int *mask);
 
 #endif
