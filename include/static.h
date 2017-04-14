@@ -92,13 +92,14 @@ int32_t a;
 #define MAX_CACHE_SIZE         256
 #define MAX_CACHE_LINE         4
 
+typedef enum {false = 0, true = 1} bool;
 typedef enum {FORMAT_I = 0, FORMAT_R, FORMAT_J} op_format;
 typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_IMM} part_type;
 typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
-typedef enum {STAGE_IF=0x0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
-typedef enum {false = 0, true = 1} bool;
+typedef enum {STAGE_IF = 0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
+typedef enum {CSTATE_IDLE = 0, CSTATE_RD} cache_state;
 typedef enum {POLICY_WB, POLICY_WT} wr_policy;
 
 //

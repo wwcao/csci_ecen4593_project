@@ -9,18 +9,25 @@
 #include <string.h>
 #include <stdio.h>
 
-#define CACHE_ENABLED          0
+#define CACHE_ENABLED          1
 
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
 
-bool CacheBusy;
+unsigned int opAddr;
+
+cache_state icacheState;
 unsigned short icacheBBits;
-unsigned short dcacheBBits;
 unsigned int icacheBMask;
+
+cache_state dcacheState;
+unsigned short dcacheBBits;
 unsigned int dcacheBMask;
 
-bool readFromCache(char type, unsigned int addr, unsigned int *data);
+unsigned short cacheLBits;
+unsigned int cacheLMask;
+
+bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 
 bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
@@ -29,10 +36,13 @@ void policyWriteback();
 void policyWritethrough();
 
 void fillCache(cache_t type, unsigned int addr);
+void convertAddr(cache_t ctyp, unsigned int addr,
+                 unsigned int *tag, unsigned int *block, unsigned int *line);
 unsigned int getTag(cache_t type, unsigned int addr);
 unsigned int getBlock(cache_t ctyp, unsigned int addr);
 unsigned int getLine(unsigned int addr);
 
+void startCaching();
 
 void initial_cacheCtl();
 #endif // __CACHE_HEADER__

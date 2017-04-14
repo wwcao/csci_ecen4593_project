@@ -1,4 +1,5 @@
 #include "units.h"
+#include "cache.h"
 #include "pipeline.h"
 
 unsigned int indexTest;
@@ -57,6 +58,7 @@ int main() {
     init_units();
     init_pipeline();
     while(1){
+        startCaching();
         startPipeline();
         clock++;
         if(PC==0) break;

@@ -20,7 +20,7 @@ unsigned int cacheBSize;
 cache *icache;
 cache *dcache;
 writebuffer wrbuffer[16];
-char missedPenalty;
+unsigned short missedPenalty;
 wr_policy wrPolicy;
 
 int register_file[REGISTER_SIZE];
