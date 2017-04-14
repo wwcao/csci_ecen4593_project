@@ -18,11 +18,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
     case CACHE_D:
       srcCache = dcache[block];
       if(srcCache.valid && (srcCache.tag == tag)) break;
-      // handle sub line missed
-      if(srcCache.valid && (srcCache.tag != tag)) {
-        missedPenalty += SUBLINE_PENALTY;
-        return false;
-      }
+
       // Cache Missd
       missedPenalty = MISS_PENALTY;
       opAddr = addr;
@@ -31,11 +27,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
     case CACHE_I:
       srcCache = icache[block];
       if(srcCache.valid && (srcCache.tag == tag)) break;
-      // handle sub line missed
-      if(srcCache.valid && (srcCache.tag != tag)) {
-        missedPenalty += SUBLINE_PENALTY;
-        return false;
-      }
+
       // Cache Missd
       missedPenalty = MISS_PENALTY;
       opAddr = addr;
@@ -201,11 +193,11 @@ void startCaching() {
   if(!CACHE_ENABLED) return;
 
   missedPenalty = missedPenalty>0?missedPenalty-1:0;
-  if(missedPenalty&&(!icacheState)) {
+  if((!missedPenalty)&&(icacheState)) {
     fillCache(CACHE_I, opAddr);
     icacheState = CSTATE_IDLE;
   }
-  if(missedPenalty&&(!dcacheState)) {
+  if((!missedPenalty)&&(dcacheState)) {
     fillCache(CACHE_D, opAddr);
     dcacheState = CSTATE_IDLE;
   }
