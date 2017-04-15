@@ -216,10 +216,11 @@ void startCaching() {
           dcacheState = CSTATE_RD_SUB;
           mPenalty_dcache += SUBLINE_PENALTY;
         }
-        fillCache(CACHE_D, opAddr_dcache);
+        fillCache(CACHE_D, opAddr_dcache++);
         break;
       case CSTATE_RD_SUB:
-        if(mPenalty_icache) break;
+        if(mPenalty_dcache) break;
+
         fillCache(CACHE_D, opAddr_dcache++);
         opLine_dcache++;
         if(opLine_dcache == cacheBSize) {
@@ -233,7 +234,6 @@ void startCaching() {
         break;
     }
   }
-
   return;
 }
 
