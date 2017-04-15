@@ -99,7 +99,7 @@ typedef enum {ALUOP_LWSW = 0, ALUOP_BEQ, ALUOP_R, ALUOP_NOP} alu_op;
 typedef enum {STAGE_IF = 0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
-typedef enum {CSTATE_IDLE = 0, CSTATE_RD} cache_state;
+typedef enum {CSTATE_IDLE = 0, CSTATE_RD, CSTATE_RD_SUB} cache_state;
 typedef enum {POLICY_WB, POLICY_WT} wr_policy;
 
 //

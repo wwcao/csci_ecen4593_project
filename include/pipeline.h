@@ -37,6 +37,7 @@ stage nStage;			// next state
 
 int writedata;
 bool Stall_harzard;
+bool Stall_cachemissed;
 
 unsigned int run_pipeline;
 

@@ -4,7 +4,7 @@ void IF(void) {
   //unsigned int instruction;
 
 	// handle is pipeline
-	if((!PC)) {
+	if((!PC)||Stall_cachemissed) {
     //run_pipeline--;
     return;
 	}
@@ -33,14 +33,13 @@ void IF(void) {
 
 	_ifid_reg.progCounter = PC;
 
-	if(readFromCache(CACHE_I, PC, &(_ifid_reg.instruction))) {
-    //_ifid_reg.instruction = memory[PC];
-    pcSrc1 = PC+1;
-    _ifid_reg.nPC = pcSrc1;
-	}
-	else {
-    pcSrc1 = PC;
-	}
+	if(readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
+    Stall_cachemissed = false;
+	else
+    Stall_cachemissed = true;
+
+  pcSrc1 = PC+1;
+  _ifid_reg.nPC = pcSrc1;
 
 	// set state ID after IF
 	nStage = STAGE_ID;
@@ -54,7 +53,7 @@ void ID(void) {
 	int regVal1, regVal2;
 
 	// handle is pipeline
-	if((!PC)) {
+	if((!PC)||Stall_cachemissed) {
     return;
 	}
 
@@ -98,7 +97,7 @@ void ID(void) {
 void EX(void) {
 	int src1, src2;
 
-  if((!PC)) {
+  if((!PC)||Stall_cachemissed) {
     return;
 	}
 
@@ -141,7 +140,7 @@ void MEM(void) {
   unsigned int data;
   bool Success;
 
-	if((!PC)) {
+	if((!PC)||Stall_cachemissed) {
     return;
 	}
 
@@ -170,37 +169,41 @@ void MEM(void) {
 	}
 
 	if(exmem_reg.MemRead) {
-    readFromCache(CACHE_D, addr, &data);
-    switch(exmem_reg.dataLen) {
-      case DLEN_W:
-        _memwb_reg.memValue = data;
-        break;
-      case DLEN_B:
-        shamt = (3-offset)*8;
-        data >>= shamt;
-        data = data&0x80?(data|0xffffff00):data&0xff;
-        _memwb_reg.memValue = data;
-        break;
-      case DLEN_BU:
-        shamt = (3-offset)*8;
-        data = data&0xff;
-        _memwb_reg.memValue = data;
-        break;
-      case DLEN_HW:
-        shamt = (1-offset)*16;
-        data >>= shamt;
-        data = data&0x8000?(data|0xffff0000):data&0xffff;
-        _memwb_reg.memValue = data;
-        break;
-      case DLEN_HWU:
-        shamt = (1-offset)*16;
-        data = data&0xffff;
-        _memwb_reg.memValue = data;
-        break;
-      default:
-        printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
-                    clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
-        exit(1);
+    if(readFromCache(CACHE_D, addr, &data)) {
+      switch(exmem_reg.dataLen) {
+        case DLEN_W:
+          _memwb_reg.memValue = data;
+          break;
+        case DLEN_B:
+          shamt = (3-offset)*8;
+          data >>= shamt;
+          data = data&0x80?(data|0xffffff00):data&0xff;
+          _memwb_reg.memValue = data;
+          break;
+        case DLEN_BU:
+          shamt = (3-offset)*8;
+          data = data&0xff;
+          _memwb_reg.memValue = data;
+          break;
+        case DLEN_HW:
+          shamt = (1-offset)*16;
+          data >>= shamt;
+          data = data&0x8000?(data|0xffff0000):data&0xffff;
+          _memwb_reg.memValue = data;
+          break;
+        case DLEN_HWU:
+          shamt = (1-offset)*16;
+          data = data&0xffff;
+          _memwb_reg.memValue = data;
+          break;
+        default:
+          printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
+                      clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
+          exit(1);
+      }
+    }
+    else {
+      Stall_cachemissed = true;
     }
 	}
 
@@ -208,7 +211,7 @@ void MEM(void) {
 }
 
 void WB(void) {
-  if((!PC)) {
+  if((!PC)||Stall_cachemissed) {
     return;
 	}
 	if((!IS_PIPELINE) & (cStage != STAGE_WB)|| (!PC)) {
@@ -230,7 +233,7 @@ void WB(void) {
 }
 
 void startPipeline(void) {
-  if(missedPenalty != 0) return;
+  //if(missedPenalty != 0) return;
   hdUnitOperation();
   IF();
 
@@ -679,12 +682,18 @@ void fwdUnitEX(int *src1, int *src2) {
 }
 
 void wirtetoPipelineRegs() {
-  if(missedPenalty != 0) {
+
+  bool StallbyCache = !((!Stall_cachemissed)&&((icacheState==CSTATE_RD_SUB)||(icacheState==CSTATE_RD_SUB)));
+
+  if(Stall_cachemissed||(missedPenalty != 0)) {
     numNop++;
+
+    pcSrc1--;
     memset(&_ifid_reg, 0, sizeof(IFID_Register));
     memset(&_idex_reg, 0, sizeof(IDEX_Register));
     memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
     memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
+    Stall_cachemissed = false;
     return;
   }
 
@@ -724,6 +733,7 @@ void wirtetoPipelineRegs() {
 		Flush_id = false;
 		Flush_ex = false;
 		Stall_harzard = false;
+		Stall_cachemissed = false;
 	}
 
 	memset(&_ifid_reg, 0, sizeof(IFID_Register));
@@ -741,6 +751,7 @@ void init_pipeline() {
 	Flush_id = false;
 	Flush_ex = false;
 	Stall_harzard = false;
+	Stall_cachemissed = false;
 	cStage = STAGE_IF;
 	nStage = STAGE_IF;
 	run_pipeline = 3;
