@@ -14,7 +14,13 @@
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
 
-unsigned int opAddr;
+unsigned int opAddr_icache;
+unsigned int opLine_icache;
+unsigned short mPenalty_icache;
+
+unsigned int opAddr_dcache;
+unsigned int opLine_dcache;
+unsigned short mPenalty_dcache;
 
 cache_state icacheState;
 unsigned short icacheBBits;
@@ -36,7 +42,7 @@ void policyWriteback();
 void policyWritethrough();
 
 void fillCache(cache_t type, unsigned int addr);
-void convertAddr(cache_t ctyp, unsigned int addr,
+void convertAddr(cache_t ctyp, unsigned int *addr,
                  unsigned int *tag, unsigned int *block, unsigned int *line);
 unsigned int getTag(cache_t type, unsigned int addr);
 unsigned int getBlock(cache_t ctyp, unsigned int addr);
