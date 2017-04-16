@@ -41,7 +41,26 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
   return true;
 }
 
+bool checkCache(unsigned int addr) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
+  convertAddr(CACHE_D, &addr, &tag, &block, &line);
+  srcCache = dcache[block];
+
+  if(dcacheState || (opLine_dcache <= cacheBSize)) return false;
+  if(srcCache.valid && srcCache.tag == tag) return true;
+
+  missedPenalty = MISS_PENALTY;
+  opAddr_icache = addr;
+  opLine_icache = 0;
+  icacheState = CSTATE_RD;
+
+  return false;
+}
+
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
+
   if(!CACHE_ENABLED) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }
@@ -49,9 +68,18 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
 
   switch(wrPolicy) {
     case POLICY_WB:
+      if(!checkCache(addr)) return false;
 
+      // data in cache
+      // write to cache
       break;
     case POLICY_WT:
+      if(!checkCache(addr)) return false;
+
+      // data in cache
+      // set penalty, set memory busy and write to memory
+
+      // write to cache
 
       break;
   }

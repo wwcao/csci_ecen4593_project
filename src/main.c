@@ -56,7 +56,6 @@ int main() {
     init_utils();
     init_units();
     init_pipeline();
-
     while(1){
         startCaching();
         startPipeline();
@@ -67,6 +66,8 @@ int main() {
     printSummary();
     destroyCaches();
     indexTest++;
+
+    break;
   }
   printf("try to access cache[%d]", icache[0].valid);
 	return 0;

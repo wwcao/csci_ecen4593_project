@@ -15,6 +15,8 @@ void init_units() {
 
   init_caches();
   missedPenalty = 0;
+  wrbuffer = initWRBuffers(wrbuffer);
+  return;
 }
 
 void init_registers() {

@@ -44,4 +44,8 @@ cache* createCache(unsigned int blockNum, unsigned int lineNum);
 void destroyUnusedCache(cache* target, unsigned int blockNum);
 bool findLBits(unsigned int num, unsigned short *bitNum, unsigned int *mask);
 
+writebuffer** initWRBuffers(writebuffer** des);
+writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data);
+writebuffer* createWRBuffer_WB(cache* cacheBlock, unsigned addr, int lineNum);
+void destroyUnusedWRBuffer(writebuffer** target);
 #endif

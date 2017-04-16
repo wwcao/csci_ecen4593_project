@@ -86,7 +86,6 @@ cache* createCache(unsigned int blockNum, unsigned int lineNum) {
     newCData = NULL;
     newCData = (cachedata*)calloc(lineNum, sizeof(unsigned int));
     if(!newCache) {
-      destroyUnusedCache(newCache, blockNum);
       Error("Error: Unable to allocate memory");
     }
     (newCache[i]).block = newCData;
@@ -108,6 +107,60 @@ void destroyUnusedCache(cache* target, unsigned int blockNum) {
   free(target);
 }
 
+writebuffer** initWRBuffers(writebuffer** des) {
+  writebuffer **newWRBuffer;
+  int i;
+
+  newWRBuffer = (writebuffer**)calloc(WRBUFF_SIZE, sizeof(int*));
+  if(!newWRBuffer) Error("Error: Unable to allocate memory for *WRBuffer");
+
+  des = newWRBuffer;
+  return newWRBuffer;
+}
+
+writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data) {
+  writebuffer* newWRBuffer;
+
+  newWRBuffer = (writebuffer*)calloc(1, sizeof(writebuffer));
+
+  if(!newWRBuffer) {
+    Error("Error: Unable to allocate memory for WRBuffer");
+  }
+
+  newWRBuffer->addr = addr;
+  newWRBuffer->data = data;
+
+  return newWRBuffer;
+}
+
+writebuffer* createWRBuffer_WB(cache* cacheBlock, unsigned addr, int lineNum) {
+  int i;
+  writebuffer* newWRBuffer;
+
+  newWRBuffer = (writebuffer*)calloc(lineNum, sizeof(writebuffer));
+
+  if(!newWRBuffer) {
+    Error("Error: Unable to allocate memory for WRBuffer");
+  }
+
+  for(i = 0; i < lineNum; i++) {
+    newWRBuffer->addr = addr;
+    newWRBuffer->data = (cacheBlock->block)[i];
+    addr++;
+  }
+
+  return newWRBuffer;
+}
+
+void destroyUnusedWRBuffer(writebuffer** target) {
+  int i;
+  if(!target) return;
+  for(i=0; i < WRBUFF_SIZE; i++) {
+    if(target[i]) free(target[i]);
+  }
+
+  free(target);
+}
 
 
 void printSummary() {

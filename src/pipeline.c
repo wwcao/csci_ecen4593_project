@@ -683,8 +683,6 @@ void fwdUnitEX(int *src1, int *src2) {
 
 void wirtetoPipelineRegs() {
 
-  bool StallbyCache = !((!Stall_cachemissed)&&((icacheState==CSTATE_RD_SUB)||(icacheState==CSTATE_RD_SUB)));
-
   if(Stall_cachemissed||(missedPenalty != 0)) {
     numNop++;
 
