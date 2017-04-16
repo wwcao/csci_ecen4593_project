@@ -12,7 +12,7 @@ int32_t a;
 #define INS_START_POS         0
 
 #define REGISTER_SIZE         32
-#define WRBUFF_SIZE           16
+#define WRBUFF_SIZE           2
 
 // MASKes
 #define OP_MASK               0xfc000000
