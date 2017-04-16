@@ -8,14 +8,12 @@
 
 extern int test[5];
 
-
 int register_file[REGISTER_SIZE];
 unsigned int PC;
 unsigned int clock;
 
 unsigned int memory[MEMORY_SIZE];
 bool MemBusy;
-
 
 IFID_Register ifid_reg;
 IDEX_Register idex_reg;
@@ -28,16 +26,16 @@ unsigned int cacheBSize;
 
 cache *icache;
 cache *dcache;
-unsigned short missedPenalty;
 wr_policy wrPolicy;
 
 writebuffer **wrbuffer;
 
+#include "memory.h"
 #include "cache.h"
 
 void init_units();
 void init_registers();
-
+void init_memory();
 void init_caches();
 
 void destroyCaches();

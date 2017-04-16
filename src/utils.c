@@ -109,7 +109,6 @@ void destroyUnusedCache(cache* target, unsigned int blockNum) {
 
 writebuffer** initWRBuffers(writebuffer** des) {
   writebuffer **newWRBuffer;
-  int i;
 
   newWRBuffer = (writebuffer**)calloc(WRBUFF_SIZE, sizeof(int*));
   if(!newWRBuffer) Error("Error: Unable to allocate memory for *WRBuffer");
