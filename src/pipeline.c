@@ -161,7 +161,7 @@ void MEM(void) {
 
 	if(exmem_reg.MemWrite) {
     Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
-    if((!missedPenalty)&&!Success) {
+    if((!cachePenalty)&&!Success) {
       printf("Error MEM_WRITE @ clock: %u, PC: %04d, instruction: [0x%x]\n",
               clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
       exit(0);
@@ -683,7 +683,7 @@ void fwdUnitEX(int *src1, int *src2) {
 
 void wirtetoPipelineRegs() {
 
-  if(Stall_cachemissed||(missedPenalty != 0)) {
+  if(Stall_cachemissed||(cachePenalty != 0)) {
     numNop++;
 
     pcSrc1--;

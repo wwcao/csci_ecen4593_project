@@ -1,20 +1,9 @@
 #include "units.h"
 
 void init_units() {
-  unsigned int i;
-  for(i=0; i<MEMORY_SIZE; i+=4) {
-    memory[i] = 0;
-    memory[i+1] = 0;
-    memory[i+2] = 0;
-    memory[i+3] = 0;
-  }
-  readInstruction(progSources[test[0]]);
-  MemBusy = false;
-
+  init_memory();
   init_registers();
-
   init_caches();
-  missedPenalty = 0;
   wrbuffer = initWRBuffers(wrbuffer);
   return;
 }
@@ -30,6 +19,7 @@ void init_caches() {
   unsigned int dWordNum;
   unsigned int iWordNum;
 
+  cachePenalty = 0;
   // Setup Cache Info
   iWordNum = test[1]/4;
   dWordNum = test[2]/4;
@@ -59,6 +49,19 @@ void init_caches() {
     addr++;
   }
   return;
+}
+
+void init_memory() {
+  unsigned int i;
+  MemBusy = false;
+  for(i=0; i<MEMORY_SIZE; i+=4) {
+    memory[i] = 0;
+    memory[i+1] = 0;
+    memory[i+2] = 0;
+    memory[i+3] = 0;
+  }
+  readInstruction(progSources[test[0]]);
+  init_memoryCtl();
 }
 
 void destroyCaches() {

@@ -59,15 +59,13 @@ int main() {
     while(1){
         startCaching();
         startPipeline();
-        clock++;
         if(PC==0) break;
+        clock++;
+        updateMemory();
     }
-
     printSummary();
     destroyCaches();
     indexTest++;
-
-    break;
   }
   printf("try to access cache[%d]", icache[0].valid);
 	return 0;
