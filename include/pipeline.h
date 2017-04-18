@@ -39,8 +39,6 @@ int writedata;
 bool Stall_harzard;
 bool Stall_cachemissed;
 
-unsigned int run_pipeline;
-
 void IF(void);
 void ID(void);
 void EX(void);
