@@ -88,25 +88,39 @@ void policyWriteback() {
 
 }
 
-void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int *data) {
+void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
  unsigned int block, line, tag;
+ cache *cache_des;
+ 
+  
 
  convertAddr(ctype, &addr, &tag, &block, &line);
-
  switch(ctype){
   case CACHE_D:
-	dcache[block] -> valid = true;
-	dcache[block] -> tag = tag;
-	dcache[block] -> block = data;
+	cache_des = &(dcache[block]);
 	break;
   case CACHE_I;
-        icache[block] -> valid = true;
-        icache[block] -> tag = tag;
-        icache[block] -> block = data;
+	cache_des = &dcache([block]);
 	break;
  }
 
+ if( cache_des[block] -> valid == true && strcmp(data->tag, cache_des[block] -> tag) == 0 ){
+  // the data is already there, no need to update
+  numHit++;
+  numWrite++;
+  return;
+ } 
+ 
+ // write miss
+ numWriteMissed++;
+ numRead++;
+ numWrite++;
 
+ cache_des[block]->tag = tag
+ cache_des[block]->valid = true;
+ 
+ 
+ 
 
  return;
  }
