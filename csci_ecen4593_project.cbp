@@ -39,6 +39,7 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="include/cache.h" />
+		<Unit filename="include/memory.h" />
 		<Unit filename="include/pipeline.h" />
 		<Unit filename="include/static.h" />
 		<Unit filename="include/units.h" />
@@ -47,6 +48,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/memory.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pipeline.c">

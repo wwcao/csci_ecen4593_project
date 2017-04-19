@@ -1,8 +1,9 @@
-#include <stdint.h>
+
 #ifndef __STATIC_HEADER__
 #define __STATIC_HEADER__
 
-int32_t a;
+#include <stdio.h>
+#include <string.h>
 
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
@@ -12,7 +13,7 @@ int32_t a;
 #define INS_START_POS         0
 
 #define REGISTER_SIZE         32
-#define WRBUFF_SIZE           16
+#define WRBUFF_SIZE           2
 
 // MASKes
 #define OP_MASK               0xfc000000
@@ -196,6 +197,7 @@ typedef unsigned int cachedata;
 
 typedef struct {
   bool valid;
+  bool dirty;
   unsigned int tag;
   cachedata *block;
 } cache;

@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define IS_PIPELINE             1
+#define IS_PIPELINE             1       // DON'T set to 0 (test assembly not compatible)
 
 unsigned int pcSrc1;
 unsigned int pcSrc2;
@@ -38,8 +38,6 @@ stage nStage;			// next state
 int writedata;
 bool Stall_harzard;
 bool Stall_cachemissed;
-
-unsigned int run_pipeline;
 
 void IF(void);
 void ID(void);

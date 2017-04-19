@@ -1,6 +1,7 @@
 #include <cache.h>
 
 bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
+
   unsigned int block, line, tag;
   cache srcCache;
 
@@ -9,29 +10,49 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
     return true;
   }
 
-  // ISSUE: need to fill out the cache from the base addr of the cache block
   convertAddr(ctype, &addr, &tag, &block, &line);
   switch(ctype) {
     case CACHE_D:
+      if((cacheBSize==1)&&(dcacheState==CSTATE_RD))
+        return false;
+      if(dcacheState && (line >= opLine_dcache))
+        return false;
       srcCache = dcache[block];
-      if(dcacheState  && (line >= opLine_dcache)) return false;
-      if(srcCache.valid && (srcCache.tag == tag)) break;
+      if(srcCache.valid && (srcCache.tag == tag))
+        break;
+      if(mPenalty_dcache > 0)
+        return false;
 
-      // Cache Missd
-      missedPenalty = MISS_PENALTY;
+      // Handle Write Back before loading cache
+      if(MemBusy)
+        return false;
+      if(dcacheState && opAddr_dcache == addr && opLine_dcache < cacheBSize)
+        return false;
+      if(srcCache.dirty && !writebackCache(srcCache.block, addr))
+        return false;
+
+      mPenalty_dcache = MISS_PENALTY;
       opAddr_dcache = addr;
-      opLine_dcache = 0;
+      opLine_dcache = cacheBSize>1?0:1;
       dcacheState = CSTATE_RD;
       return false;
-    case CACHE_I:
-      srcCache = icache[block];
-      if(icacheState && (line >= opLine_icache)) return false;
-      if(srcCache.valid && (srcCache.tag == tag)) break;
 
-      // Cache Missd
-      missedPenalty = MISS_PENALTY;
+    case CACHE_I:
+      if((cacheBSize==1)&&(icacheState==CSTATE_RD))
+        return false;
+      if(icacheState && (line >= opLine_icache))
+        return false;
+      srcCache = icache[block];
+      if(srcCache.valid && (srcCache.tag == tag))
+        break;
+      if(mPenalty_icache > 0)
+        return false;
+      if(MemBusy)
+        return false;
+
+      mPenalty_icache = MISS_PENALTY;
       opAddr_icache = addr;
-      opLine_icache = 0;
+      opLine_icache = cacheBSize>1?0:1;
       icacheState = CSTATE_RD;
       return false;
     default:
@@ -41,57 +62,94 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
   return true;
 }
 
+bool writebackCache(cachedata* cacheData, unsigned int addr) {
+  writebuffer* wbData;
+  wbData = NULL;
+
+  if(wrPolicy == POLICY_WB) {
+    if(wrbuffer[WRBUFF_SIZE-2]) {
+      return false;
+    }
+
+    // queue the data for WB
+    wbData = createWRBuffer_WB(cacheData, addr, cacheBSize);
+    if(!wbData) Error("Error: Unable to allocation memory");
+    wrbuffer[WRBUFF_SIZE-2] = wbData;
+    return true;
+  }
+  return true;
+}
+
+bool checkCache(unsigned int addr) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
+  convertAddr(CACHE_D, &addr, &tag, &block, &line);
+  srcCache = dcache[block];
+
+  if(wrPolicy == POLICY_WT) {
+    if(dcacheState)
+      return false;
+  }
+
+  if(srcCache.valid && srcCache.tag == tag)
+    return true;
+
+  mPenalty_dcache = MISS_PENALTY;
+  opAddr_dcache = addr;
+  opLine_dcache = cacheBSize>1?0:1;
+  dcacheState = CSTATE_RD;
+  return false;
+}
+
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
+  unsigned int cacheData;
   if(!CACHE_ENABLED) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }
   // CACHE WRITE OPERATION
 
+  if(wrbuffer[0])
+    return false;
+
   switch(wrPolicy) {
     case POLICY_WB:
-
+      if(readFromCache(CACHE_D, addr, &cacheData)) {
+        data = getWrData(cacheData, data, offset, wsize);
+        //wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
+        updateCache(addr, data);
+      }
+      // data in cache
+      // write to cache
       break;
     case POLICY_WT:
+      // data in cache
+      // set penalty, set memory busy and write to memory
+      // write to cache
+      if(!readFromCache(CACHE_D, addr, &cacheData))
+        return false;
 
+      data = getWrData(cacheData, data, offset, wsize);
+      wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
+      updateCache(addr, data);
       break;
   }
-  //return false;
   return true;
 }
 
-bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
-  unsigned int shamt;
-  unsigned int mask;
-  switch(wsize) {
-    case DLEN_W:
-      memory[addr] = data;
-      return true;
-    case DLEN_B:
-      shamt = (3-offset)*8;
-      data = ((data)&0xff)<<shamt;
-      mask = 0xff<<shamt;
-      memory[addr] = (memory[addr]&(~mask))|data;
-      return true;
-    case DLEN_HW:
-      shamt = (1-offset)*16;
-      data = ((data)&0xffff)<<shamt;
-      mask = 0xffff<<shamt;
-      memory[addr] = (memory[addr]&(~mask))|data;
-      return true;
-    default:
-      break;
-  }
-  return false;
+void updateCache(unsigned int addr, unsigned int data) {
+  unsigned int block, line, tag;
+
+  convertAddr(CACHE_D, &addr, &tag, &block, &line);
+  (dcache[block]).dirty = true;
+  (dcache[block]).block[line] = data;
 }
 
-void policyWriteback() {
-
-}
-
+/*
 void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
  unsigned int block, line, tag;
  cache *cache_des;
- 
+
  //convertAddr(ctype, &data, &tag, &block, &line);
  convertAddr(ctype, &addr, &tag, &block, &line);
 
@@ -109,8 +167,8 @@ void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
   numHit++;
   numWrite++;
   return;
- } 
- 
+ }
+
  // write miss
  numWriteMissed++;
  numRead++;
@@ -118,16 +176,21 @@ void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
 
  cache_des[block]->tag = data->tag;
  cache_des[block]->valid = true;
- 
- 
+
+
  memory[addr] = data;
 
  return;
  }
+ */
 
+bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
+  memory[addr] = getWrData(memory[addr], data, offset, wsize);
+  return true;
 }
 
 void fillCache(cache_t ctype, unsigned int addr){
+
   unsigned int block;
   unsigned int line;
   unsigned int tag;
@@ -196,38 +259,53 @@ void initial_cacheCtl() {
   findLBits(cacheBSize, &cacheLBits, &cacheLMask);
 
   icacheState = CSTATE_IDLE;
-  dcacheState = CSTATE_IDLE;
+  mPenalty_icache = 0;
+  opLine_icache = 0;
+  opAddr_icache = 0;
 
-  mPenalty_icache = 0;
-  mPenalty_icache = 0;
+  dcacheState = CSTATE_IDLE;
+  mPenalty_dcache = 0;
+  opLine_dcache = 0;
+  opAddr_dcache = 0;
+
+  if(cacheBSize == 1) {
+    opLine_dcache = 1;
+    opLine_icache = 1;
+  }
+
   return;
 }
 
 void startCaching() {
   if(!CACHE_ENABLED) return;
 
-  missedPenalty = missedPenalty>0?missedPenalty-1:0;
+  //cachePenalty = cachePenalty>0?cachePenalty-1:0;
+
   mPenalty_dcache = mPenalty_dcache>0?mPenalty_dcache-1:0;
   mPenalty_icache = mPenalty_icache>0?mPenalty_icache-1:0;
 
-  if((!missedPenalty)&&(icacheState)) {
+
+  if(!MemBusy && icacheState && !mPenalty_icache) {
     switch(icacheState) {
       case CSTATE_RD:
         if(cacheBSize == 1) {
+          //opLine_icache++;
           icacheState = CSTATE_IDLE;
+          fillCache(CACHE_I, opAddr_icache);
         }
-        else{
+        else {
           opLine_icache++;
           icacheState = CSTATE_RD_SUB;
           mPenalty_icache += SUBLINE_PENALTY;
+          fillCache(CACHE_I, opAddr_icache++);
         }
-        fillCache(CACHE_I, opAddr_icache++);
+
         break;
       case CSTATE_RD_SUB:
         if(mPenalty_icache) break;
 
-        fillCache(CACHE_I, opAddr_icache++);
         opLine_icache++;
+        fillCache(CACHE_I, opAddr_icache++);
         if(opLine_icache == cacheBSize) {
           icacheState = CSTATE_IDLE;
           break;
@@ -235,26 +313,30 @@ void startCaching() {
         mPenalty_icache += SUBLINE_PENALTY;
         break;
       default:
-        Error("Unexpected Cache State");
+        //Error("Unexpected Cache State");
         break;
     }
   }
 
-  if((!missedPenalty)&&(dcacheState)) {
+  if(!MemBusy && dcacheState && !mPenalty_dcache) {
     switch(dcacheState) {
       case CSTATE_RD:
         if(cacheBSize == 1) {
+          //opLine_dcache++;
           dcacheState = CSTATE_IDLE;
+          fillCache(CACHE_D, opAddr_dcache);
         }
         else{
           opLine_dcache++;
           dcacheState = CSTATE_RD_SUB;
           mPenalty_dcache += SUBLINE_PENALTY;
+          fillCache(CACHE_D, opAddr_dcache++);
         }
-        fillCache(CACHE_D, opAddr_dcache);
+
         break;
       case CSTATE_RD_SUB:
-        if(mPenalty_icache) break;
+        if(mPenalty_dcache) break;
+
         fillCache(CACHE_D, opAddr_dcache++);
         opLine_dcache++;
         if(opLine_dcache == cacheBSize) {
@@ -264,11 +346,10 @@ void startCaching() {
         mPenalty_dcache += SUBLINE_PENALTY;
         break;
       default:
-        Error("Unexpected Cache State");
+        //Error("Unexpected Cache State");
         break;
     }
   }
-
   return;
 }
 
@@ -389,4 +470,3 @@ int set_penalty(bool is_hit){
 	return MISS_PENALTY;
 }
 */
-

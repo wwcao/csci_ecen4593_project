@@ -7,12 +7,13 @@
 #include "units.h" //
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
-#define CACHE_ENABLED          1
+#define CACHE_ENABLED          0
 
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
+
+unsigned short cachePenalty;
 
 unsigned int opAddr_icache;
 unsigned int opLine_icache;
@@ -35,18 +36,12 @@ unsigned int cacheLMask;
 
 bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
-
+void updateCache(unsigned int addr, unsigned int data);
+bool writebackCache(cachedata* cacheData, unsigned int addr);
 bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
-
-void policyWriteback();
-void policyWritethrough();
-
 void fillCache(cache_t type, unsigned int addr);
 void convertAddr(cache_t ctyp, unsigned int *addr,
                  unsigned int *tag, unsigned int *block, unsigned int *line);
-unsigned int getTag(cache_t type, unsigned int addr);
-unsigned int getBlock(cache_t ctyp, unsigned int addr);
-unsigned int getLine(unsigned int addr);
 
 void startCaching();
 
