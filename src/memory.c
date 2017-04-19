@@ -6,13 +6,14 @@ void updateMemory() {
 
   if(memoryPenalty > 0) {
     memoryPenalty--;
-    if(memoryPenalty > 0) return;
+    if(memoryPenalty > 0)
+      return;
     switch(wrPolicy) {
       case POLICY_WB:
 
         addr = wrbuffer[WRBUFF_SIZE-1][opLine_mem].addr;
         data = wrbuffer[WRBUFF_SIZE-1][opLine_mem].data;
-
+        memory[addr] = data;
         opLine_mem++;
         if(opLine_mem == cacheBSize) {
           MemBusy = false;
@@ -20,7 +21,7 @@ void updateMemory() {
           wrbuffer[WRBUFF_SIZE-1] = NULL;
           break;
         }
-        MemBusy = SUBLINE_PENALTY;
+        memoryPenalty = SUBLINE_PENALTY;
         break;
       case POLICY_WT:
         addr = wrbuffer[WRBUFF_SIZE-1]->addr;
@@ -43,7 +44,8 @@ void updateMemory() {
 
 bool setMemWrite() {
 
-  if(MemBusy||wrbuffer[WRBUFF_SIZE-1]) return false;
+  if(MemBusy||wrbuffer[WRBUFF_SIZE-1])
+    return false;
   //if(icacheState||dcacheState) return false;
   wrbuffer[WRBUFF_SIZE-1] = wrbuffer[WRBUFF_SIZE-2];
   wrbuffer[WRBUFF_SIZE-2] = NULL;

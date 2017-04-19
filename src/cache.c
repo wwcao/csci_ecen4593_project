@@ -24,10 +24,11 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
         return false;
 
       // Handle Write Back before loading cache
-      if(MemBusy) return false;
+      if(MemBusy)
+        return false;
       if(dcacheState && opAddr_dcache == addr && opLine_dcache < cacheBSize)
         return false;
-      if(!writebackCache(srcCache.block, addr))
+      if(srcCache.dirty && !writebackCache(srcCache.block, addr))
         return false;
 
       mPenalty_dcache = MISS_PENALTY;
@@ -35,6 +36,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
       opLine_dcache = cacheBSize>1?0:1;
       dcacheState = CSTATE_RD;
       return false;
+
     case CACHE_I:
       if((cacheBSize==1)&&(icacheState==CSTATE_RD))
         return false;
@@ -45,7 +47,8 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
         break;
       if(mPenalty_icache > 0)
         return false;
-      if(MemBusy) return false;
+      if(MemBusy)
+        return false;
 
       mPenalty_icache = MISS_PENALTY;
       opAddr_icache = addr;
@@ -60,11 +63,19 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
 }
 
 bool writebackCache(cachedata* cacheData, unsigned int addr) {
-  if(wrPolicy == POLICY_WB) {
-    if(wrbuffer[0])
-      return false;
+  writebuffer* wbData;
+  wbData = NULL;
 
-    wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WB(cacheData, addr, cacheBSize);
+  if(wrPolicy == POLICY_WB) {
+    if(wrbuffer[WRBUFF_SIZE-2]) {
+      return false;
+    }
+
+    // queue the data for WB
+    wbData = createWRBuffer_WB(cacheData, addr, cacheBSize);
+    if(!wbData) Error("Error: Unable to allocation memory");
+    wrbuffer[WRBUFF_SIZE-2] = wbData;
+    return true;
   }
   return true;
 }
@@ -130,7 +141,7 @@ void updateCache(unsigned int addr, unsigned int data) {
   unsigned int block, line, tag;
 
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
-
+  (dcache[block]).dirty = true;
   (dcache[block]).block[line] = data;
 }
 

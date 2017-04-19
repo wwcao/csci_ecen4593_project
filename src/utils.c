@@ -170,8 +170,8 @@ writebuffer* createWRBuffer_WB(cachedata* cacheData, unsigned addr, int lineNum)
   }
 
   for(i = 0; i < lineNum; i++) {
-    newWRBuffer->addr = addr;
-    newWRBuffer->data = cacheData[i];
+    newWRBuffer[i].addr = addr;
+    newWRBuffer[i].data = cacheData[i];
     addr++;
   }
 

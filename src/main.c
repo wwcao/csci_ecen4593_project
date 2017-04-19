@@ -14,8 +14,7 @@ const char *progSources[128] = {
 int main() {
   unsigned int testNum;
   int tests[][5] = {
-    {0, 64,  1024,  4,  POLICY_WT},
-    {1, 64,  1024,  4,  POLICY_WT}
+    {0, 64,  512,  1,  POLICY_WB}
     //{0, 64,  1024,  16,  POLICY_WB}
     /*
     , // 12
@@ -63,11 +62,11 @@ int main() {
         updateMemory();
         startCaching();
         startPipeline();
-        if(PC==0 && !MemBusy) break;
-        //if(clock > 100000 || (PC == 155))
-          //printf("breakpoint");
+        if(PC==0 && !MemBusy)
+          break;
+        if(MemBusy > MISS_PENALTY)
+          printf("adsf");
         clock++;
-        updateMemory();
     }
     printSummary();
     destroyCaches();

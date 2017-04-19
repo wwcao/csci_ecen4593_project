@@ -197,6 +197,7 @@ typedef unsigned int cachedata;
 
 typedef struct {
   bool valid;
+  bool dirty;
   unsigned int tag;
   cachedata *block;
 } cache;
