@@ -39,4 +39,6 @@ void init_memory();
 void init_caches();
 
 void destroyCaches();
+void destroyWRBuffer();
+
 #endif

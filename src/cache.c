@@ -23,14 +23,18 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
       if(mPenalty_dcache > 0)
         return false;
 
-      if(!writebackMemory(srcCache.block, addr)) return false;
+      // Handle Write Back before loading cache
+      if(MemBusy) return false;
+      if(dcacheState && opAddr_dcache == addr && opLine_dcache < cacheBSize)
+        return false;
+      if(!writebackCache(srcCache.block, addr))
+        return false;
 
       mPenalty_dcache = MISS_PENALTY;
       opAddr_dcache = addr;
       opLine_dcache = cacheBSize>1?0:1;
       dcacheState = CSTATE_RD;
       return false;
-
     case CACHE_I:
       if((cacheBSize==1)&&(icacheState==CSTATE_RD))
         return false;
@@ -41,6 +45,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
         break;
       if(mPenalty_icache > 0)
         return false;
+      if(MemBusy) return false;
 
       mPenalty_icache = MISS_PENALTY;
       opAddr_icache = addr;
@@ -54,9 +59,9 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
   return true;
 }
 
-bool writebackMemory(cachedata* cacheData, unsigned int addr) {
+bool writebackCache(cachedata* cacheData, unsigned int addr) {
   if(wrPolicy == POLICY_WB) {
-    if(!wrbuffer[0])
+    if(wrbuffer[0])
       return false;
 
     wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WB(cacheData, addr, cacheBSize);
@@ -71,8 +76,11 @@ bool checkCache(unsigned int addr) {
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
   srcCache = dcache[block];
 
-  if(dcacheState)
-    return false;
+  if(wrPolicy == POLICY_WT) {
+    if(dcacheState)
+      return false;
+  }
+
   if(srcCache.valid && srcCache.tag == tag)
     return true;
 
@@ -89,10 +97,10 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
     return handleWRCDisabled(addr, data, offset, wsize);
   }
   // CACHE WRITE OPERATION
+
   if(wrbuffer[0])
     return false;
-  if(!checkCache(addr))
-    return false;
+
   switch(wrPolicy) {
     case POLICY_WB:
       if(readFromCache(CACHE_D, addr, &cacheData)) {
@@ -107,14 +115,14 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
       // data in cache
       // set penalty, set memory busy and write to memory
       // write to cache
-      if(readFromCache(CACHE_D, addr, &cacheData)) {
-        data = getWrData(cacheData, data, offset, wsize);
-        wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
-        updateCache(addr, data);
-      }
+      if(!readFromCache(CACHE_D, addr, &cacheData))
+        return false;
+
+      data = getWrData(cacheData, data, offset, wsize);
+      wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
+      updateCache(addr, data);
       break;
   }
-  //return false;
   return true;
 }
 
@@ -124,32 +132,6 @@ void updateCache(unsigned int addr, unsigned int data) {
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
 
   (dcache[block]).block[line] = data;
-}
-
-unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize) {
-  unsigned int shamt;
-  unsigned int mask;
-  unsigned int res;
-  switch(wsize) {
-    case DLEN_W:
-      res = newData;
-      break;
-    case DLEN_B:
-      shamt = (3-offset)*8;
-      newData = ((newData)&0xff)<<shamt;
-      mask = 0xff<<shamt;
-      res = (cacheData&(~mask))|newData;
-      break;
-    case DLEN_HW:
-      shamt = (1-offset)*16;
-      newData = ((newData)&0xffff)<<shamt;
-      mask = 0xffff<<shamt;
-      res = (cacheData&(~mask))|newData;
-      break;
-    default:
-      Error("Unexpected data length");
-  }
-  return res;
 }
 
 bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
@@ -179,14 +161,6 @@ bool handleWRCache(unsigned int addr, unsigned int data, unsigned short offset, 
       Error("Unexpected data length");
   }
   return true;
-}
-
-void policyWriteback() {
-
-}
-
-void policyWritethrough() {
-
 }
 
 void fillCache(cache_t ctype, unsigned int addr){

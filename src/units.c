@@ -90,3 +90,7 @@ void destroyCaches() {
   dcache = NULL;
 }
 
+void destroyWRBuffer() {
+  destroyUnusedWRBuffer(wrbuffer);
+}
+

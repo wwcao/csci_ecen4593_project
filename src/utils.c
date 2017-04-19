@@ -12,6 +12,33 @@ void init_utils() {
   numWriteMissed = 0;
 }
 
+unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize) {
+  unsigned int shamt;
+  unsigned int mask;
+  unsigned int res;
+  switch(wsize) {
+    case DLEN_W:
+      res = newData;
+      break;
+    case DLEN_B:
+      shamt = (3-offset)*8;
+      newData = ((newData)&0xff)<<shamt;
+      mask = 0xff<<shamt;
+      res = (cacheData&(~mask))|newData;
+      break;
+    case DLEN_HW:
+      shamt = (1-offset)*16;
+      newData = ((newData)&0xffff)<<shamt;
+      mask = 0xffff<<shamt;
+      res = (cacheData&(~mask))|newData;
+      break;
+    default:
+      Error("Unexpected data length");
+  }
+  return res;
+}
+
+
 unsigned int readInstruction(const char* path) {
     int addr;
     unsigned int ins;

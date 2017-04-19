@@ -14,26 +14,11 @@ const char *progSources[128] = {
 int main() {
   unsigned int testNum;
   int tests[][5] = {
-
-    {1, 64,  512,   16, POLICY_WT}, // 12
-    {1, 64,  512,   4,  POLICY_WT},
-    {1, 64,  512,   1,  POLICY_WT}, //16
-    {1, 128, 256,   16, POLICY_WT},
-    {1, 128, 256,   4,  POLICY_WT},
-    {1, 128, 256,   1,  POLICY_WT},
-    {1, 256, 128,   16, POLICY_WT},
-    {1, 256, 128,   4,  POLICY_WT},
-    {1, 256, 128,   1,  POLICY_WT},
-    {0, 128, 256,   16, POLICY_WT}, //0
-    {0, 128, 256,   16, POLICY_WT},
-    {0, 128, 256,   4,  POLICY_WT},
-    {0, 128, 256,   1,  POLICY_WT}, //4
-    {0, 64,  1024,  16, POLICY_WT},
-    {0, 64,  1024,  4,  POLICY_WT}, // 8
-    {0, 64,  1024,  1,  POLICY_WT}
-
+    {0, 64,  1024,  4,  POLICY_WT},
+    {1, 64,  1024,  4,  POLICY_WT}
+    //{0, 64,  1024,  16,  POLICY_WB}
     /*
-    {1, 64,  512,   16, POLICY_WT}, // 12
+    , // 12
     {1, 64,  512,   16, POLICY_WB},
     {1, 64,  512,   4,  POLICY_WT},
     {1, 64,  512,   4,  POLICY_WB},
@@ -78,12 +63,15 @@ int main() {
         updateMemory();
         startCaching();
         startPipeline();
-        if(PC==0) break;
+        if(PC==0 && !MemBusy) break;
+        //if(clock > 100000 || (PC == 155))
+          //printf("breakpoint");
         clock++;
         updateMemory();
     }
     printSummary();
     destroyCaches();
+    destroyWRBuffer();
     indexTest++;
   }
 	return 0;

@@ -36,12 +36,15 @@ void updateMemory() {
   if(!memoryPenalty && wrbuffer[WRBUFF_SIZE-2]) {
     setMemWrite();
   }
+
   return;
 }
 
 
 bool setMemWrite() {
+
   if(MemBusy||wrbuffer[WRBUFF_SIZE-1]) return false;
+  //if(icacheState||dcacheState) return false;
   wrbuffer[WRBUFF_SIZE-1] = wrbuffer[WRBUFF_SIZE-2];
   wrbuffer[WRBUFF_SIZE-2] = NULL;
   opLine_mem = 0;
