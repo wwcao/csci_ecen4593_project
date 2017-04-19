@@ -132,7 +132,7 @@ writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data) {
   return newWRBuffer;
 }
 
-writebuffer* createWRBuffer_WB(cache* cacheBlock, unsigned addr, int lineNum) {
+writebuffer* createWRBuffer_WB(cachedata* cacheData, unsigned addr, int lineNum) {
   int i;
   writebuffer* newWRBuffer;
 
@@ -144,7 +144,7 @@ writebuffer* createWRBuffer_WB(cache* cacheBlock, unsigned addr, int lineNum) {
 
   for(i = 0; i < lineNum; i++) {
     newWRBuffer->addr = addr;
-    newWRBuffer->data = (cacheBlock->block)[i];
+    newWRBuffer->data = cacheData[i];
     addr++;
   }
 

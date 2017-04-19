@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CACHE_ENABLED          1
+#define CACHE_ENABLED          0
 
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
@@ -36,7 +36,9 @@ unsigned int cacheLMask;
 
 bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
-
+unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize);
+void updateCache(unsigned int addr, unsigned int data);
+bool writebackMemory(cachedata* cacheData, unsigned int addr);
 bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 
 void policyWriteback();

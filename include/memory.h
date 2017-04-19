@@ -13,6 +13,7 @@ unsigned int opLine_mem;
 unsigned short memoryPenalty;
 
 void updateMemory();
+bool setMemWrite();
 
 void init_memoryCtl();
 #endif // __CACHE_HEADER__

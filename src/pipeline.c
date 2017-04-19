@@ -158,11 +158,6 @@ void MEM(void) {
 
 	if(exmem_reg.MemWrite) {
     Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
-    if((!cachePenalty)&&!Success) {
-      printf("Error MEM_WRITE @ clock: %u, PC: %04d, instruction: [0x%x]\n",
-              clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
-      exit(0);
-    }
     if(!Success) Stall_cachemissed = true;
 	}
 

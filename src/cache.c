@@ -1,19 +1,15 @@
 #include <cache.h>
 
 bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
-  unsigned int _addr;
 
   unsigned int block, line, tag;
   cache srcCache;
-
-  _addr = addr;
 
   if(!CACHE_ENABLED) {
     *data = memory[addr];
     return true;
   }
 
-  // ISSUE: need to fill out the cache from the base addr of the cache block
   convertAddr(ctype, &addr, &tag, &block, &line);
   switch(ctype) {
     case CACHE_D:
@@ -26,6 +22,8 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
         break;
       if(mPenalty_dcache > 0)
         return false;
+
+      if(!writebackMemory(srcCache.block, addr)) return false;
 
       mPenalty_dcache = MISS_PENALTY;
       opAddr_dcache = addr;
@@ -53,8 +51,15 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
       Error("Error: Wrong Cache type");
   }
   *data = srcCache.block[line];
-  if(*data != memory[_addr]) {
-    addr = _addr;
+  return true;
+}
+
+bool writebackMemory(cachedata* cacheData, unsigned int addr) {
+  if(wrPolicy == POLICY_WB) {
+    if(!wrbuffer[0])
+      return false;
+
+    wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WB(cacheData, addr, cacheBSize);
   }
   return true;
 }
@@ -66,45 +71,55 @@ bool checkCache(unsigned int addr) {
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
   srcCache = dcache[block];
 
-
-  if(dcacheState || (opLine_dcache <= cacheBSize)) return false;// CURRENT FOR WB, TODO: refactor for different POLICIES
+  if(dcacheState) return false;// CURRENT FOR WB, TODO: refactor for different POLICIES
   if(srcCache.valid && srcCache.tag == tag) return true;
 
-  cachePenalty = MISS_PENALTY;
-  opAddr_icache = addr;
-  opLine_icache = 0;
-  icacheState = CSTATE_RD;
-
+  mPenalty_dcache = MISS_PENALTY;
+  opAddr_dcache = addr;
+  opLine_dcache = cacheBSize>1?0:1;
+  dcacheState = CSTATE_RD;
   return false;
 }
 
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
-  return true;
+  unsigned int cacheData;
   if(!CACHE_ENABLED) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }
   // CACHE WRITE OPERATION
-  // Not in cache
-  if(!checkCache(addr)) return false;
-  // NO more buffers
   if(!wrbuffer[0]) return false;
+  if(!checkCache(addr)) return false;
   switch(wrPolicy) {
     case POLICY_WB:
-      if(wrbuffer[WRBUFF_SIZE-1]) return false;
-
+      if(readFromCache(CACHE_D, addr, &cacheData)) {
+        data = getWrData(cacheData, data, offset, wsize);
+        //wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
+        updateCache(addr, data);
+      }
       // data in cache
       // write to cache
       break;
     case POLICY_WT:
-      if(wrbuffer[WRBUFF_SIZE-1]) return false;
       // data in cache
       // set penalty, set memory busy and write to memory
       // write to cache
-
+      if(readFromCache(CACHE_D, addr, &cacheData)) {
+        data = getWrData(cacheData, data, offset, wsize);
+        wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
+        updateCache(addr, data);
+      }
       break;
   }
   //return false;
   return true;
+}
+
+void updateCache(unsigned int addr, unsigned int data) {
+  unsigned int block, line, tag;
+
+  convertAddr(CACHE_D, &addr, &tag, &block, &line);
+
+  (dcache[block]).block[line] = data;
 }
 
 unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize) {
@@ -159,9 +174,6 @@ bool handleWRCache(unsigned int addr, unsigned int data, unsigned short offset, 
     default:
       Error("Unexpected data length");
   }
-
-
-
   return true;
 }
 
