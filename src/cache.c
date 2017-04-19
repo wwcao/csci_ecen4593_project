@@ -92,15 +92,15 @@ void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
  unsigned int block, line, tag;
  cache *cache_des;
  
-  
-
+ //convertAddr(ctype, &data, &tag, &block, &line);
  convertAddr(ctype, &addr, &tag, &block, &line);
+
  switch(ctype){
   case CACHE_D:
 	cache_des = &(dcache[block]);
 	break;
   case CACHE_I;
-	cache_des = &dcache([block]);
+	cache_des = &(icache[block]);
 	break;
  }
 
@@ -116,11 +116,11 @@ void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int data) {
  numRead++;
  numWrite++;
 
- cache_des[block]->tag = tag
+ cache_des[block]->tag = data->tag;
  cache_des[block]->valid = true;
  
  
- 
+ memory[addr] = data;
 
  return;
  }
