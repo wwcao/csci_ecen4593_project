@@ -71,8 +71,10 @@ bool checkCache(unsigned int addr) {
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
   srcCache = dcache[block];
 
-  if(dcacheState) return false;// CURRENT FOR WB, TODO: refactor for different POLICIES
-  if(srcCache.valid && srcCache.tag == tag) return true;
+  if(dcacheState)
+    return false;
+  if(srcCache.valid && srcCache.tag == tag)
+    return true;
 
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
@@ -87,8 +89,10 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
     return handleWRCDisabled(addr, data, offset, wsize);
   }
   // CACHE WRITE OPERATION
-  if(!wrbuffer[0]) return false;
-  if(!checkCache(addr)) return false;
+  if(wrbuffer[0])
+    return false;
+  if(!checkCache(addr))
+    return false;
   switch(wrPolicy) {
     case POLICY_WB:
       if(readFromCache(CACHE_D, addr, &cacheData)) {

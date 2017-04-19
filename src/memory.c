@@ -51,5 +51,7 @@ bool setMemWrite() {
 }
 
 void init_memoryCtl() {
+  opAddr_mem = 0;
+  opLine_mem = 0;
   memoryPenalty = 0;
 }
