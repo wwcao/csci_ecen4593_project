@@ -1,6 +1,7 @@
 #include "units.h"
 
 void init_units() {
+  clock = 0;
   init_memory();
   init_registers();
   init_caches();
@@ -9,12 +10,22 @@ void init_units() {
 }
 
 void init_registers() {
+
+  int i;
+  for(i = 0; i < 32; i++) {
+    register_file[i] = 0;
+    register_file[i+1] = 0;
+    register_file[i+2] = 0;
+    register_file[i+3] = 0;
+  }
+
   register_file[$sp] = memory[0];
 	register_file[$fp] = memory[1];
 	PC = memory[5];
 }
 
 void init_caches() {
+  unsigned int data;
   unsigned int addr;
   unsigned int dWordNum;
   unsigned int iWordNum;
@@ -39,13 +50,21 @@ void init_caches() {
   // setup caches
   addr = 0;
   while(addr < iWordNum) {
+    data = 0;
     fillCache(CACHE_I, addr);
+    readFromCache(CACHE_I, addr, &data);
+    if(data!=memory[addr])
+      printf("Asdf");
     addr++;
   }
 
   addr = 0;
   while (addr < dWordNum) {
+    data = 0;
     fillCache(CACHE_D, addr);
+    readFromCache(CACHE_D, addr, &data);
+    if(data!=memory[addr])
+      printf("Asdf");
     addr++;
   }
   return;
@@ -67,5 +86,7 @@ void init_memory() {
 void destroyCaches() {
   destroyUnusedCache(icache, icacheBNum);
   destroyUnusedCache(dcache, dcacheBNum);
+  icache = NULL;
+  dcache = NULL;
 }
 

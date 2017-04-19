@@ -1,8 +1,9 @@
-#include <stdint.h>
+
 #ifndef __STATIC_HEADER__
 #define __STATIC_HEADER__
 
-int32_t a;
+#include <stdio.h>
+#include <string.h>
 
 #define INSTRUCTION_PATH      "ins_test3.ass"
 #define MAX_READLINE					256
