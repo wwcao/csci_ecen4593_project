@@ -139,30 +139,6 @@ bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offs
   return true;
 }
 
-bool handleWRCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
-  unsigned int shamt;
-  unsigned int mask;
-  switch(wsize) {
-    case DLEN_W:
-      break;
-    case DLEN_B:
-      shamt = (3-offset)*8;
-      data = ((data)&0xff)<<shamt;
-      mask = 0xff<<shamt;
-      data = (memory[addr]&(~mask))|data;
-      break;
-    case DLEN_HW:
-      shamt = (1-offset)*16;
-      data = ((data)&0xffff)<<shamt;
-      mask = 0xffff<<shamt;
-      data = (memory[addr]&(~mask))|data;
-      return true;
-    default:
-      Error("Unexpected data length");
-  }
-  return true;
-}
-
 void fillCache(cache_t ctype, unsigned int addr){
 
   unsigned int block;
