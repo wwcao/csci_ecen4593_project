@@ -88,7 +88,28 @@ void policyWriteback() {
 
 }
 
-void policyWritethrough() {
+void policyWritethrough(cache_t ctype,unsigned int addr,unsigned int *data) {
+ unsigned int block, line, tag;
+
+ convertAddr(ctype, &addr, &tag, &block, &line);
+
+ switch(ctype){
+  case CACHE_D:
+	dcache[block] -> valid = true;
+	dcache[block] -> tag = tag;
+	dcache[block] -> block = data;
+	break;
+  case CACHE_I;
+        icache[block] -> valid = true;
+        icache[block] -> tag = tag;
+        icache[block] -> block = data;
+	break;
+ }
+
+
+
+ return;
+ }
 
 }
 
