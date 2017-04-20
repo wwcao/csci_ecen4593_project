@@ -6,8 +6,8 @@ unsigned int indexTest;
 int test[5];
 
 const char *progSources[128] = {
-  "program1File.txt",
-  "program2File.txt",
+  "Program1File.txt",
+  "Program2File.txt",
   NULL
 };
 
