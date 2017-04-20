@@ -26,6 +26,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
       // Handle Write Back before loading cache
       if(MemBusy)
         return false;
+        // TODO: change comparing addr to compare tags
       if(dcacheState && opAddr_dcache == addr && opLine_dcache < cacheBSize)
         return false;
       if(srcCache.dirty && !writebackCache(srcCache.block, addr))
@@ -62,6 +63,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
   return true;
 }
 
+// TODO: need to change to base addr
 bool writebackCache(cachedata* cacheData, unsigned int addr) {
   writebuffer* wbData;
   wbData = NULL;
