@@ -1,43 +1,24 @@
 #include "pipeline.h"
 
 void IF(void) {
-  //unsigned int instruction;
 
-	// handle is pipeline
-	if((!PC)||Stall_cachemissed) {
-    return;
-	}
+	if(!PC) return;
 
-	if((!IS_PIPELINE) && (cStage != STAGE_IF)) {
-		return;
-	}
+  if(!Stall_harzard) {
+    if(PCSrc) {
+      PC = pcSrc2;
+      PCSrc = false;
+    }
+    else if(!PCSrc) {
+      PC = pcSrc1;
+    }
+    _ifid_reg.progCounter = PC;
+    pcSrc1 = PC+1;
+    _ifid_reg.nPC = pcSrc1;
 
-	// IF Operation
-  //instruction = 0;
-	if(Flush_if || Stall_harzard) {
-    return;
-	}
-
-	if(!init_ins && PCSrc) {
-		PC = pcSrc2;
-		PCSrc = false;
-	}
-	else if(!init_ins && !PCSrc) {
-		PC = pcSrc1;
-	}
-
-	if(init_ins) init_ins = false;
-
-	_ifid_reg.progCounter = PC;
-
-	if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
-    Stall_cachemissed = true;
-
-  pcSrc1 = PC+1;
-  _ifid_reg.nPC = pcSrc1;
-
-	// set state ID after IF
-	nStage = STAGE_ID;
+    if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
+      Stall_cachemissed = true;
+  }
 }
 
 void ID(void) {
@@ -48,13 +29,7 @@ void ID(void) {
 	int regVal1, regVal2;
 
 	// handle is pipeline
-	if((!PC)||Stall_cachemissed) {
-    return;
-	}
-
-	if((!IS_PIPELINE) && (cStage != STAGE_ID)) {
-		return;
-	}
+	if(!PC) return;
 
 	// ID Operation
 	_idex_reg.progCounter = ifid_reg.progCounter;
@@ -85,22 +60,12 @@ void ID(void) {
   fwdUnitID(rs, rt, &regVal1, &regVal2);
 
 	ctlUnitOperation(opCode, regVal1, regVal2, extendedValue);
-
-	nStage = STAGE_EX;
-
-
 }
 
 void EX(void) {
 	int src1, src2;
 
-  if((!PC)||Stall_cachemissed) {
-    return;
-	}
-
-	if((!IS_PIPELINE) && (cStage != STAGE_EX)) {
-		return;
-	}
+  if(!PC) return;
 
 	_exmem_reg.progCounter = idex_reg.progCounter;
 
@@ -125,8 +90,6 @@ void EX(void) {
 	src2 = idex_reg.ALUSrc?idex_reg.extendedValue:src2;
 	aluUnitOperation(src1, src2);
 
-	// set next state
-	nStage = STAGE_MEM;
 	return;
 }
 
@@ -137,13 +100,7 @@ void MEM(void) {
   unsigned int data;
   bool Success;
 
-	if((!PC)||Stall_cachemissed) {
-    return;
-	}
-
-	if((!IS_PIPELINE) && (cStage != STAGE_MEM)) {
-		return;
-	}
+	if(!PC) return;
 
 	_memwb_reg.progCounter = exmem_reg.progCounter;
 
@@ -198,17 +155,10 @@ void MEM(void) {
           exit(1);
       }
 	}
-
-	nStage = STAGE_WB;
 }
 
 void WB(void) {
-  if((!PC)||Stall_cachemissed) {
-    return;
-	}
-	if((!IS_PIPELINE) & (cStage != STAGE_WB)|| (!PC)) {
-		return;
-	}
+  if(!PC) return;
 
 	writedata = memwb_reg.MemtoReg? memwb_reg.memValue:
 																	memwb_reg.aluResult;
@@ -219,28 +169,17 @@ void WB(void) {
 	if(!IS_PIPELINE)
 		printRegisters();
 
-	nStage = STAGE_IF;
-
 	return;
 }
 
 void startPipeline(void) {
-  //if(missedPenalty != 0) return;
   hdUnitOperation();
   IF();
-
-  if(IS_PIPELINE)
-		WB();
-
+  WB();
   ID();
   EX();
   MEM();
-
-	if(!IS_PIPELINE)
-		WB();
-
-	wirtetoPipelineRegs();
-	cStage = nStage;
+	transferPipelineRegs();
 
 }
 
@@ -378,8 +317,10 @@ void ctlUnitOperation(unsigned int opCode,
 					pcSrc2 = regVal1;
 					PCSrc = true;
 					break;
+
 				default:
 					// Decoded R
+					//if(!getPartNum(extendedValue, PART_SHM)) break;
 					_idex_reg.RegWrite= true;
 					_idex_reg.RegDst = true;
 					_idex_reg.ALUOp = ALUOP_R;
@@ -586,8 +527,6 @@ void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
 
   return; //  disabled!!
 
-  if(!IS_PIPELINE) return;
-
   if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==rs)	{
     forwardA = 2;
 	}
@@ -630,7 +569,6 @@ void fwdUnitEX(int *src1, int *src2) {
 	unsigned short forwardA = false;
 	unsigned short forwardB = false;
 	//EX hazard
-	if(!IS_PIPELINE) return;
 
 	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==idex_reg.rs)	{
     forwardA = 2;
@@ -670,72 +608,31 @@ void fwdUnitEX(int *src1, int *src2) {
   return;
 }
 
-void wirtetoPipelineRegs() {
-  //if(Stall_cachemissed||(cachePenalty != 0)) {
-  if(Stall_cachemissed) {
-    // keep PC value when Stalled by harzard
-    if(!Stall_harzard)
-      pcSrc1--;
-    memset(&_ifid_reg, 0, sizeof(IFID_Register));
-    memset(&_idex_reg, 0, sizeof(IDEX_Register));
-    memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
-    memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
-    Stall_cachemissed = false;
+void transferPipelineRegs() {
+  if(!Stall_harzard) {
+    memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
+    memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
+    memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
+    memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
+    init_wireOutputs();
     return;
   }
 
-	if(!Stall_harzard) {
-    memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
-    memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
-	}
-
-	memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
+  // continue MEM, and WB
+  memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
 	memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
 
-	if(IS_PIPELINE) {
-		if(Flush_id||Stall_harzard) {
-			idex_reg.MemtoReg = false;
-			idex_reg.RegWrite = false;
-			idex_reg.MemRead = false;
-			idex_reg.MemWrite = false;
-			idex_reg.ALUOp = ALUOP_NOP;
-			idex_reg.ALUSrc = false;
-			idex_reg.opCode = false;
-			idex_reg.progCounter = false;
-			PCSrc = false;
-		}
+	// keep data in IDEX register
+  insertNOP();
 
-		if(Flush_ex) {
-			exmem_reg.MemtoReg = false;
-			exmem_reg.RegWrite = false;
-			exmem_reg.MemRead = false;
-			exmem_reg.MemWrite = false;
-		}
-
-		if(Flush_if)
-			memset(&ifid_reg, 0, sizeof(IFID_Register));
-
-		//reset flush
-		Flush_if = false;
-		Flush_id = false;
-		Flush_ex = false;
-		Stall_harzard = false;
-		Stall_cachemissed = false;
-	}
-
-	memset(&_ifid_reg, 0, sizeof(IFID_Register));
-	memset(&_idex_reg, 0, sizeof(IDEX_Register));
-	memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
-	memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
-
-	return;
+  // keep IFID but decreases PCINPUT
+  Stall_harzard = false;
+  return;
 }
 
-
 void init_pipeline() {
-  init_ins = true;
 	PCSrc = false;
-	pcSrc1 = 0;
+	pcSrc1 = PC;
 	pcSrc2 = 0;
 	writedata = 0;
 	Flush_if = false;
@@ -743,16 +640,35 @@ void init_pipeline() {
 	Flush_ex = false;
 	Stall_harzard = false;
 	Stall_cachemissed = false;
-	cStage = STAGE_IF;
-	nStage = STAGE_IF;
-	//run_pipeline = 3;
-	memset(&_ifid_reg, 0, sizeof(IFID_Register));
+
+	init_wireOutputs();
+  init_pipeline_regs();
+
+  // flush
+}
+
+void init_wireOutputs() {
+  memset(&_ifid_reg, 0, sizeof(IFID_Register));
 	memset(&_idex_reg, 0, sizeof(IDEX_Register));
 	memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
 	memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
+}
 
-	memset(&ifid_reg, 0, sizeof(IFID_Register));
+void init_pipeline_regs() {
+  memset(&ifid_reg, 0, sizeof(IFID_Register));
 	memset(&idex_reg, 0, sizeof(IDEX_Register));
 	memset(&exmem_reg, 0, sizeof(EXMEM_Register));
 	memset(&memwb_reg, 0, sizeof(MEMWB_Register));
+}
+
+void insertNOP() {
+  idex_reg.MemtoReg = false;
+  idex_reg.RegWrite = false;
+  idex_reg.MemRead = false;
+  idex_reg.MemWrite = false;
+  idex_reg.ALUOp = ALUOP_NOP;
+  idex_reg.ALUSrc = false;
+  idex_reg.opCode = false;
+  idex_reg.progCounter = 0;
+  PCSrc = false;
 }
