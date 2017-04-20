@@ -11,6 +11,12 @@
 
 #define IS_PIPELINE             1       // DON'T set to 0 (test assembly not compatible)
 
+#define IFID_ID                 0x1
+#define IDEX_ID                 0x2
+#define EXMEM_ID                0x4
+#define MEMWB_ID                0x8
+#define ALL_REGS                0xf
+
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
@@ -52,8 +58,9 @@ void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2);
 void transferPipelineRegs(void);
 
 void init_pipeline();
-void init_pipeline_regs();
-void init_wireOutputs();
+void init_pipelineRegs(int ops);
+void init_wireRegs(int ops);
+void copyRegs(int ops);
 void insertNOP();
 
 #endif

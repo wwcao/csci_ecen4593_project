@@ -307,7 +307,7 @@ void ctlUnitOperation(unsigned int opCode,
 	unsigned int jImm;
 	unsigned int msb;
 	_idex_reg.ALUOp = ALUOP_NOP;
-
+  if(!ifid_reg.instruction) return;
 	switch(opCode) {
 	// case R-format
 		case 0x0: {
@@ -481,6 +481,7 @@ void hdUnitOperation(void) {
     unsigned int rs, rt;
     bool isBranch;
     unsigned opCode;
+    unsigned func;
     rs = getPartNum(ifid_reg.instruction, PART_RS);
     rt = getPartNum(ifid_reg.instruction, PART_RT);
     isBranch = false;
@@ -493,7 +494,10 @@ void hdUnitOperation(void) {
 
     // Stall_harzard without forwarding in ID Stage
     opCode = getPartNum(ifid_reg.instruction, PART_OP);
+    func = getPartNum(ifid_reg.instruction, PART_FUNC);
     switch(opCode) {
+      case 0x0:
+        if(!(func == J_JAL)) break;
       case 0x1:
       case 0x4:
       case 0x5:
@@ -610,17 +614,13 @@ void fwdUnitEX(int *src1, int *src2) {
 
 void transferPipelineRegs() {
   if(!Stall_harzard) {
-    memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
-    memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
-    memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
-    memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
-    init_wireOutputs();
+    copyRegs(ALL_REGS);
+    init_wireRegs(ALL_REGS);
     return;
   }
 
   // continue MEM, and WB
-  memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
-	memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
+	copyRegs(EXMEM_ID|MEMWB_ID);
 
 	// keep data in IDEX register
   insertNOP();
@@ -641,25 +641,33 @@ void init_pipeline() {
 	Stall_harzard = false;
 	Stall_cachemissed = false;
 
-	init_wireOutputs();
-  init_pipeline_regs();
+	init_wireRegs(ALL_REGS);
+  init_pipelineRegs(ALL_REGS);
 
   // flush
 }
 
-void init_wireOutputs() {
-  memset(&_ifid_reg, 0, sizeof(IFID_Register));
-	memset(&_idex_reg, 0, sizeof(IDEX_Register));
-	memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
-	memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
+void init_wireRegs(int ops) {
+  if(ops&IFID_ID) memset(&_ifid_reg, 0, sizeof(IFID_Register));
+	if(ops&IDEX_ID) memset(&_idex_reg, 0, sizeof(IDEX_Register));
+	if(ops&EXMEM_ID) memset(&_exmem_reg, 0, sizeof(EXMEM_Register));
+	if(ops&MEMWB_ID) memset(&_memwb_reg, 0, sizeof(MEMWB_Register));
 }
 
-void init_pipeline_regs() {
-  memset(&ifid_reg, 0, sizeof(IFID_Register));
-	memset(&idex_reg, 0, sizeof(IDEX_Register));
-	memset(&exmem_reg, 0, sizeof(EXMEM_Register));
-	memset(&memwb_reg, 0, sizeof(MEMWB_Register));
+void init_pipelineRegs(int ops) {
+  if(ops&IFID_ID) memset(&ifid_reg, 0, sizeof(IFID_Register));
+	if(ops&IDEX_ID) memset(&idex_reg, 0, sizeof(IDEX_Register));
+	if(ops&EXMEM_ID) memset(&exmem_reg, 0, sizeof(EXMEM_Register));
+	if(ops&MEMWB_ID) memset(&memwb_reg, 0, sizeof(MEMWB_Register));
 }
+
+void copyRegs(int ops) {
+  if(ops&IFID_ID) memcpy(&ifid_reg, &_ifid_reg , sizeof(IFID_Register));
+  if(ops&IDEX_ID) memcpy(&idex_reg, &_idex_reg , sizeof(IDEX_Register));
+  if(ops&EXMEM_ID) memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
+  if(ops&MEMWB_ID) memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
+}
+
 
 void insertNOP() {
   idex_reg.MemtoReg = false;
