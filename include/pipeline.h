@@ -14,11 +14,10 @@
 unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
-//bool PCdisable;
+
 bool Flush_if;
 bool Flush_id;
 bool Flush_ex;
-bool init_ins;
 
 // regular pipeline register
 IFID_Register ifid_reg;
@@ -31,9 +30,6 @@ IFID_Register _ifid_reg;
 IDEX_Register _idex_reg;
 EXMEM_Register _exmem_reg;
 MEMWB_Register _memwb_reg;
-
-stage cStage;			// curent state for non_pipeline
-stage nStage;			// next state
 
 int writedata;
 bool Stall_harzard;
@@ -53,8 +49,11 @@ void ctlUnitOperation(unsigned int opCode,
 void hdUnitOperation(void);
 void fwdUnitEX(int *src1, int *src2);
 void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2);
-void wirtetoPipelineRegs(void);
+void transferPipelineRegs(void);
 
 void init_pipeline();
+void init_pipeline_regs();
+void init_wireOutputs();
+void insertNOP();
 
 #endif

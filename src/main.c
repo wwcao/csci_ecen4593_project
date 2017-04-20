@@ -15,35 +15,6 @@ int main() {
   unsigned int testNum;
   int tests[][5] = {
     {0, 128, 256,   16, POLICY_WT},
-    {0, 128, 256,   16, POLICY_WB},
-    {0, 128, 256,   4,  POLICY_WT},
-    {0, 128, 256,   4,  POLICY_WB},
-    {0, 128, 256,   1,  POLICY_WT},
-    {0, 128, 256,   1,  POLICY_WB},
-    {0, 64,  1024,  16, POLICY_WT},
-    {0, 64,  1024,  16, POLICY_WB},
-    {0, 64,  1024,  4,  POLICY_WT},
-    {0, 64,  1024,  4,  POLICY_WB},
-    {0, 64,  1024,  1,  POLICY_WT},
-    {0, 64,  1024,  1,  POLICY_WB},
-
-    {1, 64,  512,   16, POLICY_WT},
-    {1, 64,  512,   16, POLICY_WB},
-    {1, 64,  512,   4,  POLICY_WT},
-    {1, 64,  512,   4,  POLICY_WB},
-    {1, 64,  512,   1,  POLICY_WT},
-    {1, 64,  512,   1,  POLICY_WB},
-    {1, 128, 256,   16, POLICY_WT},
-    {1, 128, 256,   16, POLICY_WB},
-    {1, 128, 256,   4,  POLICY_WT},
-    {1, 128, 256,   4,  POLICY_WB},
-    {1, 128, 256,   1,  POLICY_WT},
-    {1, 128, 256,   1,  POLICY_WB},
-    {1, 256, 128,   16, POLICY_WT},
-    {1, 256, 128,   16, POLICY_WB},
-    {1, 256, 128,   4,  POLICY_WT},
-    {1, 256, 128,   4,  POLICY_WB},
-    {1, 256, 128,   1,  POLICY_WT},
     {1, 256, 128,   1,  POLICY_WB}
 
   };
