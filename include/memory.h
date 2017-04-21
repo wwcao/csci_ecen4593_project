@@ -14,6 +14,7 @@ unsigned short memoryPenalty;
 
 void updateMemory();
 bool setMemWrite();
+bool checkMemory();
 
 void init_memoryCtl();
 #endif // __CACHE_HEADER__

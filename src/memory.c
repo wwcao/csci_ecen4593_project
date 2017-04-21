@@ -34,13 +34,12 @@ void updateMemory() {
     }
   }
 
-  if(!memoryPenalty && wrbuffer[WRBUFF_SIZE-2]) {
+  if(!MemBusy && wrbuffer[WRBUFF_SIZE-2]) {
     setMemWrite();
   }
 
   return;
 }
-
 
 bool setMemWrite() {
   if(icacheState||dcacheState)
@@ -52,6 +51,10 @@ bool setMemWrite() {
   MemBusy = true;
   memoryPenalty = MISS_PENALTY;
   return true;
+}
+
+bool checkMemory() {
+  return CACHE_ENABLED&&wrbuffer[WRBUFF_SIZE-1];
 }
 
 void init_memoryCtl() {

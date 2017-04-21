@@ -46,6 +46,8 @@ void convertAddr(cache_t ctyp, unsigned int *addr,
                  unsigned int *tag, unsigned int *block, unsigned int *line);
 
 void startCaching();
+void cacheInstruction();
+void cacheData();
 
 void initial_cacheCtl();
 #endif // __CACHE_HEADER__

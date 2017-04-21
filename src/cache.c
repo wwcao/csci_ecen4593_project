@@ -5,6 +5,7 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
   cache srcCache;
 
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
+
   if((cacheBSize==1)&&(dcacheState==CSTATE_RD))
     return false;
   if(dcacheState && (line >= opLine_dcache))
@@ -270,11 +271,14 @@ void initial_cacheCtl() {
 void startCaching() {
   if(!CACHE_ENABLED) return;
 
-  //cachePenalty = cachePenalty>0?cachePenalty-1:0;
+  cacheInstruction();
+  cacheData();
 
-  mPenalty_dcache = mPenalty_dcache>0?mPenalty_dcache-1:0;
+  return;
+}
+
+void cacheInstruction() {
   mPenalty_icache = mPenalty_icache>0?mPenalty_icache-1:0;
-
 
   if(!MemBusy && icacheState && !mPenalty_icache) {
     switch(icacheState) {
@@ -308,7 +312,11 @@ void startCaching() {
         break;
     }
   }
+}
 
+void cacheData() {
+
+  mPenalty_dcache = mPenalty_dcache>0?mPenalty_dcache-1:0;
   if(!MemBusy && dcacheState && !mPenalty_dcache) {
     switch(dcacheState) {
       case CSTATE_RD:
@@ -341,5 +349,4 @@ void startCaching() {
         break;
     }
   }
-  return;
 }
