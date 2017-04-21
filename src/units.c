@@ -40,6 +40,7 @@ void init_caches() {
   icacheBNum = (iWordNum/cacheBSize);
   dcacheBNum = (dWordNum/cacheBSize);
 
+  if(iWordNum<cacheBSize||dWordNum<cacheBSize) Error("Invalid Cache Setting");
   // initalize cache control
   initial_cacheCtl();
 

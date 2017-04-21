@@ -16,8 +16,7 @@ int main() {
 
   int tests[][5] = {
     //{0, 128, 256,   16, POLICY_WT},
-    {1, 256, 128,   1,  POLICY_WT}
-
+    {1, 256,  256,  4,  POLICY_WT}
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);
@@ -33,9 +32,11 @@ int main() {
         startPipeline();
         if(PC==0 && !MemBusy)
           break;
-        if(MemBusy > MISS_PENALTY)
-          printf("adsf");
         clock++;
+        if(memoryPenalty > MISS_PENALTY || mPenalty_dcache > MISS_PENALTY || mPenalty_icache > MISS_PENALTY)
+          printf("Asdf");
+        if(MemBusy > 1)
+          printf("asdf");
     }
     printSummary();
     destroyCaches();

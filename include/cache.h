@@ -34,6 +34,8 @@ unsigned int dcacheBMask;
 unsigned short cacheLBits;
 unsigned int cacheLMask;
 
+bool readDataCache(unsigned int addr, unsigned int *data);
+bool readInsCache(unsigned int addr, unsigned int *data);
 bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 void updateCache(unsigned int addr, unsigned int data);

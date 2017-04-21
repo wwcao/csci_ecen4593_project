@@ -1,5 +1,70 @@
 #include <cache.h>
 
+bool readDataCache(unsigned int addr, unsigned int *data) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
+  convertAddr(CACHE_D, &addr, &tag, &block, &line);
+  if((cacheBSize==1)&&(dcacheState==CSTATE_RD))
+    return false;
+  if(dcacheState && (line >= opLine_dcache))
+    return false;
+  srcCache = dcache[block];
+  if(srcCache.valid && (srcCache.tag == tag)) {
+    *data = srcCache.block[line];
+    return true;
+  }
+  if(dcacheState||icacheState||MemBusy)
+    return false;
+
+  mPenalty_dcache = MISS_PENALTY;
+  opAddr_dcache = addr;
+  opLine_dcache = cacheBSize>1?0:1;
+  dcacheState = CSTATE_RD;
+  return false;
+}
+
+bool readInsCache(unsigned int addr, unsigned int *data) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
+  convertAddr(CACHE_I, &addr, &tag, &block, &line);
+  srcCache = icache[block];
+
+  if((cacheBSize==1)&&(icacheState==CSTATE_RD))
+    return false;
+  if(icacheState && (line >= opLine_icache))
+    return false;
+  if(srcCache.valid && (srcCache.tag == tag)) {
+    *data = srcCache.block[line];
+    return true;
+  }
+  if(icacheState||dcacheState || MemBusy)
+    return false;
+
+  mPenalty_icache = MISS_PENALTY;
+  opAddr_icache = addr;
+  opLine_icache = cacheBSize>1?0:1;
+  icacheState = CSTATE_RD;
+
+  return false;
+}
+
+bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
+  if(!CACHE_ENABLED) {
+    *data = memory[addr];
+    return true;
+  }
+
+  if(ctype == CACHE_I) {
+    return readInsCache(addr, data);
+  }
+  else {
+    return readDataCache(addr, data);
+  }
+}
+
+/*
 bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
 
   unsigned int block, line, tag;
@@ -21,15 +86,6 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
       if(srcCache.valid && (srcCache.tag == tag))
         break;
       if(mPenalty_dcache > 0)
-        return false;
-
-      // Handle Write Back before loading cache
-      if(MemBusy)
-        return false;
-        // TODO: change comparing addr to compare tags
-      if(dcacheState && opAddr_dcache == addr && opLine_dcache < cacheBSize)
-        return false;
-      if(srcCache.dirty && !writebackCache(srcCache.block, addr))
         return false;
 
       mPenalty_dcache = MISS_PENALTY;
@@ -62,6 +118,7 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
   *data = srcCache.block[line];
   return true;
 }
+*/
 
 // TODO: need to change to base addr
 bool writebackCache(cachedata* cacheData, unsigned int addr) {
@@ -82,28 +139,6 @@ bool writebackCache(cachedata* cacheData, unsigned int addr) {
   return true;
 }
 
-bool checkCache(unsigned int addr) {
-  unsigned int block, line, tag;
-  cache srcCache;
-
-  convertAddr(CACHE_D, &addr, &tag, &block, &line);
-  srcCache = dcache[block];
-
-  if(wrPolicy == POLICY_WT) {
-    if(dcacheState)
-      return false;
-  }
-
-  if(srcCache.valid && srcCache.tag == tag)
-    return true;
-
-  mPenalty_dcache = MISS_PENALTY;
-  opAddr_dcache = addr;
-  opLine_dcache = cacheBSize>1?0:1;
-  dcacheState = CSTATE_RD;
-  return false;
-}
-
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
   unsigned int cacheData;
   if(!CACHE_ENABLED) {
@@ -111,26 +146,19 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
   }
   // CACHE WRITE OPERATION
 
-  if(wrbuffer[0])
+  if(wrbuffer[WRBUFF_SIZE-2])
     return false;
 
   switch(wrPolicy) {
     case POLICY_WB:
-      if(readFromCache(CACHE_D, addr, &cacheData)) {
-        data = getWrData(cacheData, data, offset, wsize);
-        //wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
-        updateCache(addr, data);
-      }
-      // data in cache
-      // write to cache
+      if(!readDataCache(addr, &cacheData)) return false;
+
+      data = getWrData(cacheData, data, offset, wsize);
+      updateCache(addr, data);
       break;
     case POLICY_WT:
-      // data in cache
-      // set penalty, set memory busy and write to memory
-      // write to cache
-      if(!readFromCache(CACHE_D, addr, &cacheData))
+      if(!readDataCache(addr, &cacheData))
         return false;
-
       data = getWrData(cacheData, data, offset, wsize);
       wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);
       updateCache(addr, data);
