@@ -16,6 +16,8 @@
 #define EXMEM_ID                0x4
 #define MEMWB_ID                0x8
 #define ALL_REGS                0xf
+#define ICACHE_MISSED           0x1
+#define DCACHE_MISSED           0x2
 
 unsigned int pcSrc1;
 unsigned int pcSrc2;
@@ -37,9 +39,10 @@ IDEX_Register _idex_reg;
 EXMEM_Register _exmem_reg;
 MEMWB_Register _memwb_reg;
 
-int writedata;
-bool Stall_harzard;
-bool Stall_cachemissed;
+int writeData;
+int oldData;      // backup register files
+bool Harzard;
+int cacheMissed;
 
 void IF(void);
 void ID(void);

@@ -4,21 +4,24 @@ void IF(void) {
 
 	if(!PC) return;
 
-  if(!Stall_harzard) {
-    if(PCSrc) {
-      PC = pcSrc2;
-      PCSrc = false;
-    }
-    else if(!PCSrc) {
-      PC = pcSrc1;
-    }
-    _ifid_reg.progCounter = PC;
-    pcSrc1 = PC+1;
-    _ifid_reg.nPC = pcSrc1;
+	/*
+  if(Harzard)
+    return;
+  */
 
-    if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
-      Stall_cachemissed = true;
+  if(PCSrc) {
+    PC = pcSrc2;
+    PCSrc = false;
   }
+  else if(!PCSrc) {
+    PC = pcSrc1;
+  }
+  _ifid_reg.progCounter = PC;
+  pcSrc1 = PC+1;
+  _ifid_reg.nPC = pcSrc1;
+
+  if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
+    cacheMissed |= ICACHE_MISSED;
 }
 
 void ID(void) {
@@ -115,12 +118,12 @@ void MEM(void) {
 
 	if(exmem_reg.MemWrite) {
     Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
-    if(!Success) Stall_cachemissed = true;
+    if(!Success) cacheMissed |= DCACHE_MISSED;
 	}
 
 	if(exmem_reg.MemRead) {
     if(!readFromCache(CACHE_D, addr, &data)) {
-      Stall_cachemissed = true;
+      cacheMissed |= DCACHE_MISSED;
     }
 
     switch(exmem_reg.dataLen) {
@@ -160,14 +163,15 @@ void MEM(void) {
 void WB(void) {
   if(!PC) return;
 
-	writedata = memwb_reg.MemtoReg? memwb_reg.memValue:
+	writeData = memwb_reg.MemtoReg? memwb_reg.memValue:
 																	memwb_reg.aluResult;
 
-	if(memwb_reg.RegWrite && (memwb_reg.rd != 0))
-		register_file[memwb_reg.rd] = writedata;
 
-	if(!IS_PIPELINE)
-		printRegisters();
+	if(memwb_reg.RegWrite && (memwb_reg.rd != 0)) {
+    oldData = register_file[memwb_reg.rd];
+		register_file[memwb_reg.rd] = writeData;
+	}
+
 
 	return;
 }
@@ -489,10 +493,10 @@ void hdUnitOperation(void) {
 
     if(idex_reg.MemRead &&
         ((idex_reg.rt == rs)||(idex_reg.rt == rt))) {
-      Stall_harzard = true;
+      Harzard = true;
     }
 
-    // Stall_harzard without forwarding in ID Stage
+    // Harzard without forwarding in ID Stage
     opCode = getPartNum(ifid_reg.instruction, PART_OP);
     func = getPartNum(ifid_reg.instruction, PART_FUNC);
     switch(opCode) {
@@ -509,17 +513,17 @@ void hdUnitOperation(void) {
 
     if(isBranch && idex_reg.RegWrite &&
         (((rs != 0) && (idex_reg.rd == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
-      Stall_harzard = true;
+      Harzard = true;
     }
 
     if(isBranch && exmem_reg.RegWrite &&
         (((rs != 0) && (exmem_reg.rd == rs)) || ((rt != 0) && (exmem_reg.rd == rt)))) {
-      Stall_harzard = true;
+      Harzard = true;
     }
 
     if(isBranch && opCode && idex_reg.RegWrite &&
         (((rs != 0) && (idex_reg.rt == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
-      Stall_harzard = true;
+      Harzard = true;
     }
 
     return;
@@ -552,7 +556,7 @@ void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
 	//forwarding
   switch(forwardA) {
     case 1:
-      *src1 = writedata;
+      *src1 = writeData;
       break;
     case 2:
       *src1 = exmem_reg.aluResult;  //
@@ -560,7 +564,7 @@ void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
   }
   switch(forwardB) {
     case 1:
-      *src2 = writedata;
+      *src2 = writeData;
       break;
     case 2:
       *src2 = exmem_reg.aluResult;
@@ -595,7 +599,7 @@ void fwdUnitEX(int *src1, int *src2) {
 	//forwarding
   switch(forwardA) {
     case 1:
-      *src1 = writedata;
+      *src1 = writeData;
       break;
     case 2:
       *src1 = exmem_reg.aluResult;  //
@@ -603,7 +607,7 @@ void fwdUnitEX(int *src1, int *src2) {
   }
   switch(forwardB) {
     case 1:
-      *src2 = writedata;
+      *src2 = writeData;
       break;
     case 2:
       *src2 = exmem_reg.aluResult;
@@ -613,7 +617,19 @@ void fwdUnitEX(int *src1, int *src2) {
 }
 
 void transferPipelineRegs() {
-  if(!Stall_harzard) {
+  if(cacheMissed) {
+
+    init_wireRegs(ALL_REGS);
+    register_file[memwb_reg.rd] = oldData;
+    pcSrc1--;
+    PCSrc = false;
+    cacheMissed = 0;
+    cacheMissed = false;
+    return;
+  }
+
+
+  if(!Harzard) {
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
     return;
@@ -624,9 +640,10 @@ void transferPipelineRegs() {
 
 	// keep data in IDEX register
   insertNOP();
-
+  //reset PC source
+  pcSrc1--;
   // keep IFID but decreases PCINPUT
-  Stall_harzard = false;
+  Harzard = false;
   return;
 }
 
@@ -634,12 +651,12 @@ void init_pipeline() {
 	PCSrc = false;
 	pcSrc1 = PC;
 	pcSrc2 = 0;
-	writedata = 0;
+	writeData = 0;
 	Flush_if = false;
 	Flush_id = false;
 	Flush_ex = false;
-	Stall_harzard = false;
-	Stall_cachemissed = false;
+	Harzard = false;
+	cacheMissed = false;
 
 	init_wireRegs(ALL_REGS);
   init_pipelineRegs(ALL_REGS);
