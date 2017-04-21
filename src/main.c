@@ -16,7 +16,9 @@ int main() {
 
   int tests[][5] = {
 
-    {0, 512,  512,  4,  POLICY_WB}
+    {0, 64,  64,  4,  POLICY_WB},
+    {0, 128,  128,  16,  POLICY_WB},
+    {0, 1024,  1024,  1,  POLICY_WB}
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);

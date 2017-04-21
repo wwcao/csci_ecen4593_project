@@ -80,7 +80,7 @@ bool writebackCache(cache srcCache, unsigned int block) {
     if(wrbuffer[WRBUFF_SIZE-2])
       return false;
 
-    baseAddr = (srcCache.tag&&block)<<cacheLBits;
+    baseAddr = (srcCache.tag|block)<<cacheLBits;
     // queue the data for WB
     wbData = createWRBuffer_WB(srcCache.block, baseAddr, cacheBSize);
     if(!wbData) Error("Error: Unable to allocation memory");
