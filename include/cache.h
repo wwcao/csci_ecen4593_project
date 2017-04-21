@@ -50,4 +50,5 @@ void cacheInstruction();
 void cacheData();
 
 void initial_cacheCtl();
+bool checkCache();
 #endif // __CACHE_HEADER__

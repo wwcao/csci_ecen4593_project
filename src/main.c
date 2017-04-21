@@ -15,38 +15,6 @@ int main() {
   unsigned int testNum;
 
   int tests[][5] = {
-
-    {0, 64,  64,  4,  POLICY_WB},
-    {0, 128,  128,  16,  POLICY_WB},
-    {0, 1024,  1024,  1,  POLICY_WB}
-  };
-//  filepaths = filenames;
-  testNum = sizeof(tests)/(sizeof(unsigned int)*5);
-  while(indexTest < testNum) {
-    printf("\n------\nRound %u\n------\n", indexTest);
-    memcpy(&test, &tests[indexTest], sizeof(int)*5);
-    init_utils();
-    init_units();
-    init_pipeline();
-    while(1){
-      updateMemory();
-      startCaching();
-      startPipeline();
-      if(PC==0&&(!checkMemory()))
-        break;
-      clock++;
-    }
-    printSummary();
-    destroyCaches();
-    destroyWRBuffer();
-    indexTest++;
-  }
-	return 0;
-}
-
-/*
-
-int tests[][5] = {
     {0, 128, 256,   16, POLICY_WT},
     {0, 128, 256,   16, POLICY_WT},
     {0, 128, 256,   4,  POLICY_WT},
@@ -79,4 +47,26 @@ int tests[][5] = {
     {1, 256, 128,   1,  POLICY_WT},
     {1, 256, 128,   1,  POLICY_WB}
   };
-*/
+//  filepaths = filenames;
+  testNum = sizeof(tests)/(sizeof(unsigned int)*5);
+  while(indexTest < testNum) {
+    printf("\n------\nTest %u\n------\n", indexTest);
+    memcpy(&test, &tests[indexTest], sizeof(int)*5);
+    init_utils();
+    init_units();
+    init_pipeline();
+    while(1){
+      updateMemory();
+      startCaching();
+      startPipeline();
+      if(PC==0&&(!checkMemory()))
+        break;
+      clock++;
+    }
+    printSummary();
+    destroyCaches();
+    destroyWRBuffer();
+    indexTest++;
+  }
+	return 0;
+}

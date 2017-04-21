@@ -275,7 +275,6 @@ void cacheInstruction() {
 }
 
 void cacheData() {
-
   mPenalty_dcache = mPenalty_dcache>0?mPenalty_dcache-1:0;
   if((!mPenalty_dcache)&&(!icacheState)) {
     switch(dcacheState) {
@@ -314,4 +313,8 @@ void cacheData() {
         break;
     }
   }
+}
+
+bool checkCache() {
+  return wrbuffer[WRBUFF_SIZE-2]?true:false;
 }

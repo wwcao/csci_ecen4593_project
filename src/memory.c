@@ -44,7 +44,7 @@ void updateMemory() {
 bool setMemWrite() {
   if(icacheState||dcacheState)
     return true;
-  //if(icacheState||dcacheState) return false;
+
   wrbuffer[WRBUFF_SIZE-1] = wrbuffer[WRBUFF_SIZE-2];
   wrbuffer[WRBUFF_SIZE-2] = NULL;
   opLine_mem = 0;
@@ -54,7 +54,7 @@ bool setMemWrite() {
 }
 
 bool checkMemory() {
-  return CACHE_ENABLED&&wrbuffer[WRBUFF_SIZE-1];
+  return CACHE_ENABLED&&(wrbuffer[WRBUFF_SIZE-1]||wrbuffer[WRBUFF_SIZE-2]);
 }
 
 void init_memoryCtl() {
