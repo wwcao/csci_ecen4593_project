@@ -58,7 +58,10 @@
 #define I_SB		      	    0x28
 #define I_SH		      	    0x29
 #define I_SW		      	    0x2b
-
+// J Format -- OpCode
+#define J_J		      0x02
+#define J_JAL		    0x03
+////////////////////////////////////////////
 // R format -- FUNC
 #define R_ADD           0x20
 #define R_ADDU		      0x21
@@ -80,11 +83,9 @@
 #define R_SUBU          0x23
 #define R_MOVN					0x0b
 #define R_MOVZ          0x0a
-
 // J Format -- OpCode
-#define J_J		      0x02
-#define J_JAL		      0x03
 #define J_R					0x08
+//////////////////////////////////////////
 
 // Register Numbers
 #define $sp							29
