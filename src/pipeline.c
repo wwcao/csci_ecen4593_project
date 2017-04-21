@@ -501,8 +501,10 @@ void hdUnitOperation(void) {
     func = getPartNum(ifid_reg.instruction, PART_FUNC);
     switch(opCode) {
       case 0x0:
-        if(!(func == J_JAL)) break;
+        if(!(func == J_R)) break;
       case 0x1:
+      case 0x2:
+      case 0x3:
       case 0x4:
       case 0x5:
       case 0x6:
