@@ -620,7 +620,7 @@ void transferPipelineRegs() {
   if(cacheMissed) {
 
     init_wireRegs(ALL_REGS);
-    register_file[memwb_reg.rd] = oldData;
+    //register_file[memwb_reg.rd] = oldData;
     pcSrc1--;
     PCSrc = false;
     cacheMissed = 0;
