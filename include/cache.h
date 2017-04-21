@@ -39,9 +39,9 @@ bool readInsCache(unsigned int addr, unsigned int *data);
 bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 void updateCache(unsigned int addr, unsigned int data);
-bool writebackCache(cachedata* cacheData, unsigned int addr);
+bool writebackCache(cache srcCache, unsigned int block);
 bool handleWRCDisabled(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
-void fillCache(cache_t type, unsigned int addr);
+void fillCache(cache_t type, unsigned int addr, bool Subline);
 void convertAddr(cache_t ctyp, unsigned int *addr,
                  unsigned int *tag, unsigned int *block, unsigned int *line);
 

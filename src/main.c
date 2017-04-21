@@ -15,8 +15,8 @@ int main() {
   unsigned int testNum;
 
   int tests[][5] = {
-    //{0, 128, 256,   16, POLICY_WT},
-    {0, 256,  512,  16,  POLICY_WT}
+
+    {0, 512,  512,  4,  POLICY_WB}
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);
@@ -30,7 +30,7 @@ int main() {
       updateMemory();
       startCaching();
       startPipeline();
-      if(PC==0&&!checkMemory())
+      if(PC==0&&(!checkMemory()))
         break;
       clock++;
     }

@@ -52,7 +52,7 @@ void init_caches() {
   addr = 0;
   while(addr < iWordNum) {
     data = 0;
-    fillCache(CACHE_I, addr);
+    fillCache(CACHE_I, addr, true);
     readFromCache(CACHE_I, addr, &data);
     if(data!=memory[addr])
       printf("Asdf");
@@ -62,7 +62,7 @@ void init_caches() {
   addr = 0;
   while (addr < dWordNum) {
     data = 0;
-    fillCache(CACHE_D, addr);
+    fillCache(CACHE_D, addr, true);
     readFromCache(CACHE_D, addr, &data);
     if(data!=memory[addr])
       printf("Asdf");
