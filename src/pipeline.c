@@ -103,7 +103,7 @@ void MEM(void) {
   unsigned int data;
   bool Success;
 
-	if(!PC) return;
+	if(!PC||cacheMissed) return;
 
 	_memwb_reg.progCounter = exmem_reg.progCounter;
 
