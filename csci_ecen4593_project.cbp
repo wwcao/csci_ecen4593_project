@@ -38,13 +38,21 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="include/assoc_cache.h" />
 		<Unit filename="include/cache.h" />
+		<Unit filename="include/dm_cache.h" />
 		<Unit filename="include/memory.h" />
 		<Unit filename="include/pipeline.h" />
 		<Unit filename="include/static.h" />
 		<Unit filename="include/units.h" />
 		<Unit filename="include/utils.h" />
+		<Unit filename="src/assoc_cache.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/cache.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/dm_cache.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/main.c">
