@@ -118,11 +118,9 @@ void MEM(void) {
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
-    	 numWrite_D += 1;
 	 Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
     	 if(!Success){
 	  cacheMissed |= DCACHE_MISSED;
-	  numWriteMissed_D += 1;
 	 }
 	}
 	if(exmem_reg.MemRead) {
@@ -317,6 +315,7 @@ void ctlUnitOperation(unsigned int opCode,
 	unsigned int msb;
 	_idex_reg.ALUOp = ALUOP_NOP;
   if(!ifid_reg.instruction) return;
+	
 	switch(opCode) {
 	// case R-format
 		case 0x0: {
