@@ -20,10 +20,14 @@ unsigned int numBranch;
 unsigned int numLWSW;
 unsigned int numR_I;
 unsigned int numNop;
-unsigned int numRead;
-unsigned int numWrite;
-unsigned int numReadMissed;
-unsigned int numWriteMissed;
+
+unsigned int numRead_I;
+unsigned int numRead_D;
+unsigned int numReadMissed_I;
+unsigned int numReadMissed_D;
+
+unsigned int numWrite_D;
+unsigned int numWriteMissed_D;
 
 unsigned int readInstruction(const char* path);
 int loadInstructions();
@@ -38,6 +42,7 @@ void printSummary();
 void printPipelineStat();
 void printReadCacheStat();
 void printWriteCacheStat();
+void printCacheStat();
 void init_utils();
 
 cache* createCache(unsigned int blockNum, unsigned int lineNum);

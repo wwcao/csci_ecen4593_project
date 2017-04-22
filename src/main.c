@@ -27,7 +27,7 @@ int main() {
     {0, 64,  1024,  4,  POLICY_WB},
     {0, 64,  1024,  1,  POLICY_WT},
     {0, 64,  1024,  1,  POLICY_WB},
-    //
+    /*
     {1, 64,  512,   16, POLICY_WT},
     {1, 64,  512,   16, POLICY_WB},
     {1, 64,  512,   4,  POLICY_WT},
@@ -45,7 +45,7 @@ int main() {
     {1, 256, 128,   4,  POLICY_WT},
     {1, 256, 128,   4,  POLICY_WB},
     {1, 256, 128,   1,  POLICY_WT},
-    {1, 256, 128,   1,  POLICY_WB}
+    {1, 256, 128,   1,  POLICY_WB}*/
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);

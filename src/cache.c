@@ -1,4 +1,5 @@
 #include <cache.h>
+#include <utils.h>
 
 bool readDataCache(unsigned int addr, unsigned int *data) {
   unsigned int block, line, tag;
@@ -11,10 +12,12 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
   if(dcacheState && (line >= opLine_dcache))
     return false;
   srcCache = dcache[block];
+  numRead_D += 1;
   if(srcCache.valid && (srcCache.tag == tag)) {
     *data = srcCache.block[line];
     return true;
   }
+  numReadMissed_D += 1;
   if(dcacheState||icacheState||MemBusy)
     return false;
 
@@ -24,13 +27,13 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
   dcacheState = CSTATE_RD;
+
   return false;
 }
 
 bool readInsCache(unsigned int addr, unsigned int *data) {
   unsigned int block, line, tag;
   cache srcCache;
-
   convertAddr(CACHE_I, &addr, &tag, &block, &line);
   srcCache = icache[block];
 
@@ -38,10 +41,12 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
     return false;
   if(icacheState && (line >= opLine_icache))
     return false;
+  numRead_I += 1;
   if(srcCache.valid && (srcCache.tag == tag)) {
     *data = srcCache.block[line];
     return true;
   }
+  numReadMissed_I += 1;
   if(icacheState||dcacheState || MemBusy)
     return false;
 
@@ -49,7 +54,6 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
   icacheState = CSTATE_RD;
-
   return false;
 }
 
@@ -98,17 +102,22 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
 
   if(wrbuffer[WRBUFF_SIZE-2])
     return false;
-
+  numWrite_D += 1;
   switch(wrPolicy) {
     case POLICY_WB:
       // TODO:
-      if(!readDataCache(addr, &cacheData)) return false;
-
+      if(!readDataCache(addr, &cacheData)){
+	numWriteMissed_D +=1;
+	return false;
+      }
       data = getWrData(cacheData, data, offset, wsize);
       updateCache(addr, data);
       break;
     case POLICY_WT:
-      if(!readDataCache(addr, &cacheData)) return false;
+      if(!readDataCache(addr, &cacheData)){
+	 numWriteMissed_D += 1;
+	 return false;
+      }
 
       data = getWrData(cacheData, data, offset, wsize);
       wrbuffer[WRBUFF_SIZE-2] = createWRBuffer_WT(addr, data);

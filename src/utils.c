@@ -6,10 +6,13 @@ void init_utils() {
   numLWSW = 0;
   numR_I = 0;
   numNop = 0;
-  numRead = 0;
-  numWrite = 0;
-  numReadMissed = 0;
-  numWriteMissed = 0;
+  numRead_I = 0;
+  numRead_D = 0;
+  numReadMissed_I = 0;
+  numReadMissed_D = 0;
+
+  numWrite_D = 0;
+  numWriteMissed_D = 0;
 }
 
 unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize) {
@@ -199,6 +202,7 @@ void printSummary() {
   printPipelineStat();
   printReadCacheStat();
   printWriteCacheStat();
+  printCacheStat();
 }
 
 void printPipelineStat() {
@@ -207,7 +211,7 @@ void printPipelineStat() {
   printf("\nPipeline\n");
   printf("_____________________________________\n");
   cpi = (float)clock/numIns;
-  printf("Total intruction [%u]\n", numIns);
+  printf("Total instruction [%u]\n", numIns);
   printf("CPI: [%2.3f]\n", cpi);
   printf("Total Branch [%u]\n", numBranch);
   printf("Total LWSW [%u]\n", numLWSW);
@@ -219,11 +223,32 @@ void printPipelineStat() {
 void printReadCacheStat() {
   printf("\nRead Cache Stat\n");
   printf("_____________________________________\n");
+  printf("Total I-Read [%u]\n",numRead_I);
+  printf("Total I-Read Missed [%u]\n",numReadMissed_I);
+
+  printf("Total D-Read [%u]\n",numRead_D);
+  printf("Total D-Read Missed [%u]\n",numReadMissed_D);
+
 }
 
 void printWriteCacheStat() {
   printf("\nWrite Cache Stat\n");
   printf("_____________________________________\n");
+  printf("Total D-Write [%u]\n",numWrite_D);
+  printf("Total D-Write Missed [%u]\n",numWriteMissed_D);
+}
+
+void printCacheStat(){
+  float hitRate_D;
+  float hitRate_I;
+  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
+  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
+
+  printf("\nCache Stat\n");
+  printf("_____________________________________\n");
+  printf("I-Hit Rate [%2.2f]%%\n",hitRate_D);
+  printf("D-Hit Rate [%2.2f]%%\n",hitRate_I);
+
 }
 
 void Error(const char* msg) {

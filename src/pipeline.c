@@ -20,8 +20,9 @@ void IF(void) {
   pcSrc1 = PC+1;
   _ifid_reg.nPC = pcSrc1;
 
-  if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction)))
+  if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction))){
     cacheMissed |= ICACHE_MISSED;
+  }
 }
 
 void ID(void) {
@@ -117,14 +118,17 @@ void MEM(void) {
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
 
 	if(exmem_reg.MemWrite) {
-    Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
-    if(!Success) cacheMissed |= DCACHE_MISSED;
+    	 numWrite_D += 1;
+	 Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
+    	 if(!Success){
+	  cacheMissed |= DCACHE_MISSED;
+	  numWriteMissed_D += 1;
+	 }
 	}
-
 	if(exmem_reg.MemRead) {
-    if(!readFromCache(CACHE_D, addr, &data)) {
-      cacheMissed |= DCACHE_MISSED;
-    }
+	 if(!readFromCache(CACHE_D, addr, &data)) {
+      	  cacheMissed |= DCACHE_MISSED;
+    	 }
 
     switch(exmem_reg.dataLen) {
         case DLEN_W:
@@ -159,6 +163,7 @@ void MEM(void) {
       }
 	}
 }
+
 
 void WB(void) {
   if(!PC) return;
@@ -625,7 +630,6 @@ void transferPipelineRegs() {
     //register_file[memwb_reg.rd] = oldData;
     pcSrc1--;
     PCSrc = false;
-    cacheMissed = 0;
     cacheMissed = false;
     return;
   }
@@ -642,6 +646,7 @@ void transferPipelineRegs() {
 
 	// keep data in IDEX register
   insertNOP();
+  numNop += 1;
   //reset PC source
   pcSrc1--;
   // keep IFID but decreases PCINPUT
