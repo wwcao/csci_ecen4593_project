@@ -102,7 +102,7 @@ typedef enum {STAGE_IF = 0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
 typedef enum {CSTATE_IDLE = 0, CSTATE_RD, CSTATE_RD_SUB} cache_state;
-typedef enum {POLICY_WB, POLICY_WT} wr_policy;
+typedef enum {POLICY_WT = 0, POLICY_WB} wr_policy;
 
 typedef alu_op ins_type;
 //
@@ -208,5 +208,29 @@ typedef struct {
   unsigned int addr;
   unsigned int data;
 } writebuffer;
+
+/////////////////////
+typedef struct {
+  unsigned int progNum;
+  unsigned int clock;
+  unsigned int ins;
+  unsigned int iformat;
+  unsigned int rformat;
+  unsigned int br;
+  unsigned int lwsw;
+  unsigned int nop;
+
+  unsigned int icacheSize;
+  unsigned int dcacheSize;
+  unsigned int block_size;
+  cache_t cacheType;
+
+  unsigned int iRd;
+  unsigned int iRdMissed;
+  unsigned int dRd;
+  unsigned int dRdMissed;
+  unsigned int dWr;
+  unsigned int dWrMissed;
+} stat_result;
 
 #endif

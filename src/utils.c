@@ -270,7 +270,27 @@ void printCacheStat(){
   printf("_____________________________________\n");
   printf("I-Hit Rate [%2.2f]%%\n",hitRate_D);
   printf("D-Hit Rate [%2.2f]%%\n",hitRate_I);
+}
 
+void printTestTable(int* testConf, unsigned int len) {
+  unsigned int i;
+  float hitRate_D;
+  float hitRate_I;
+  float cpi;
+  char buffer[512];
+
+  numI_f += numBranch + numLWSW;
+  numIns =  numI_f + numR_f;
+  cpi = (float)clock/numIns;
+  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
+  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
+
+  memset(buffer, 0, 512);
+  for(i = 1; i < len; i++) {
+    sprintf(buffer, "%s%5d\t", buffer, testConf[i]);
+  }
+  sprintf(buffer, "%s%4.2f\t%4.2f\t %4.2f\t%6d\n", buffer, hitRate_I, hitRate_D, cpi, clock);
+  printf("%s", buffer);
 }
 
 void Error(const char* msg) {
