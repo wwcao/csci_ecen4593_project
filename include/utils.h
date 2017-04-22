@@ -15,7 +15,11 @@ extern unsigned int PC;
 extern const char *progSources[128];
 
 // globals
+char **table;
+
 ins_type insType;
+
+stat_result *results;
 
 unsigned int numIns;
 unsigned int numBranch;
@@ -48,7 +52,7 @@ void printPipelineStat();
 void printReadCacheStat();
 void printWriteCacheStat();
 void printCacheStat();
-void init_utils();
+void printTestTable(int* testConf, unsigned int len);
 
 cache* createCache(unsigned int blockNum, unsigned int lineNum);
 void destroyUnusedCache(cache* target, unsigned int blockNum);
@@ -59,4 +63,6 @@ writebuffer** initWRBuffers(writebuffer** des);
 writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data);
 writebuffer* createWRBuffer_WB(cachedata* cacheData, unsigned addr, int lineNum);
 void destroyUnusedWRBuffer(writebuffer** target);
+
+void init_utils();
 #endif

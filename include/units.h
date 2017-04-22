@@ -6,7 +6,7 @@
 #include "static.h"
 #include "utils.h"
 
-extern int test[5];
+int config[5];
 
 int register_file[REGISTER_SIZE];
 unsigned int PC;
