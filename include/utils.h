@@ -15,21 +15,34 @@ extern unsigned int PC;
 extern const char *progSources[128];
 
 // globals
+char **table;
+
+ins_type insType;
+
+stat_result *results;
+
 unsigned int numIns;
 unsigned int numBranch;
 unsigned int numLWSW;
-unsigned int numR_I;
+unsigned int numR_f;
+unsigned int numI_f;
 unsigned int numNop;
-unsigned int numRead;
-unsigned int numWrite;
-unsigned int numReadMissed;
-unsigned int numWriteMissed;
+
+unsigned int numRead_I;
+unsigned int numRead_D;
+unsigned int numReadMissed_I;
+unsigned int numReadMissed_D;
+
+unsigned int numWrite_D;
+unsigned int numWriteMissed_D;
 
 unsigned int readInstruction(const char* path);
 int loadInstructions();
 op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);
+
+void statPipeline(ins_type itype);
 
 void printRegisters();
 void Error(const char*);
@@ -38,7 +51,8 @@ void printSummary();
 void printPipelineStat();
 void printReadCacheStat();
 void printWriteCacheStat();
-void init_utils();
+void printCacheStat();
+void printTestTable(int* testConf, unsigned int len);
 
 cache* createCache(unsigned int blockNum, unsigned int lineNum);
 void destroyUnusedCache(cache* target, unsigned int blockNum);
@@ -49,4 +63,6 @@ writebuffer** initWRBuffers(writebuffer** des);
 writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data);
 writebuffer* createWRBuffer_WB(cachedata* cacheData, unsigned addr, int lineNum);
 void destroyUnusedWRBuffer(writebuffer** target);
+
+void init_utils();
 #endif

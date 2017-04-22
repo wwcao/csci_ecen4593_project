@@ -32,10 +32,10 @@ void init_caches() {
 
   cachePenalty = 0;
   // Setup Cache Info
-  iWordNum = test[1]/4;
-  dWordNum = test[2]/4;
-  cacheBSize = test[3];
-  wrPolicy = test[4];
+  iWordNum = config[1]/4;
+  dWordNum = config[2]/4;
+  cacheBSize = config[3];
+  wrPolicy = config[4];
 
   icacheBNum = (iWordNum/cacheBSize);
   dcacheBNum = (dWordNum/cacheBSize);
@@ -54,8 +54,6 @@ void init_caches() {
     data = 0;
     fillCache(CACHE_I, addr, true);
     readFromCache(CACHE_I, addr, &data);
-    if(data!=memory[addr])
-      printf("Asdf");
     addr++;
   }
 
@@ -64,8 +62,6 @@ void init_caches() {
     data = 0;
     fillCache(CACHE_D, addr, true);
     readFromCache(CACHE_D, addr, &data);
-    if(data!=memory[addr])
-      printf("Asdf");
     addr++;
   }
   return;
@@ -80,7 +76,7 @@ void init_memory() {
     memory[i+2] = 0;
     memory[i+3] = 0;
   }
-  readInstruction(progSources[test[0]]);
+  readInstruction(progSources[config[0]]);
   init_memoryCtl();
 }
 
