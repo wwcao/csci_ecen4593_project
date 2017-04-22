@@ -26,6 +26,14 @@ Penalties: cache.h, memory.h
 Writebuffer Size: not available  
 
 ### Result
+Program 1: 
+CPI: 1.09
+Cycle: 695430
+
+Program 1: 
+CPI: 1.00
+Cycle: 15594
+
 program [Program1File.txt]
 icache	 dcache	       	       	      	       	        Total  
  size 	  size 	 block 	 WT(0) 	i-hit 	 d-hit 	  CPI   clock  
