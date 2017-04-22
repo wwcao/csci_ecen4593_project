@@ -660,8 +660,8 @@ void transferPipelineRegs() {
     return;
   }
 
-  statPipeline(insType);
   if(!Harzard) {
+    statPipeline(insType);
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
     return;
@@ -672,7 +672,7 @@ void transferPipelineRegs() {
 
 	// keep data in IDEX register
   insertNOP();
-  numNop += 1;
+  statPipeline(ALUOP_NOP);
   //reset PC source
   pcSrc1--;
   // keep IFID but decreases PCINPUT
