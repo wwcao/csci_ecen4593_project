@@ -101,6 +101,7 @@ typedef enum {ALUOP_NOP = 0, ALUOP_LWSW, ALUOP_R, ALUOP_BR, ALUOP_I} alu_op;
 typedef enum {STAGE_IF = 0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
+typedef enum {CACHECONF_DM, CACHECONF_ASSOC} cacheconfig_t;
 typedef enum {CSTATE_IDLE = 0, CSTATE_RD, CSTATE_RD_SUB} cache_state;
 typedef enum {POLICY_WB, POLICY_WT} wr_policy;
 
@@ -179,22 +180,6 @@ typedef struct {
 	unsigned int progCounter;
 } MEMWB_Register;
 
-typedef struct {
-
-} shadow_registers;
-
-/*
-typedef struct {
-  unsigned int tag;
-  unsigned int data;
-} cachedata;
-
-typedef struct {
-  bool valid;
-  cachedata block[MAX_CACHE_LINE];
-} cache;
-*/
-
 typedef unsigned int cachedata;
 
 typedef struct {
@@ -208,5 +193,61 @@ typedef struct {
   unsigned int addr;
   unsigned int data;
 } writebuffer;
+
+
+///////////////////////////
+typedef struct {
+  unsigned int icacheBNum;
+  unsigned int dcacheBNum;
+  unsigned int cacheBSize;
+
+  unsigned short cachePenalty;
+
+  unsigned int opAddr_icache;
+  unsigned int opLine_icache;
+  unsigned short mPenalty_icache;
+
+  unsigned int opAddr_dcache;
+  unsigned int opLine_dcache;
+  unsigned short mPenalty_dcache;
+
+  cache_state icacheState;
+  unsigned short icacheBBits;
+  unsigned int icacheBMask;
+
+  cache_state dcacheState;
+  unsigned short dcacheBBits;
+  unsigned int dcacheBMask;
+
+  unsigned short cacheLBits;
+  unsigned int cacheLMask;
+} dm_cacheconfig;
+
+typedef struct {
+  unsigned int icacheBNum;
+  unsigned int icacheWNum;
+
+  unsigned int dcacheBNum;
+  unsigned int dcacheWNum;
+} assoc_cacheconfig;
+
+typedef struct {
+  union {
+    assoc_cacheconfig assoc_config;
+    dm_cacheconfig dm_config;
+  } cache_config;
+
+  bool (*readDataCache)(unsigned int addr, unsigned int *data);
+  bool (*readInsCache)(unsigned int addr, unsigned int *data);
+
+  bool (*writebackCache)(cache srcCache, unsigned int block);
+  void (*fillCache)(cache_t type, unsigned int addr, bool Subline);
+
+  void (*cacheInstruction)();
+  void (*cacheData)();
+
+  void (*initial_cacheCtl)(void* controller);
+} cache_controller;
+
 
 #endif

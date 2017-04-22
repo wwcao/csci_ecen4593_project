@@ -20,6 +20,8 @@ IDEX_Register idex_reg;
 EXMEM_Register exmem_reg;
 MEMWB_Register memwb_reg;
 
+cache_controller cacheController;
+
 unsigned int icacheBNum;
 unsigned int dcacheBNum;
 unsigned int cacheBSize;
