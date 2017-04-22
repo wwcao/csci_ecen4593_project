@@ -1,7 +1,7 @@
 #CSCI-ECEN 4593 Computer Organization Project  
 Weipeng Cao, Theerarun Tubnonghee (Steve)  
 
-This project is to Simulate the pipeline of MIPS ISA with hierachical memories. The pipeline consists five stages, instruction fetch, instruction decode, execution, memory, and writeback; the memories includes independent direct-mapped caches of instruction and data and main memory.
+This project is to Simulate the pipeline of MIPS ISA with hierachical memories. The pipeline consists of five stages: instruction fetch, instruction decode, execution, memory, and writeback. The memories includes independent direct-mapped caches of instruction and data and main memory.
 
 Pipeline Stages: IF, ID, EX, MEM, WB  
 Caches: Direct-mapped, dynamical sizing  
@@ -18,6 +18,9 @@ Directory
 ## Instruction
 ### Build
 $ make
+
+### Run
+$ ./bin/emulator
 
 ## Configuration
 Memory Size: static.h  
