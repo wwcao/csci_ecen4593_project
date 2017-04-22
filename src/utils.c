@@ -4,7 +4,8 @@ void init_utils() {
   numIns = 0;
   numBranch = 0;
   numLWSW = 0;
-  numR_I = 0;
+  numR_f = 0;
+  numI_f = 0;
   numNop = 0;
   numRead_I = 0;
   numRead_D = 0;
@@ -191,6 +192,26 @@ void destroyUnusedWRBuffer(writebuffer** target) {
   free(target);
 }
 
+void statPipeline(ins_type itype) {
+  switch(itype) {
+    case ALUOP_R:
+      numR_f++;
+      break;
+    case ALUOP_I:
+      numI_f++;
+      break;
+    case ALUOP_LWSW:
+      numLWSW++;
+      break;
+    case ALUOP_NOP:
+      numNop++;
+      break;
+    case ALUOP_BR:
+      numBranch++;
+      break;
+  }
+}
+
 
 void printSummary() {
   printf("result: \n[0x%08x]\n[0x%08x]\n[0x%08x]\n[0x%08x]\n",
@@ -207,7 +228,8 @@ void printSummary() {
 
 void printPipelineStat() {
   float cpi;
-  numIns = numBranch + numLWSW + numR_I;
+  numI_f += numBranch + numLWSW;
+  numIns =  numI_f + numR_f;
   printf("\nPipeline\n");
   printf("_____________________________________\n");
   cpi = (float)clock/numIns;
@@ -215,7 +237,7 @@ void printPipelineStat() {
   printf("CPI: [%2.3f]\n", cpi);
   printf("Total Branch [%u]\n", numBranch);
   printf("Total LWSW [%u]\n", numLWSW);
-  printf("Total R/I [%u]\n", numR_I);
+  printf("Total R/I [%u]\n", numR_f);
   printf("Total NOP [%u]\n", numNop);
 
 }

@@ -200,10 +200,10 @@ void aluUnitOperation(int src1, int src2) {
 	zero = 0;
 
 	shamt = getPartNum(idex_reg.extendedValue, PART_SHM);
-	if(idex_reg.ALUOp == ALUOP_LWSW) {
+	if(idex_reg.aluOp == ALUOP_LWSW) {
 		result = src1 + src2;
 	}
-	else if(idex_reg.ALUOp == ALUOP_R) {
+	else if(idex_reg.aluOp == ALUOP_R) {
 		if(idex_reg.opCode) {
 			// I
 			switch(idex_reg.opCode) {
@@ -313,15 +313,19 @@ void ctlUnitOperation(unsigned int opCode,
 							int extendedValue) {
 	unsigned int jImm;
 	unsigned int msb;
-	_idex_reg.ALUOp = ALUOP_NOP;
-  if(!ifid_reg.instruction) return;
-	
+	_idex_reg.aluOp = ALUOP_NOP;
+  if(!ifid_reg.instruction) {
+    insType = ALUOP_NOP;
+    return;
+  }
+
 	switch(opCode) {
 	// case R-format
 		case 0x0: {
 			unsigned int func = extendedValue&FN_MASK;
 			switch (func) {
 				case J_R:
+				  insType = ALUOP_BR;
 					pcSrc2 = regVal1;
 					PCSrc = true;
 					break;
@@ -329,9 +333,10 @@ void ctlUnitOperation(unsigned int opCode,
 				default:
 					// Decoded R
 					//if(!getPartNum(extendedValue, PART_SHM)) break;
+					insType = ALUOP_R;
 					_idex_reg.RegWrite= true;
 					_idex_reg.RegDst = true;
-					_idex_reg.ALUOp = ALUOP_R;
+					_idex_reg.aluOp = ALUOP_R;
 					break;
 			}
 			break;
@@ -345,7 +350,8 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+			insType = ALUOP_LWSW;
 			break;
     case 0x21|I_LH:
       _idex_reg.dataLen = DLEN_HW;
@@ -354,14 +360,16 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+			insType = ALUOP_LWSW;
       break;
     case 0x23|I_LW:
 			_idex_reg.RegWrite = true;
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+			insType = ALUOP_LWSW;
 			break;
     case 0x24|I_LBU:
       _idex_reg.dataLen = DLEN_BU;
@@ -370,7 +378,9 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+
+			insType = ALUOP_LWSW;
       break;
 		case 0x25|I_LHU:
       _idex_reg.dataLen = DLEN_HWU;
@@ -379,49 +389,62 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.MemtoReg = true;
 			_idex_reg.MemRead = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+
+			insType = ALUOP_LWSW;
 		  break;
 		// case SW
 		case 0x28|I_SB:
 		  _idex_reg.dataLen = DLEN_B;
 		  _idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+
+			insType = ALUOP_LWSW;
 		  break;
     case 0x29|I_SH:
       _idex_reg.dataLen = DLEN_HW;
 		  _idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+
+			insType = ALUOP_LWSW;
       break;
     case 0x2b|I_SW:
 			_idex_reg.MemWrite = true;
 			_idex_reg.ALUSrc = true;
-			_idex_reg.ALUOp = ALUOP_LWSW;
+			_idex_reg.aluOp = ALUOP_LWSW;
+
+			insType = ALUOP_LWSW;
 			break;
 		// case Branch
 		case 0x04|I_BEQ:
+		  insType = ALUOP_BR;
 			if(regVal1 != regVal2) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue + ifid_reg.nPC;
 			break;
 		case 0x05|I_BNE:
+		  insType = ALUOP_BR;
 			if(regVal1 == regVal2) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			break;
     case 0x06|I_BLEZ:
+      insType = ALUOP_BR;
 			if(regVal1 > regVal2) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
 			break;
     case 0x07|I_BGTZ:
+      insType = ALUOP_BR;
       if(regVal1 <= 0) break;
 			PCSrc = true;
 			pcSrc2 = extendedValue+ifid_reg.nPC;
       break;
 		// case J-format
 		case 0x3|J_JAL:
+		  insType = ALUOP_BR;
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
@@ -429,12 +452,14 @@ void ctlUnitOperation(unsigned int opCode,
 			register_file[31] = (ifid_reg.nPC + 1);
 			break;
 		case 0x2|J_J:
+		  insType = ALUOP_BR;
 			jImm = (ifid_reg.instruction&0x03ffffff)<<2;
 			msb = ((ifid_reg.nPC-1)<<2)&0xf0000000;
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
 			break;
     case 0x1:
+      insType = ALUOP_BR;
       switch(_idex_reg.rt) {
         case 0x0:
           //bltz
@@ -469,16 +494,18 @@ void ctlUnitOperation(unsigned int opCode,
         }
       break;
     case 0x1f|I_SEB:
+      insType = ALUOP_I;
       _idex_reg.rd = getPartNum(ifid_reg.instruction, PART_RD);
 			_idex_reg.RegWrite = true;
-			_idex_reg.ALUOp = ALUOP_R;
+			_idex_reg.aluOp = ALUOP_R;
 			_idex_reg.RegDst = true;
       break;
     // SPECIAL END
 		default:
 			// I
+			insType = ALUOP_I;
 			_idex_reg.RegWrite = true;
-			_idex_reg.ALUOp = ALUOP_R;
+			_idex_reg.aluOp = ALUOP_R;
 			_idex_reg.ALUSrc = true;
 			break;
 	}
@@ -624,7 +651,7 @@ void fwdUnitEX(int *src1, int *src2) {
 
 void transferPipelineRegs() {
   if(cacheMissed) {
-
+    statPipeline(ALUOP_NOP);
     init_wireRegs(ALL_REGS);
     //register_file[memwb_reg.rd] = oldData;
     pcSrc1--;
@@ -633,7 +660,7 @@ void transferPipelineRegs() {
     return;
   }
 
-
+  statPipeline(insType);
   if(!Harzard) {
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
@@ -697,7 +724,7 @@ void insertNOP() {
   idex_reg.RegWrite = false;
   idex_reg.MemRead = false;
   idex_reg.MemWrite = false;
-  idex_reg.ALUOp = ALUOP_NOP;
+  idex_reg.aluOp = ALUOP_NOP;
   idex_reg.ALUSrc = false;
   idex_reg.opCode = false;
   idex_reg.progCounter = 0;

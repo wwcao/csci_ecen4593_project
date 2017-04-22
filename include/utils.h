@@ -15,10 +15,13 @@ extern unsigned int PC;
 extern const char *progSources[128];
 
 // globals
+ins_type insType;
+
 unsigned int numIns;
 unsigned int numBranch;
 unsigned int numLWSW;
-unsigned int numR_I;
+unsigned int numR_f;
+unsigned int numI_f;
 unsigned int numNop;
 
 unsigned int numRead_I;
@@ -34,6 +37,8 @@ int loadInstructions();
 op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);
+
+void statPipeline(ins_type itype);
 
 void printRegisters();
 void Error(const char*);

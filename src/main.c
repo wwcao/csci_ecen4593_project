@@ -16,7 +16,7 @@ int main() {
 
   int tests[][5] = {
     {0, 128, 256,   16, POLICY_WT},
-    {0, 128, 256,   16, POLICY_WT},
+    {0, 128, 256,   16, POLICY_WB},
     {0, 128, 256,   4,  POLICY_WT},
     {0, 128, 256,   4,  POLICY_WB},
     {0, 128, 256,   1,  POLICY_WT},
@@ -50,7 +50,7 @@ int main() {
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);
   while(indexTest < testNum) {
-    printf("\n------\nTest %u\n------\n", indexTest);
+    printf("\n------\nTest %u \t%d\t%d\t%d\n------\n", indexTest, test[1], test[2], test[3]);
     memcpy(&test, &tests[indexTest], sizeof(int)*5);
     init_utils();
     init_units();
