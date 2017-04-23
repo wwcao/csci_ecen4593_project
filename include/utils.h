@@ -15,54 +15,47 @@ extern unsigned int PC;
 extern const char *progSources[128];
 
 // globals
-char **table;
-
 ins_type insType;
-
 stat_result *results;
-
+unsigned int numTest;
 unsigned int numIns;
 unsigned int numBranch;
 unsigned int numLWSW;
 unsigned int numR_f;
 unsigned int numI_f;
 unsigned int numNop;
-
 unsigned int numRead_I;
 unsigned int numRead_D;
 unsigned int numReadMissed_I;
 unsigned int numReadMissed_D;
-
 unsigned int numWrite_D;
 unsigned int numWriteMissed_D;
+float cpi;
 
 unsigned int readInstruction(const char* path);
 int loadInstructions();
 op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);
-
+void printSummaryHeader(const char* progName);
+void printSummary(const char** progNames, unsigned int len);
+unsigned int findMinCpi(unsigned int progNum);
+void saveResult(int index, int* config);
 void statPipeline(ins_type itype);
-
-void printRegisters();
 void Error(const char*);
-void testSum(unsigned int total);
-void printSummary();
-void printPipelineStat();
-void printReadCacheStat();
-void printWriteCacheStat();
-void printCacheStat();
-void printTestTable(int* testConf, unsigned int len);
-
+bool testResults(unsigned int index, int* config);
 cache* createCache(unsigned int blockNum, unsigned int lineNum);
 void destroyUnusedCache(cache* target, unsigned int blockNum);
 bool findLBits(unsigned int num, unsigned short *bitNum, unsigned int *mask);
 unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize);
-
 writebuffer** initWRBuffers(writebuffer** des);
 writebuffer* createWRBuffer_WT(unsigned int addr, unsigned int data);
 writebuffer* createWRBuffer_WB(cachedata* cacheData, unsigned addr, int lineNum);
 void destroyUnusedWRBuffer(writebuffer** target);
 
+void init_results(unsigned int num);
 void init_utils();
+
+
+
 #endif

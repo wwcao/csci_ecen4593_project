@@ -16,6 +16,11 @@ void init_utils() {
   numWriteMissed_D = 0;
 }
 
+void init_results(unsigned int num) {
+  numTest = num;
+  results = (stat_result*)calloc(numTest, sizeof(stat_result));
+}
+
 unsigned int getWrData(unsigned int cacheData, unsigned int newData, unsigned short offset, lwsw_len wsize) {
   unsigned int shamt;
   unsigned int mask;
@@ -212,85 +217,133 @@ void statPipeline(ins_type itype) {
   }
 }
 
-
-void printSummary() {
-  printf("result: \n[0x%08x]\n[0x%08x]\n[0x%08x]\n[0x%08x]\n",
-		memory[6],memory[7],memory[8],memory[9]);
-  printf("=====================================\n");
-  printf("  Summary\n");
-  printf("Cycle[%u]\n", clock);
-  printf("=====================================\n");
-  printPipelineStat();
-  printReadCacheStat();
-  printWriteCacheStat();
-  printCacheStat();
+void printSummaryHeader(const char* progName) {
+  printf("program [%s]\n", progName);
+  printf("icache\t dcache\t       \t       \t      \t       \t        Total \t  Total   \n");
+  printf(" size \t  size \t block \t WT(0) \ti-hit \t d-hit \t  CPI   clock \t          \n");
+  printf("(byte)\t (byte)\t(lines)\t WB(1) \trate(%%)\trate(%%)\t       cycles\tInstruction\n");
 }
 
-void printPipelineStat() {
-  float cpi;
-  numI_f += numBranch + numLWSW;
-  numIns =  numI_f + numR_f;
-  printf("\nPipeline\n");
-  printf("_____________________________________\n");
-  cpi = (float)clock/numIns;
-  printf("Total instruction [%u]\n", numIns);
-  printf("CPI: [%2.3f]\n", cpi);
-  printf("Total Branch [%u]\n", numBranch);
-  printf("Total LWSW [%u]\n", numLWSW);
-  printf("Total R/I [%u]\n", numR_f);
-  printf("Total NOP [%u]\n", numNop);
+void printSummary(const char** progNames, unsigned int len) {
+  int prog1Min, prog2Min;
+  int i, mark;
+  stat_result *result;
 
-}
+  // Make this Simpler
+  prog1Min = findMinCpi(0);
+  prog2Min = findMinCpi(1);
 
-void printReadCacheStat() {
-  printf("\nRead Cache Stat\n");
-  printf("_____________________________________\n");
-  printf("Total I-Read [%u]\n",numRead_I);
-  printf("Total I-Read Missed [%u]\n",numReadMissed_I);
+  mark = -1;
+  result = results;
+  for(i = 0; i < numTest; i++) {
+    if(mark != result->progNum) {
+      mark = result->progNum;
+      printf("\n\n");
+      printSummaryHeader(progNames[mark]);
+    }
 
-  printf("Total D-Read [%u]\n",numRead_D);
-  printf("Total D-Read Missed [%u]\n",numReadMissed_D);
 
-}
+    if(i == prog1Min || i == prog2Min) {
+      printf("Min ------------------------------------------------------------\n");
+    }
+    printf("%5d\t%5d\t%5d\t%5d\t", result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+    printf("%0.2f\t%0.2f\t%1.3f\t%d\t\n", result->iHitRate, result->dHitRate, result->cpi, result->clock);
+    if(i == prog1Min || i == prog2Min) {
+      printf("----------------------------------------------------------------\n");
+    }
 
-void printWriteCacheStat() {
-  printf("\nWrite Cache Stat\n");
-  printf("_____________________________________\n");
-  printf("Total D-Write [%u]\n",numWrite_D);
-  printf("Total D-Write Missed [%u]\n",numWriteMissed_D);
-}
-
-void printCacheStat(){
-  float hitRate_D;
-  float hitRate_I;
-  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
-  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
-
-  printf("\nCache Stat\n");
-  printf("_____________________________________\n");
-  printf("I-Hit Rate [%2.2f]%%\n",hitRate_D);
-  printf("D-Hit Rate [%2.2f]%%\n",hitRate_I);
-}
-
-void printTestTable(int* testConf, unsigned int len) {
-  unsigned int i;
-  float hitRate_D;
-  float hitRate_I;
-  float cpi;
-  char buffer[512];
-
-  numI_f += numBranch + numLWSW;
-  numIns =  numI_f + numR_f;
-  cpi = (float)clock/numIns;
-  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
-  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
-
-  memset(buffer, 0, 512);
-  for(i = 1; i < len; i++) {
-    sprintf(buffer, "%s%5d\t", buffer, testConf[i]);
+    result++;
   }
-  sprintf(buffer, "%s%4.2f\t%4.2f\t %4.2f\t%6d\n", buffer, hitRate_I, hitRate_D, cpi, clock);
-  printf("%s", buffer);
+}
+
+unsigned int findMinCpi(unsigned int progNum) {
+  unsigned int i;
+  unsigned int res;
+  float min;
+  stat_result *result;
+
+  res = 0;
+  result = results;
+  min = 1000;
+  for(i = 0; i < numTest; i++) {
+    if(result->progNum == progNum && min > result->cpi) {
+      min = result->cpi;
+      res = i;
+    }
+    result++;
+  }
+  return res;
+}
+
+void saveResult(int index, int* config) {
+  stat_result result;
+  float hitRate_D;
+  float hitRate_I;
+
+  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
+  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
+
+  numI_f += numBranch + numLWSW;
+  numIns =  numI_f + numR_f;
+  cpi = (float)clock/numIns;
+
+  result.clock = clock;
+  result.ins = numIns;
+  result.cpi = cpi;
+
+  result.progNum = config[0];
+  result.icacheSize = config[1];
+  result.dcacheSize = config[2];
+  result.block_size = config[3];
+  result.policy = config[4];
+
+  result.iformat = numBranch + numLWSW;
+  result.rformat = numR_f;
+  result.br = numBranch;
+  result.lwsw = numLWSW;
+  result.nop = numNop;
+
+  result.iRd = numReadMissed_I;
+  result.iRdMissed = numReadMissed_I;
+  result.dRd = numReadMissed_D;
+  result.dRdMissed = numReadMissed_D;
+  result.dWr = numWrite_D;
+  result.dWrMissed = numWriteMissed_D;
+
+  result.iHitRate = hitRate_I;
+  result.dHitRate = hitRate_D;
+  memcpy(&(results[index]), &result, sizeof(stat_result));
+  return;
+}
+
+bool testResults(unsigned int index, int* config) {
+  int j,k,l,m;
+  switch(config[0]) {
+    case 0:
+      j = memory[6]^112;
+      k = memory[7]^29355;
+      l = memory[8]^14305;
+      m = memory[9]^0;
+      if(j||k||l||m) {
+        printf("Config[%2d] has different result\n", index);
+        return false;
+      }
+      break;
+    case 1:
+      j = memory[7]^0x20696e71;
+      k = memory[8]^0x206e7376;
+      l = memory[9]^0x20696e71;
+      m = memory[6]^1;
+      if(j||k||l||m) {
+        printf("Config[%2d] has different result\n", index);
+        return false;
+      }
+      break;
+    default:
+      Error("Unknown program");
+  }
+  printf("Config[%2d]....[OK], memory[6-9][%08x][%08x][%08x][%08x]\n", index, memory[6],memory[7],memory[8],memory[9]);
+  return true;
 }
 
 void Error(const char* msg) {
@@ -318,18 +371,6 @@ void printRegisters() {
 		printf("$%02d[0x%08x], ", i+2, register_file[i+2]);
 		printf("$%02d[0x%08x]\n", i+3, register_file[i+3]);
 	}
-}
-
-void testSum(unsigned int total) {
-  unsigned int i;
-  unsigned int start = 243;
-  int sum;
-
-  sum = 0;
-  for(i = start; i < total+start; i++) {
-    sum += memory[i];
-  }
-  printf("Sum: [%d][%08x]\n", sum, sum);
 }
 
 bool findLBits(unsigned int num, unsigned short *bNum, unsigned int *mask) {

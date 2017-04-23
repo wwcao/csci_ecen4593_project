@@ -651,6 +651,7 @@ void fwdUnitEX(int *src1, int *src2) {
 
 void transferPipelineRegs() {
   if(cacheMissed) {
+    //statPipeline(insType);
     statPipeline(ALUOP_NOP);
     init_wireRegs(ALL_REGS);
     //register_file[memwb_reg.rd] = oldData;

@@ -214,6 +214,7 @@ typedef struct {
   unsigned int progNum;
   unsigned int clock;
   unsigned int ins;
+  float cpi;
   unsigned int iformat;
   unsigned int rformat;
   unsigned int br;
@@ -223,7 +224,7 @@ typedef struct {
   unsigned int icacheSize;
   unsigned int dcacheSize;
   unsigned int block_size;
-  cache_t cacheType;
+  wr_policy policy;
 
   unsigned int iRd;
   unsigned int iRdMissed;
@@ -231,6 +232,8 @@ typedef struct {
   unsigned int dRdMissed;
   unsigned int dWr;
   unsigned int dWrMissed;
+  float iHitRate;
+  float dHitRate;
 } stat_result;
 
 #endif
