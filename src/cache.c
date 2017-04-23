@@ -58,7 +58,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
 }
 
 bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
-  if(!CACHE_ENABLED) {
+  if(!CacheEnabled) {
     *data = memory[addr];
     return true;
   }
@@ -96,7 +96,7 @@ bool writebackCache(cache srcCache, unsigned int block) {
 
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
   unsigned int cacheData;
-  if(!CACHE_ENABLED) {
+  if(!CacheEnabled) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }
 
@@ -107,16 +107,16 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
     case POLICY_WB:
       // TODO:
       if(!readDataCache(addr, &cacheData)){
-	numWriteMissed_D +=1;
-	return false;
+        numWriteMissed_D +=1;
+        return false;
       }
       data = getWrData(cacheData, data, offset, wsize);
       updateCache(addr, data);
       break;
     case POLICY_WT:
       if(!readDataCache(addr, &cacheData)){
-	 numWriteMissed_D += 1;
-	 return false;
+         numWriteMissed_D += 1;
+         return false;
       }
 
       data = getWrData(cacheData, data, offset, wsize);

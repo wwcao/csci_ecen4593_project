@@ -7,6 +7,9 @@
 #include "utils.h"
 
 int config[5];
+int CacheEnabled;
+int PreCached;
+
 
 int register_file[REGISTER_SIZE];
 unsigned int PC;

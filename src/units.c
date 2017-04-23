@@ -30,6 +30,8 @@ void init_caches() {
   unsigned int dWordNum;
   unsigned int iWordNum;
 
+  if(!CacheEnabled) return;
+
   cachePenalty = 0;
   // Setup Cache Info
   iWordNum = config[1]/4;
@@ -49,20 +51,22 @@ void init_caches() {
   dcache = createCache(dcacheBNum, cacheBSize);
 
   // setup caches
-  addr = 0;
-  while(addr < iWordNum) {
-    data = 0;
-    fillCache(CACHE_I, addr, true);
-    readFromCache(CACHE_I, addr, &data);
-    addr++;
-  }
+  if(PreCached) {
+    addr = 0;
+    while(addr < iWordNum) {
+      data = 0;
+      fillCache(CACHE_I, addr, true);
+      readFromCache(CACHE_I, addr, &data);
+      addr++;
+    }
 
-  addr = 0;
-  while (addr < dWordNum) {
-    data = 0;
-    fillCache(CACHE_D, addr, true);
-    readFromCache(CACHE_D, addr, &data);
-    addr++;
+    addr = 0;
+    while (addr < dWordNum) {
+      data = 0;
+      fillCache(CACHE_D, addr, true);
+      readFromCache(CACHE_D, addr, &data);
+      addr++;
+    }
   }
   return;
 }
