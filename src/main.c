@@ -20,6 +20,13 @@ int main() {
     {0, 128, 256,   4,  POLICY_WB},
     {0, 128, 256,   1,  POLICY_WT},
     {0, 128, 256,   1,  POLICY_WB},
+    // min?
+    {0, 128, 1024,   16,  POLICY_WB},
+    {0, 128, 1024,   8,  POLICY_WB},
+    {0, 128, 1024,   4,  POLICY_WB},
+    {0, 128, 1024,   2,  POLICY_WB},
+    {0, 128, 1024,   1,  POLICY_WB},
+
     {0, 64,  1024,  16, POLICY_WT},
     {0, 64,  1024,  16, POLICY_WB},
     {0, 64,  1024,  4,  POLICY_WT},
@@ -43,13 +50,21 @@ int main() {
     {1, 256, 128,   4,  POLICY_WT},
     {1, 256, 128,   4,  POLICY_WB},
     {1, 256, 128,   1,  POLICY_WT},
+    // min ?
+    {1, 128, 1024,   16,  POLICY_WB},
+    {1, 128, 1024,   8,  POLICY_WB},
+    {1, 128, 1024,   4,  POLICY_WB},
+    {1, 128, 1024,   2,  POLICY_WB},
+    {1, 128, 1024,   1,  POLICY_WB},
+
     {1, 256, 128,   1,  POLICY_WB}
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*5);
 
   init_results(testNum);
-
+  CacheEnabled = true;
+  PreCached = true;
   while(indexTest < testNum) {
     memcpy(&config, &tests[indexTest], sizeof(int)*5);
     init_utils();
