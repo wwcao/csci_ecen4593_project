@@ -15,6 +15,7 @@ extern unsigned int PC;
 extern const char *progSources[128];
 extern bool CacheEnabled;
 extern bool PreCached;
+extern int **fileTests;
 
 // globals
 count_type insType;
@@ -60,6 +61,6 @@ void destroyUnusedWRBuffer(writebuffer** target);
 void init_results(unsigned int num);
 void init_utils();
 
-
+bool readConfigs(const char* filename, unsigned int* testNum);
 
 #endif

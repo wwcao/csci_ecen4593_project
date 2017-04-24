@@ -266,7 +266,7 @@ void printSummary(const char** progNames, unsigned int len) {
       sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%3d\t%3d\t", buffer,
               result->icacheSize, result->dcacheSize, result->block_size, result->policy, result->PreCached);
       sprintf(buffer,"%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
-      sprintf(foutput, "%d,%d,%d,%d,%d,,%d,%.2f,%.2f,%.2f,%d,%d\n",
+      sprintf(foutput, "%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n",
               result->progNum, result->icacheSize, result->dcacheSize, result->block_size, result->policy, result->PreCached,
               result->iHitRate, result->dHitRate,
               result->cpi, result->clock, result->ins);
@@ -443,4 +443,48 @@ bool findLBits(unsigned int num, unsigned short *bNum, unsigned int *mask) {
       Error("findLBits");
   }
   return false;
+}
+
+bool readConfigs(const char* filename, unsigned int *confignum) {
+  int i;
+  unsigned int testNum, progNum;
+  char buffer[MAX_READLINE];
+  int* newConfig;
+  FILE* fconf;
+
+  fconf = fopen(filename,"r");
+  if(!fconf) Error("Error: Unable to read config file");
+
+  testNum = 0;
+  progNum = 0;
+  memset(buffer, 0, 64);
+  while(fgets(buffer, MAX_READLINE, fconf)) {
+    char c = buffer[0];
+    if(c == '#') {
+      progNum++;
+      continue;
+    }
+    if( c < 48 || c > 57) continue;
+    testNum++;
+  }
+
+  if(!(testNum>0)) Error("Error: Invalid configuration");
+
+  rewind(fconf);
+  fileTests = (int**)calloc(testNum, sizeof(int*));
+
+  i = 0;
+  while(fgets(buffer, MAX_READLINE, fconf)) {
+    newConfig = NULL;
+    char c = buffer[0];
+    if(c < 48 || c > 57) continue;
+    newConfig = (int*) calloc(7, sizeof(int));
+    if(!newConfig) Error("Errror: Unable to allocate memory for configuration");
+    sscanf(buffer, "%d,%d,%d,%d,%d,%d,%d", newConfig, newConfig+1, newConfig+2, newConfig+3,newConfig+4,
+           newConfig+5, newConfig+6);
+    fileTests[i] = newConfig;
+    i++;
+  }
+  *confignum = testNum;
+  return true;
 }

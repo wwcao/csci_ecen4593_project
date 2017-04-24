@@ -232,7 +232,7 @@ void initial_cacheCtl() {
 }
 
 void startCaching() {
-  if(!CACHE_ENABLED) return;
+  if(!CacheEnabled) return;
 
   if(MemBusy) return;
 
