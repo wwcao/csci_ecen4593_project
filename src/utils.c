@@ -61,7 +61,7 @@ unsigned int readInstruction(const char* path) {
             && buffer[0] != '\n') {
       if(buffer[0] != '0') continue;
       sscanf(buffer, "%x", &ins);
-      if(addr > MEMORY_SIZE) Error("Out of Bound\n");
+      if(addr >= MEMORY_SIZE) Error("Out of Bound\n");
         memory[addr] = ins;
       addr++;
     }
