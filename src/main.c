@@ -13,60 +13,80 @@ const char *progSources[128] = {
 
 int main() {
   unsigned int testNum;
-  int tests[][5] = {
-    {0, 128, 256,   16, POLICY_WT},
-    {0, 128, 256,   16, POLICY_WB},
-    {0, 128, 256,   4,  POLICY_WT},
-    {0, 128, 256,   4,  POLICY_WB},
-    {0, 128, 256,   1,  POLICY_WT},
-    {0, 128, 256,   1,  POLICY_WB},
+  int tests[][7] = {
+  //prog, icache, dcache, line, WT/WB, Cache?, PreCache
+    //
+    // NO CACHE
+    //
+    {0, 128, 256,   16, POLICY_WT, 0, 0},
+    {1, 64,  512,   16, POLICY_WT, 0, 0},
+    //
+    // Normal Tests
+    //
+    {0, 128, 256,   16, POLICY_WT, 1, 1},
+    {0, 128, 256,   16, POLICY_WB, 1, 1},
+    {0, 128, 256,   4,  POLICY_WT, 1, 1},
+    {0, 128, 256,   4,  POLICY_WB, 1, 1},
+    {0, 128, 256,   1,  POLICY_WT, 1, 1},
+    {0, 128, 256,   1,  POLICY_WB, 1, 1},
+    {0, 64,  1024,  16, POLICY_WT, 1, 1},
+    {0, 64,  1024,  16, POLICY_WB, 1, 1},
+    {0, 64,  1024,  4,  POLICY_WT, 1, 1},
+    {0, 64,  1024,  4,  POLICY_WB, 1, 1},
+    {0, 64,  1024,  1,  POLICY_WT, 1, 1},
+    {0, 64,  1024,  1,  POLICY_WB, 1, 1},
+    {1, 64,  512,   16, POLICY_WT, 1, 1},
+    {1, 64,  512,   16, POLICY_WB, 1, 1},
+    {1, 64,  512,   4,  POLICY_WT, 1, 1},
+    {1, 64,  512,   4,  POLICY_WB, 1, 1},
+    {1, 64,  512,   1,  POLICY_WT, 1, 1},
+    {1, 64,  512,   1,  POLICY_WB, 1, 1},
+    {1, 128, 256,   16, POLICY_WT, 1, 1},
+    {1, 128, 256,   16, POLICY_WB, 1, 1},
+    {1, 128, 256,   4,  POLICY_WT, 1, 1},
+    {1, 128, 256,   4,  POLICY_WB, 1, 1},
+    {1, 128, 256,   1,  POLICY_WT, 1, 1},
+    {1, 128, 256,   1,  POLICY_WB, 1, 1},
+    {1, 256, 128,   16, POLICY_WT, 1, 1},
+    {1, 256, 128,   16, POLICY_WB, 1, 1},
+    {1, 256, 128,   4,  POLICY_WT, 1, 1},
+    {1, 256, 128,   4,  POLICY_WB, 1, 1},
+    {1, 256, 128,   1,  POLICY_WT, 1, 1},
+    {1, 256, 128,   1,  POLICY_WB, 1, 1},
+
+    //
     // min?
-    {0, 128, 1024,   16,  POLICY_WB},
-    {0, 128, 1024,   8,  POLICY_WB},
-    {0, 128, 1024,   4,  POLICY_WB},
-    {0, 128, 1024,   2,  POLICY_WB},
-    {0, 128, 1024,   1,  POLICY_WB},
-
-    {0, 64,  1024,  16, POLICY_WT},
-    {0, 64,  1024,  16, POLICY_WB},
-    {0, 64,  1024,  4,  POLICY_WT},
-    {0, 64,  1024,  4,  POLICY_WB},
-    {0, 64,  1024,  1,  POLICY_WT},
-    {0, 64,  1024,  1,  POLICY_WB},
-    {1, 64,  512,   16, POLICY_WT},
-    {1, 64,  512,   16, POLICY_WB},
-    {1, 64,  512,   4,  POLICY_WT},
-    {1, 64,  512,   4,  POLICY_WB},
-    {1, 64,  512,   1,  POLICY_WT},
-    {1, 64,  512,   1,  POLICY_WB},
-    {1, 128, 256,   16, POLICY_WT},
-    {1, 128, 256,   16, POLICY_WB},
-    {1, 128, 256,   4,  POLICY_WT},
-    {1, 128, 256,   4,  POLICY_WB},
-    {1, 128, 256,   1,  POLICY_WT},
-    {1, 128, 256,   1,  POLICY_WB},
-    {1, 256, 128,   16, POLICY_WT},
-    {1, 256, 128,   16, POLICY_WB},
-    {1, 256, 128,   4,  POLICY_WT},
-    {1, 256, 128,   4,  POLICY_WB},
-    {1, 256, 128,   1,  POLICY_WT},
+    //
+    {0, 128, 1024,   16,  POLICY_WB, 1, 1},
+    {0, 128, 1024,   8,  POLICY_WB, 1, 1},
+    {0, 128, 1024,   4,  POLICY_WB, 1, 1},
+    {0, 128, 1024,   2,  POLICY_WB, 1, 1},
+    {0, 128, 1024,   1,  POLICY_WB, 1, 1},
+    {0, 128, 1024,   16,  POLICY_WT, 1, 1},
+    {0, 128, 1024,   8,  POLICY_WT, 1, 1},
+    {0, 128, 1024,   4,  POLICY_WT, 1, 1},
+    {0, 128, 1024,   2,  POLICY_WT, 1, 1},
+    {0, 128, 1024,   1,  POLICY_WT, 1, 1},
+    //
     // min ?
-    {1, 128, 1024,   16,  POLICY_WB},
-    {1, 128, 1024,   8,  POLICY_WB},
-    {1, 128, 1024,   4,  POLICY_WB},
-    {1, 128, 1024,   2,  POLICY_WB},
-    {1, 128, 1024,   1,  POLICY_WB},
-
-    {1, 256, 128,   1,  POLICY_WB}
+    //
+    {1, 128, 1024,   16,  POLICY_WB, 1, 1},
+    {1, 128, 1024,   8,  POLICY_WB, 1, 1},
+    {1, 128, 1024,   4,  POLICY_WB, 1, 1},
+    {1, 128, 1024,   2,  POLICY_WB, 1, 1},
+    {1, 128, 1024,   1,  POLICY_WB, 1, 1},
+    {1, 128, 1024,   16,  POLICY_WT, 1, 1},
+    {1, 128, 1024,   8,  POLICY_WT, 1, 1},
+    {1, 128, 1024,   4,  POLICY_WT, 1, 1},
+    {1, 128, 1024,   2,  POLICY_WT, 1, 1},
+    {1, 128, 1024,   1,  POLICY_WT, 1, 1}
   };
 //  filepaths = filenames;
-  testNum = sizeof(tests)/(sizeof(unsigned int)*5);
+  testNum = sizeof(tests)/(sizeof(unsigned int)*7);
 
   init_results(testNum);
-  CacheEnabled = true;
-  PreCached = true;
   while(indexTest < testNum) {
-    memcpy(&config, &tests[indexTest], sizeof(int)*5);
+    memcpy(&config, &tests[indexTest], sizeof(int)*7);
     init_utils();
     init_units();
     init_pipeline();

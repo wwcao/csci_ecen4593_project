@@ -218,25 +218,26 @@ void statPipeline(ins_type itype) {
 }
 
 void printSummaryHeader(const char* progName) {
-  printf("program [%s]\n", progName);
-  printf("icache\t dcache\t       \t       \t      \t       \t        Total \t  Total   \n");
-  printf(" size \t  size \t block \t WT(0) \ti-hit \t d-hit \t  CPI   clock \t          \n");
-  printf("(byte)\t (byte)\t(lines)\t WB(1) \trate(%%)\trate(%%)\t       cycles\tInstruction\n");
+  printf("\t>>[%s]<<\n", progName);
+  printf("\ticache\t dcache\t       \t       \t\t      \t       \t        Total \t  Total   \n");
+  printf("\t size \t  size \t block \t WT(0) \t\ti-hit \t d-hit \t  CPI   clock \t          \n");
+  printf("\t(byte)\t (byte)\t(lines)\t WB(1) \t\trate(%%)\trate(%%)\t       cycles\tInstruction\n");
 }
 
 void printSummary(const char** progNames, unsigned int len) {
   int prog1Min, prog2Min;
   int i, mark;
   stat_result *result;
-
-  // Make this Simpler
-  prog1Min = findMinCpi(0);
-  prog2Min = findMinCpi(1);
+  char buffer[256];
 
   mark = -1;
   result = results;
   for(i = 0; i < numTest; i++) {
+    memset(buffer, 0, 256);
     if(mark != result->progNum) {
+      // Make this Simpler
+      prog1Min = findMinCpi(0);
+      prog2Min = findMinCpi(1);
       mark = result->progNum;
       printf("\n\n");
       printSummaryHeader(progNames[mark]);
@@ -244,14 +245,20 @@ void printSummary(const char** progNames, unsigned int len) {
 
 
     if(i == prog1Min || i == prog2Min) {
-      printf("Min ------------------------------------------------------------\n");
+      sprintf(buffer, "->%d", i);
     }
-    printf("%5d\t%5d\t%5d\t%5d\t", result->icacheSize, result->dcacheSize, result->block_size, result->policy);
-    printf("%0.2f\t%0.2f\t%1.3f\t%d\t\n", result->iHitRate, result->dHitRate, result->cpi, result->clock);
-    if(i == prog1Min || i == prog2Min) {
-      printf("----------------------------------------------------------------\n");
+    else{
+      sprintf(buffer, "  %d", i);
     }
-
+    if(CacheEnabled) {
+      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%5d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+      sprintf(buffer,"%s\t%0.2f\t%0.2f\t%1.3f\t%d\t\n", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
+    }
+    else {
+      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%5d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+      sprintf(buffer, "%s\t%0.2f\t%0.2f\t%1.3f\t%d\t\n", buffer, 0.0, 0.0, result->cpi, result->clock);
+    }
+    printf("%s", buffer);
     result++;
   }
 }
@@ -266,7 +273,8 @@ unsigned int findMinCpi(unsigned int progNum) {
   result = results;
   min = 1000;
   for(i = 0; i < numTest; i++) {
-    if(result->progNum == progNum && min > result->cpi) {
+    if(result->progNum == progNum &&
+       min > result->cpi && result->Cached) {
       min = result->cpi;
       res = i;
     }
@@ -287,6 +295,8 @@ void saveResult(int index, int* config) {
   numIns =  numI_f + numR_f;
   cpi = (float)clock/numIns;
 
+  memset(&result, 0, sizeof(stat_result));
+
   result.clock = clock;
   result.ins = numIns;
   result.cpi = cpi;
@@ -302,16 +312,18 @@ void saveResult(int index, int* config) {
   result.br = numBranch;
   result.lwsw = numLWSW;
   result.nop = numNop;
+  if(CacheEnabled) {
+    result.iRd = numReadMissed_I;
+    result.iRdMissed = numReadMissed_I;
+    result.dRd = numReadMissed_D;
+    result.dRdMissed = numReadMissed_D;
+    result.dWr = numWrite_D;
+    result.dWrMissed = numWriteMissed_D;
 
-  result.iRd = numReadMissed_I;
-  result.iRdMissed = numReadMissed_I;
-  result.dRd = numReadMissed_D;
-  result.dRdMissed = numReadMissed_D;
-  result.dWr = numWrite_D;
-  result.dWrMissed = numWriteMissed_D;
-
-  result.iHitRate = hitRate_I;
-  result.dHitRate = hitRate_D;
+    result.iHitRate = hitRate_I;
+    result.dHitRate = hitRate_D;
+  }
+  result.Cached = CacheEnabled;
   memcpy(&(results[index]), &result, sizeof(stat_result));
   return;
 }

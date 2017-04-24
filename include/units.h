@@ -6,9 +6,9 @@
 #include "static.h"
 #include "utils.h"
 
-int config[5];
-int CacheEnabled;
-int PreCached;
+int config[7];
+bool CacheEnabled;
+bool PreCached;
 
 
 int register_file[REGISTER_SIZE];

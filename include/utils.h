@@ -13,6 +13,7 @@ extern int register_file[REGISTER_SIZE];
 extern unsigned int clock;
 extern unsigned int PC;
 extern const char *progSources[128];
+extern bool CacheEnabled;
 
 // globals
 ins_type insType;

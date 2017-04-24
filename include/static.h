@@ -234,6 +234,8 @@ typedef struct {
   unsigned int dWrMissed;
   float iHitRate;
   float dHitRate;
+
+  bool Cached;
 } stat_result;
 
 #endif

@@ -2,6 +2,8 @@
 
 void init_units() {
   clock = 0;
+  CacheEnabled = config[5];
+  PreCached = config[6];
   init_memory();
   init_registers();
   init_caches();
