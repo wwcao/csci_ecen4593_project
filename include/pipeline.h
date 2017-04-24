@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <string.h>
 
-#define IS_PIPELINE             1       // DON'T set to 0 (test assembly not compatible)
-
 #define IFID_ID                 0x1
 #define IDEX_ID                 0x2
 #define EXMEM_ID                0x4
