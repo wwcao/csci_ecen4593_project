@@ -232,7 +232,7 @@ void printSummary(const char** progNames, unsigned int len) {
   int prog1Min, prog2Min;
   int i, mark;
   stat_result *result;
-  const char fheader[] = "ProgNum,icache size,dcache size,WT(0)/WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
+  const char fheader[] = "ProgNum,icache size,dcache size,line,WT(0)/WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
   char buffer[256];
   char foutput[256];
   FILE* output;
@@ -265,8 +265,8 @@ void printSummary(const char** progNames, unsigned int len) {
     if(result->Cached) {
       sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%3d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
       sprintf(buffer,"%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
-      sprintf(foutput, "%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n",
-              result->progNum, result->icacheSize, result->dcacheSize, result->policy,
+      sprintf(foutput, "%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n",
+              result->progNum, result->icacheSize, result->dcacheSize, result->block_size, result->policy,
               result->iHitRate, result->dHitRate,
               result->cpi, result->clock, result->ins);
     }
@@ -274,7 +274,7 @@ void printSummary(const char** progNames, unsigned int len) {
       //sprintf(buffer, "%s\t------\t------\t------\t------\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
       sprintf(buffer, "%s\t------\t------\t------\t----\t", buffer);
       sprintf(buffer, "%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, 0.0, 0.0, result->cpi, result->clock);
-      sprintf(foutput, "%d,0,0,0,0,0,%.2f,%d,%d\n",
+      sprintf(foutput, "%d,0,0,0, 0,0,0,%.2f,%d,%d\n",
               result->progNum, result->cpi, result->clock, result->ins);
     }
     sprintf(buffer,"%s  %d  \t%d\n", buffer, result->ins, result->insCounter);
