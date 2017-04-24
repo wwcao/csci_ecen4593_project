@@ -20,7 +20,12 @@ Directory
 $ make
 
 ### Run
-$ ./bin/emulator
+$ ./bin/emulator {config file}
+
+#### config file format
+// commment  
+// fields {program, icache, dcache, line, wr policy, cache?, precache?}  
+0,128,256,16,0,0,0   
 
 ## Configuration
 Memory Size: static.h  
