@@ -23,12 +23,14 @@ $ make
 $ ./bin/emulator {config file}
 
 #### config file format
+*^\# used for insert filename *, ONLY 0|1 
+*^[0-9] for a config*  
+
 0 - Program1  
 1 - Program2  
-  
-// commment  
-// config start with number and each is separated with delimiter ','  
-// fields {program #, icache, dcache, line, wr policy, cache?, precache?}   
+
+config start with number and each is separated with delimiter ','  
+fields {program #, icache, dcache, line, wr policy, cache?, precache?}   
 e.g. ^0,128,256,16,0,0,0$  
 
 ## Configuration
