@@ -23,6 +23,7 @@ void IF(void) {
   if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction))){
     cacheMissed |= ICACHE_MISSED;
   }
+
 }
 
 void ID(void) {
@@ -34,7 +35,7 @@ void ID(void) {
 
 	// handle is pipeline
 	if(!PC) return;
-
+  insCounter++;
 	// ID Operation
 	_idex_reg.progCounter = ifid_reg.progCounter;
 
@@ -652,7 +653,7 @@ void fwdUnitEX(int *src1, int *src2) {
 void transferPipelineRegs() {
   if(cacheMissed) {
     //statPipeline(insType);
-    statPipeline(ALUOP_NOP);
+    statPipeline(TYPE_STALL);
     init_wireRegs(ALL_REGS);
     //register_file[memwb_reg.rd] = oldData;
     pcSrc1--;
@@ -673,7 +674,7 @@ void transferPipelineRegs() {
 
 	// keep data in IDEX register
   insertNOP();
-  statPipeline(ALUOP_NOP);
+  statPipeline(TYPE_STALL);
   //reset PC source
   pcSrc1--;
   // keep IFID but decreases PCINPUT

@@ -7,11 +7,12 @@ void init_utils() {
   numR_f = 0;
   numI_f = 0;
   numNop = 0;
+  numStall = 0;
   numRead_I = 0;
   numRead_D = 0;
   numReadMissed_I = 0;
   numReadMissed_D = 0;
-
+  insCounter = 0;
   numWrite_D = 0;
   numWriteMissed_D = 0;
 }
@@ -197,43 +198,54 @@ void destroyUnusedWRBuffer(writebuffer** target) {
   free(target);
 }
 
-void statPipeline(ins_type itype) {
+void statPipeline(count_type itype) {
   switch(itype) {
-    case ALUOP_R:
+    case TYPE_R:
       numR_f++;
       break;
-    case ALUOP_I:
+    case TYPE_I:
       numI_f++;
       break;
-    case ALUOP_LWSW:
+    case TYPE_LWSW:
       numLWSW++;
       break;
-    case ALUOP_NOP:
+    case TYPE_NOP:
       numNop++;
       break;
-    case ALUOP_BR:
+    case TYPE_BR:
       numBranch++;
+      break;
+    case TYPE_STALL:
+      numStall++;
       break;
   }
 }
 
 void printSummaryHeader(const char* progName) {
   printf("\t>>[%s]<<\n", progName);
-  printf("\ticache\t dcache\t       \t       \t\t      \t       \t        Total \t  Total   \n");
-  printf("\t size \t  size \t block \t WT(0) \t\ti-hit \t d-hit \t  CPI   clock \t          \n");
-  printf("\t(byte)\t (byte)\t(lines)\t WB(1) \t\trate(%%)\trate(%%)\t       cycles\tInstruction\n");
+  printf("\ticache\t dcache\t       \t       \t\t      \t       \t        Total \t   Total  \t\n");
+  printf("\t size \t  size \t block \t WT(0) \t\ti-hit \t d-hit \t  CPI   clock \t          \tinclude\n");
+  printf("\t(byte)\t (byte)\t(lines)\t WB(1) \t\trate(%%)\trate(%%)\t       cycles\t  Inst. \t nop&stall\n");
 }
 
 void printSummary(const char** progNames, unsigned int len) {
   int prog1Min, prog2Min;
   int i, mark;
   stat_result *result;
+  const char fheader[] = "ProgNum,icache size,dcache size,WT(0)/WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
   char buffer[256];
+  char foutput[256];
+  FILE* output;
 
+  output = fopen("results.csv", "w");
+
+  if(!output) Error("Error: Unable to open output file");
   mark = -1;
   result = results;
+  fwrite(fheader, sizeof(char), strlen(fheader), output);
   for(i = 0; i < numTest; i++) {
     memset(buffer, 0, 256);
+    memset(foutput, 0, 256);
     if(mark != result->progNum) {
       // Make this Simpler
       prog1Min = findMinCpi(0);
@@ -250,17 +262,27 @@ void printSummary(const char** progNames, unsigned int len) {
     else{
       sprintf(buffer, "  %d", i);
     }
-    if(CacheEnabled) {
-      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%5d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
-      sprintf(buffer,"%s\t%0.2f\t%0.2f\t%1.3f\t%d\t\n", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
+    if(result->Cached) {
+      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%3d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+      sprintf(buffer,"%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
+      sprintf(foutput, "%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n",
+              result->progNum, result->icacheSize, result->dcacheSize, result->policy,
+              result->iHitRate, result->dHitRate,
+              result->cpi, result->clock, result->ins);
     }
     else {
-      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%5d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
-      sprintf(buffer, "%s\t%0.2f\t%0.2f\t%1.3f\t%d\t\n", buffer, 0.0, 0.0, result->cpi, result->clock);
+      //sprintf(buffer, "%s\t------\t------\t------\t------\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+      sprintf(buffer, "%s\t------\t------\t------\t----\t", buffer);
+      sprintf(buffer, "%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, 0.0, 0.0, result->cpi, result->clock);
+      sprintf(foutput, "%d,0,0,0,0,0,%.2f,%d,%d\n",
+              result->progNum, result->cpi, result->clock, result->ins);
     }
+    sprintf(buffer,"%s  %d  \t%d\n", buffer, result->ins, result->insCounter);
     printf("%s", buffer);
+    fwrite(foutput, sizeof(char), strlen(foutput), output);
     result++;
   }
+  fclose(output);
 }
 
 unsigned int findMinCpi(unsigned int progNum) {
@@ -291,7 +313,7 @@ void saveResult(int index, int* config) {
   hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
   hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
 
-  numI_f += numBranch + numLWSW;
+  numI_f += numBranch + numLWSW + numNop;
   numIns =  numI_f + numR_f;
   cpi = (float)clock/numIns;
 
@@ -299,6 +321,7 @@ void saveResult(int index, int* config) {
 
   result.clock = clock;
   result.ins = numIns;
+  result.insCounter = insCounter;
   result.cpi = cpi;
 
   result.progNum = config[0];
@@ -312,6 +335,7 @@ void saveResult(int index, int* config) {
   result.br = numBranch;
   result.lwsw = numLWSW;
   result.nop = numNop;
+  result.stall = numStall;
   if(CacheEnabled) {
     result.iRd = numReadMissed_I;
     result.iRdMissed = numReadMissed_I;

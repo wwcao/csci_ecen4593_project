@@ -98,6 +98,7 @@ typedef enum {false = 0, true = 1} bool;
 typedef enum {FORMAT_I = 0, FORMAT_R, FORMAT_J} op_format;
 typedef enum {PART_OP = 0, PART_RS, PART_RT, PART_RD, PART_SHM, PART_FUNC, PART_IMM} part_type;
 typedef enum {ALUOP_NOP = 0, ALUOP_LWSW, ALUOP_R, ALUOP_BR, ALUOP_I} alu_op;
+typedef enum {TYPE_NOP = 0, TYPE_LWSW, TYPE_R, TYPE_BR, TYPE_I, TYPE_STALL} count_type;
 typedef enum {STAGE_IF = 0, STAGE_ID, STAGE_EX, STAGE_MEM, STAGE_WB} stage;
 typedef enum {DLEN_W = 0, DLEN_B, DLEN_HW, DLEN_BU, DLEN_HWU} lwsw_len;
 typedef enum {CACHE_I, CACHE_D} cache_t;
@@ -214,12 +215,14 @@ typedef struct {
   unsigned int progNum;
   unsigned int clock;
   unsigned int ins;
+  unsigned int insCounter;
   float cpi;
   unsigned int iformat;
   unsigned int rformat;
   unsigned int br;
   unsigned int lwsw;
   unsigned int nop;
+  unsigned int stall;
 
   unsigned int icacheSize;
   unsigned int dcacheSize;

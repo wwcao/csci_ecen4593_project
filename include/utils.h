@@ -16,15 +16,17 @@ extern const char *progSources[128];
 extern bool CacheEnabled;
 
 // globals
-ins_type insType;
+count_type insType;
 stat_result *results;
 unsigned int numTest;
 unsigned int numIns;
+unsigned int insCounter;
 unsigned int numBranch;
 unsigned int numLWSW;
 unsigned int numR_f;
 unsigned int numI_f;
 unsigned int numNop;
+unsigned int numStall;
 unsigned int numRead_I;
 unsigned int numRead_D;
 unsigned int numReadMissed_I;
@@ -42,7 +44,7 @@ void printSummaryHeader(const char* progName);
 void printSummary(const char** progNames, unsigned int len);
 unsigned int findMinCpi(unsigned int progNum);
 void saveResult(int index, int* config);
-void statPipeline(ins_type itype);
+void statPipeline(count_type itype);
 void Error(const char*);
 bool testResults(unsigned int index, int* config);
 cache* createCache(unsigned int blockNum, unsigned int lineNum);
