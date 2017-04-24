@@ -23,8 +23,8 @@ $ make
 $ ./bin/emulator {config file}
 
 #### config file format
-*^\# used for insert filename *, ONLY 0|1 
-*^[0-9] for a config*  
+**^\# used for insert filename **, **ONLY** 0|1   
+**^[0-9] for a config**  
 
 0 - Program1  
 1 - Program2  
