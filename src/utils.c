@@ -223,9 +223,9 @@ void statPipeline(count_type itype) {
 
 void printSummaryHeader(const char* progName) {
   printf("\t>>[%s]<<\n", progName);
-  printf("\ticache\t dcache\t       \t       \t\t      \t       \t        Total \t   Total  \t\n");
-  printf("\t size \t  size \t block \t WT(0) \t\ti-hit \t d-hit \t  CPI   clock \t          \tinclude\n");
-  printf("\t(byte)\t (byte)\t(lines)\t WB(1) \t\trate(%%)\trate(%%)\t       cycles\t  Inst. \t nop&stall\n");
+  printf("\ticache\t dcache\t       \t      \t Early \t\t      \t       \t        Total \t   Total  \t\n");
+  printf("\t size \t  size \t block \t WT(0)\t       \t\ti-hit \t d-hit \t  CPI   clock \t          \tinclude\n");
+  printf("\t(byte)\t (byte)\t(lines)\t WB(1)\t Cached\t\trate(%%)\trate(%%)\t       cycles\t  Inst. \t nop&stall\n");
 }
 
 void printSummary(const char** progNames, unsigned int len) {
@@ -263,21 +263,24 @@ void printSummary(const char** progNames, unsigned int len) {
       sprintf(buffer, "  %d", i);
     }
     if(result->Cached) {
-      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%3d\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
+      sprintf(buffer, "%s\t%5d\t%5d\t%5d\t%3d\t%3d\t", buffer,
+              result->icacheSize, result->dcacheSize, result->block_size, result->policy, result->PreCached);
       sprintf(buffer,"%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, result->iHitRate, result->dHitRate, result->cpi, result->clock);
-      sprintf(foutput, "%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n",
-              result->progNum, result->icacheSize, result->dcacheSize, result->block_size, result->policy,
+      sprintf(foutput, "%d,%d,%d,%d,%d,,%d,%.2f,%.2f,%.2f,%d,%d\n",
+              result->progNum, result->icacheSize, result->dcacheSize, result->block_size, result->policy, result->PreCached,
               result->iHitRate, result->dHitRate,
               result->cpi, result->clock, result->ins);
     }
     else {
       //sprintf(buffer, "%s\t------\t------\t------\t------\t", buffer, result->icacheSize, result->dcacheSize, result->block_size, result->policy);
-      sprintf(buffer, "%s\t------\t------\t------\t----\t", buffer);
+      sprintf(buffer, "%s\t------\t------\t------\t----\t----\t", buffer);
       sprintf(buffer, "%s\t%3.2f\t%3.2f\t%3.3f\t%5d\t", buffer, 0.0, 0.0, result->cpi, result->clock);
-      sprintf(foutput, "%d,0,0,0, 0,0,0,%.2f,%d,%d\n",
+      sprintf(foutput, "%d,0,0,0, 0,0,0,0,%.2f,%d,%d\n",
               result->progNum, result->cpi, result->clock, result->ins);
     }
+
     sprintf(buffer,"%s  %d  \t%d\n", buffer, result->ins, result->insCounter);
+
     printf("%s", buffer);
     fwrite(foutput, sizeof(char), strlen(foutput), output);
     result++;
@@ -348,6 +351,7 @@ void saveResult(int index, int* config) {
     result.dHitRate = hitRate_D;
   }
   result.Cached = CacheEnabled;
+  result.PreCached = PreCached;
   memcpy(&(results[index]), &result, sizeof(stat_result));
   return;
 }

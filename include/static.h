@@ -239,6 +239,7 @@ typedef struct {
   float dHitRate;
 
   bool Cached;
+  bool PreCached;
 } stat_result;
 
 #endif

@@ -79,7 +79,34 @@ int main() {
     {1, 128, 1024,   8,  POLICY_WT, 1, 1},
     {1, 128, 1024,   4,  POLICY_WT, 1, 1},
     {1, 128, 1024,   2,  POLICY_WT, 1, 1},
-    {1, 128, 1024,   1,  POLICY_WT, 1, 1}
+    {1, 128, 1024,   1,  POLICY_WT, 1, 1},
+
+    //
+    // min? No precache
+    //
+    {0, 128, 1024,   16,  POLICY_WB, 1, 0},
+    {0, 128, 1024,   8,  POLICY_WB, 1, 0},
+    {0, 128, 1024,   4,  POLICY_WB, 1, 0},
+    {0, 128, 1024,   2,  POLICY_WB, 1, 0},
+    {0, 128, 1024,   1,  POLICY_WB, 1, 0},
+    {0, 128, 1024,   16,  POLICY_WT, 1, 0},
+    {0, 128, 1024,   8,  POLICY_WT, 1, 0},
+    {0, 128, 1024,   4,  POLICY_WT, 1, 0},
+    {0, 128, 1024,   2,  POLICY_WT, 1, 0},
+    {0, 128, 1024,   1,  POLICY_WT, 1, 0},
+    //
+    // min ? No precache
+    //
+    {1, 128, 1024,   16,  POLICY_WB, 1, 0},
+    {1, 128, 1024,   8,  POLICY_WB, 1, 0},
+    {1, 128, 1024,   4,  POLICY_WB, 1, 0},
+    {1, 128, 1024,   2,  POLICY_WB, 1, 0},
+    {1, 128, 1024,   1,  POLICY_WB, 1, 0},
+    {1, 128, 1024,   16,  POLICY_WT, 1, 0},
+    {1, 128, 1024,   8,  POLICY_WT, 1, 0},
+    {1, 128, 1024,   4,  POLICY_WT, 1, 0},
+    {1, 128, 1024,   2,  POLICY_WT, 1, 0},
+    {1, 128, 1024,   1,  POLICY_WT, 1, 0}
   };
 //  filepaths = filenames;
   testNum = sizeof(tests)/(sizeof(unsigned int)*7);
@@ -106,5 +133,6 @@ int main() {
   }
 
   printSummary(progSources, 2);
+  if(results) free(results);
 	return 0;
 }

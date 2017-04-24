@@ -14,6 +14,7 @@ extern unsigned int clock;
 extern unsigned int PC;
 extern const char *progSources[128];
 extern bool CacheEnabled;
+extern bool PreCached;
 
 // globals
 count_type insType;
