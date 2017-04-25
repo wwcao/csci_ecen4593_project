@@ -10,17 +10,24 @@ Memory: fixed size
 Directory
 ---------
     .
-    +--lib/            (optional by Makefile)
-    +--bin/            (required by Makefile)
-    +--include/        all headers
-    +--src/            all source code
+    +--lib/            		(optional by Makefile)
+    +--bin/            		(required by Makefile)
+    +--include/       		all headers
+    +--src/            		all source code
+		.--Program1File.txt		(required, MIPS assembly)
+		.--Program2File.txt		(required, MIPS assembly)
 
 ## Instruction
 ### Build
 $ make
 
 ### Run
+For submission: 
+$ ./bin/emulator test_prog2
+
+For other tests
 $ ./bin/emulator {config file}
+
 
 #### config file format
 **^\# used for insert filename **, **ONLY** 0|1   
