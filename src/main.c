@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     free(curTest);
   }
 
-  printSummary(progSources, 2);
+  printSummary(argv[1], progSources, 2);
 
   if(results) free(results);
   if(fileTests) free(fileTests);

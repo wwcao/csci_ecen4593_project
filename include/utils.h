@@ -43,7 +43,7 @@ op_format getInsFormat(int);
 unsigned getPartNum(int, part_type);
 void printInstr(int);
 void printSummaryHeader(const char* progName);
-void printSummary(const char** progNames, unsigned int len);
+void printSummary(const char* argName, const char** progNames, unsigned int len);
 unsigned int findMinCpi(unsigned int progNum);
 void saveResult(int index, int* config);
 void statPipeline(count_type itype);

@@ -228,16 +228,18 @@ void printSummaryHeader(const char* progName) {
   printf("\t(byte)\t (byte)\t(lines)\t WB(1)\t Cached\t\trate(%%)\trate(%%)\t       cycles\t  Inst. \t nop&stall\n");
 }
 
-void printSummary(const char** progNames, unsigned int len) {
+void printSummary(const char* argName, const char** progNames, unsigned int len) {
   int prog1Min, prog2Min;
   int i, mark;
   stat_result *result;
   const char fheader[] = "ProgNum,icache size,dcache size,line,WT(0)/WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
   char buffer[256];
   char foutput[256];
+  char filename[32];
   FILE* output;
 
-  output = fopen("results.csv", "w");
+  sprintf(filename, "%s%s", argName, ".results");
+  output = fopen(filename, "w");
 
   if(!output) Error("Error: Unable to open output file");
   mark = -1;
