@@ -23,8 +23,11 @@ $ make
 
 ### Run
 For submission showing min CPI with an arrow in display: 
+
 $ ./bin/emulator test_prog1
+
 $ ./bin/emulator test_prog2
+
 $ ./bin/emulator test_all
 
 
@@ -57,6 +60,9 @@ Program 2:
 Instruction: 12142, CPI: 1.00, Cycle: 15594  
 
 More in result.txt
-More results please consult test_prog1.csv, test_prog2.csv, and test_all.csv
+More results please consult 
+test_prog1.csv, 
+test_prog2.csv, 
+and test_all.csv
 
 
