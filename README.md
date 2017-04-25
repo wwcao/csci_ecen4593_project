@@ -24,8 +24,10 @@ $ make
 ### Run
 For submission: 
 $ ./bin/emulator test_prog2
+$ ./bin/emulator test_all
 
-For other tests
+
+For a specific configuration:
 $ ./bin/emulator {config file}
 
 
