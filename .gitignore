@@ -15,7 +15,6 @@ obj/*
 *.depend
 
 # generated directories
-bin/
 
 
 # Ignore Mac specific files
