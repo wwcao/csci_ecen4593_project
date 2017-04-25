@@ -232,7 +232,7 @@ void printSummary(const char* argName, const char** progNames, unsigned int len)
   int prog1Min, prog2Min;
   int i, mark;
   stat_result *result;
-  const char fheader[] = "ProgNum,icache size,dcache size,line,WT(0)/WB(1),Early Cached,icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
+  const char fheader[] = "ProgNum,icache size,dcache size,line,WT(0)/WB(1),Early Cache,icache Hit rate,dcache Hit rate,cpi,clock,total instructions\n";
   char buffer[256];
   char foutput[256];
   char filename[32];
