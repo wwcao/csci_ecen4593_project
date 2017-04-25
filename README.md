@@ -14,8 +14,8 @@ Directory
     +--bin/            		(required by Makefile)
     +--include/       		all headers
     +--src/            		all source code
-		.--Program1File.txt		(required, MIPS assembly)
-		.--Program2File.txt		(required, MIPS assembly)
+	.--Program1File.txt		(required, MIPS assembly)
+	.--Program2File.txt		(required, MIPS assembly)
 
 ## Instruction
 ### Build
@@ -24,7 +24,7 @@ $ make
 ### Run
 For submission showing min CPI with an arrow in display: 
 
-$ ./bin/emulator test_prog1
+~~$ ./bin/emulator test_prog1~~
 
 $ ./bin/emulator test_prog2
 
@@ -35,34 +35,45 @@ For a specific configuration:
 $ ./bin/emulator {config file}
 
 
-#### config file format
-**^\# used for insert filename **, **ONLY** 0|1   
-**^[0-9] for a config**  
+### Configuration File Format
+1. Filename (Not Implemented)
+* Beginning with \#
 
-0 - Program1  
-1 - Program2  
+2. Configuration
+* Beginning with [0-9] 
+* Each filed is separated with delimiter ','  
+* Fields {program #, icache, dcache, line, wr policy, cache?, precache?}   
 
-config start with number and each is separated with delimiter ','  
-fields {program #, icache, dcache, line, wr policy, cache?, precache?}   
-e.g. ^0,128,256,16,0,0,0$  
+3. other chars would be ignored
+```
+Configuration File Example
+// program, icache, dcache, line, wr policy, cache?, precache?
 
-## Configuration
+//
+//,Normal,Tests
+//
+0,128,256,16,0,0,0
+0,64,1024,1,0,1,1
+0,64,1024,1,1,1,1
+//
+1,64,512,16,0,0,0
+//
+//,min?
+//
+0,128,1024,16,1,1,1
+0,128,1024,8,1,1,1
+0,128,1024,4,1,1,1
+```
+
+### Other Configuration
 Memory Size: static.h  
-Cache Size: main.c  
+Cache Size: ~~main.c external file~~  
 Penalties: cache.h, memory.h  
 Writebuffer Size: not available  
 
 ### Result
-Program 1:  
-Instruction: 415146, CPI: 1.09, Cycle: 695430  
 
-Program 2:  
-Instruction: 12142, CPI: 1.00, Cycle: 15594  
-
-More in result.txt
-More results please consult 
-test_prog1.csv, 
-test_prog2.csv, 
-and test_all.csv
-
-
+Details in files
+- ~~test_prog1.csv~~,   
+- test_prog2.csv,   
+- test_all.csv  
