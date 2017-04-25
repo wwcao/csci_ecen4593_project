@@ -54,7 +54,7 @@ bool setMemWrite() {
 }
 
 bool checkMemory() {
-  return CACHE_ENABLED&&(wrbuffer[WRBUFF_SIZE-1]||wrbuffer[WRBUFF_SIZE-2]);
+  return CacheEnabled&&(wrbuffer[WRBUFF_SIZE-1]||wrbuffer[WRBUFF_SIZE-2]);
 }
 
 void init_memoryCtl() {
