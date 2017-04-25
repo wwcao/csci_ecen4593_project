@@ -1,4 +1,4 @@
-ProgNum,icache size,dcache size,line,WT(0)/WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions
+ProgNum,icache size,dcache size,line,WT(0),WB(1),icache Hit rate,dcache Hit rate,cpi,clock,total instructions
 0,0,0,0, 0,0,0,0,1.47,695430,474138
 0,128,256,16,0,1,99.71,82.20,1.74,825133,474153
 0,128,256,16,1,1,99.20,85.00,1.77,839947,474183
