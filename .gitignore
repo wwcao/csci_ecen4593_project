@@ -4,7 +4,6 @@ lib/*
 obj/*
 
 # Ignore any executables
-bin/*
 
 
 # Ignore vim buffer
