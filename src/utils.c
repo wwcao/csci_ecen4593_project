@@ -238,7 +238,7 @@ void printSummary(const char* argName, const char** progNames, unsigned int len)
   char filename[32];
   FILE* output;
 
-  sprintf(filename, "%s%s", argName, ".results");
+  sprintf(filename, "%s%s", argName, ".csv");
   output = fopen(filename, "w");
 
   if(!output) Error("Error: Unable to open output file");
