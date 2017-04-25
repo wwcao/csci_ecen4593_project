@@ -62,6 +62,9 @@ bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {
     *data = memory[addr];
     return true;
   }
+  if(UNIFIEDCACHE) {
+    return readDataCache(addr, data);
+  }
 
   if(ctype == CACHE_I) {
     return readInsCache(addr, data);
