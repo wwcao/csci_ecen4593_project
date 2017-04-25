@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNIFIEDCACHE           1
+#define UNIFIEDCACHE           0
 
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2

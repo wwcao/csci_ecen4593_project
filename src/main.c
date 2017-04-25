@@ -37,8 +37,6 @@ int main(int argc, char** argv) {
       updateMemory();
       startCaching();
       startPipeline();
-      if(clock > 2000000)
-        printf("Check");
       if(PC==0&&(!checkMemory()))
         break;
       clock++;
