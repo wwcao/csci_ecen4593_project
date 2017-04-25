@@ -26,8 +26,6 @@ int main(int argc, char** argv) {
   }
   init_results(testNum);
   while(indexTest < testNum) {
-    if(indexTest == 72)
-      printf("asdf");
     int* curTest = *(fileTests+indexTest);
     memcpy(&config, curTest, sizeof(int)*7);
     init_utils();
