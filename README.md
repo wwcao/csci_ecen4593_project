@@ -43,6 +43,15 @@ $ ./bin/emulator {config file}
 * Beginning with [0-9] 
 * Each filed is separated with delimiter ','  
 * Fields {program #, icache, dcache, line, wr policy, cache?, precache?}   
+```
+Ex:
+0,128,256,16,0,0,0
+- testing assembly in Program1File.txt  
+- icache 128 Byte, dcache 256 Byte, 16 lines
+- writing policy: write through
+- disabled cache
+- disabled early caching
+```
 
 3. other chars would be ignored
 ```
