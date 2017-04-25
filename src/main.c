@@ -21,6 +21,9 @@ int main(int argc, char** argv) {
     readConfigs(argv[1], &testNum);
   }
 
+  if(UNIFIEDCACHE) {
+    printf("Unified Cache, D-Cache size is used for both Instruction and Data\n");
+  }
   init_results(testNum);
   while(indexTest < testNum) {
     if(indexTest == 72)
