@@ -195,7 +195,10 @@ void destroyUnusedWRBuffer(writebuffer** target) {
   int i;
   if(!target) return;
   for(i=0; i < WRBUFF_SIZE; i++) {
-    if(target[i]) free(target[i]);
+    if(target[i]) {
+        printf("Deleted a unempty write buffer\n");
+        free(target[i]);
+    }
   }
 
   free(target);

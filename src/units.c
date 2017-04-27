@@ -27,7 +27,7 @@ void init_registers() {
 }
 
 void init_caches() {
-  unsigned int data;
+//  unsigned int data;
   unsigned int addr;
   unsigned int dWordNum;
   unsigned int iWordNum;
@@ -56,23 +56,27 @@ void init_caches() {
   if(PreCached) {
     addr = 0;
     while(addr < iWordNum) {
-      data = 0;
+//      data = 0;
       fillCache(CACHE_I, addr, true);
+      /*
       readFromCache(CACHE_I, addr, &data);
       if(data != memory[addr]) {
         Error("i Cache data Error");
       }
+      */
       addr++;
     }
 
     addr = 0;
     while (addr < dWordNum) {
-      data = 0;
+//      data = 0;
       fillCache(CACHE_D, addr, true);
+      /*
       readFromCache(CACHE_D, addr, &data);
       if(data != memory[addr]) {
         Error("d Cache data Error");
       }
+      */
       addr++;
     }
   }

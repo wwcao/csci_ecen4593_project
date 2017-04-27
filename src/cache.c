@@ -17,17 +17,16 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
     *data = srcCache.block[line];
     return true;
   }
-  numReadMissed_D += 1;
+
   if(dcacheState||icacheState||MemBusy)
     return false;
-
+  numReadMissed_D += 1;
   if(!writebackCache(srcCache, block)) return false;
 
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
   dcacheState = CSTATE_RD;
-
   return false;
 }
 
@@ -44,6 +43,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
   numRead_I += 1;
   if(srcCache.valid && (srcCache.tag == tag)) {
     *data = srcCache.block[line];
+    earlyfetch(addr+cacheBSize);
     return true;
   }
   numReadMissed_I += 1;
@@ -55,6 +55,32 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
   opLine_icache = cacheBSize>1?0:1;
   icacheState = CSTATE_RD;
   return false;
+}
+
+void earlyfetch(unsigned int addr) {
+  unsigned int block, line, tag;
+  cache srcCache;
+
+  if(!EARLYFETCH)
+    return;
+
+  // other units must be idle
+  if(icacheState||dcacheState || MemBusy)
+    return;
+
+  convertAddr(CACHE_I, &addr, &tag, &block, &line);
+  srcCache = icache[block];
+
+  // the block exists, do nothing
+  if(srcCache.valid && (srcCache.tag == tag))
+    return;
+
+  //printf("successfully early fetch");
+  // the block doesn't exist, cache the block
+  mPenalty_icache = MISS_PENALTY;
+  opAddr_icache = addr;
+  opLine_icache = cacheBSize>1?0:1;
+  icacheState = CSTATE_RD;
 }
 
 bool readFromCache(cache_t ctype, unsigned int addr, unsigned int *data) {

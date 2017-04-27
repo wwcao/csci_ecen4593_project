@@ -75,14 +75,18 @@ Configuration File Example
 ```
 
 ### Other Configuration
+
 Memory Size: static.h  
-Cache Size: ~~main.c external file~~  
+Cache Size: ~~main.c~~  external input  
 Penalties: cache.h, memory.h  
-Writebuffer Size: not available  
+Writebuffer Size: not available (default: 2)
+Early fetch: {0|1}, cache.h (default: disabed, not completely function)
+Unified Cache: {0|1}, cache.h (not working)
 
 ### Result
 
-Details in files
+Details in files 
 - ~~test_prog1.csv~~,   
 - test_prog2.csv,   
 - test_all.csv  
+- files with .csv
