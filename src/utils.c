@@ -296,6 +296,29 @@ void printSummary(const char* argName, const char** progNames, unsigned int len)
   fclose(output);
 }
 
+void printConfig(const char* src, int* config, unsigned int len) {
+  printf("\n");
+  printf("[%s], ",  src);
+  if(config[5]) {
+    printf("ICache[%d], DCache[%d], Line[%d], ", config[1], config[2], config[3]);
+    if(config[4]) {
+      printf("WB, ");
+    }
+    else {
+      printf("WT, ");
+    }
+    if(config[6]) {
+      printf("Early Cached\n");
+    }
+    else {
+      printf("Not Early Cached\n");
+    }
+  }
+  else {
+    printf("No cache\n");
+  }
+}
+
 unsigned int findMinCpi(unsigned int progNum) {
   unsigned int i;
   unsigned int res;

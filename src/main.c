@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
   while(indexTest < testNum) {
     int* curTest = *(fileTests+indexTest);
     memcpy(&config, curTest, sizeof(int)*7);
+    printConfig(progSources[config[0]], config, 7);
     init_utils();
     init_units();
     init_pipeline();
@@ -45,9 +46,7 @@ int main(int argc, char** argv) {
     indexTest++;
     free(curTest);
   }
-
   printSummary(argv[1], progSources, 2);
-
   if(results) free(results);
   if(fileTests) free(fileTests);
 	return 0;

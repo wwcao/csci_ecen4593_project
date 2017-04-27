@@ -46,6 +46,7 @@ void printSummaryHeader(const char* progName);
 void printSummary(const char* argName, const char** progNames, unsigned int len);
 unsigned int findMinCpi(unsigned int progNum);
 void saveResult(int index, int* config);
+void printConfig(const char* src, int* config, unsigned int len);
 void statPipeline(count_type itype);
 void Error(const char*);
 bool testResults(unsigned int index, int* config);

@@ -314,6 +314,7 @@ void ctlUnitOperation(unsigned int opCode,
 							int extendedValue) {
 	unsigned int jImm;
 	unsigned int msb;
+	ValidT = false;
 	_idex_reg.aluOp = ALUOP_NOP;
   if(!ifid_reg.instruction) {
     insType = ALUOP_NOP;
@@ -329,8 +330,12 @@ void ctlUnitOperation(unsigned int opCode,
 				  insType = ALUOP_BR;
 					pcSrc2 = regVal1;
 					PCSrc = true;
+					if(!ValidT && track != ifid_reg.progCounter) {
+            track = ifid_reg.progCounter;
+            ValidT = true;
+            printf("Retn: PC[%5d] to [%5d] @ clock [%7d]\n", ifid_reg.progCounter, pcSrc2, clock);
+					}
 					break;
-
 				default:
 					// Decoded R
 					//if(!getPartNum(extendedValue, PART_SHM)) break;
@@ -451,6 +456,11 @@ void ctlUnitOperation(unsigned int opCode,
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
 			register_file[31] = (ifid_reg.nPC + 1);
+			if(!ValidT && track != ifid_reg.progCounter) {
+        track = ifid_reg.progCounter;
+        ValidT = true;
+        printf("Call: PC[%5d] to [%5d] @ clock [%7d]\n", ifid_reg.progCounter, pcSrc2, clock);
+      }
 			break;
 		case 0x2|J_J:
 		  insType = ALUOP_BR;
@@ -621,6 +631,7 @@ void transferPipelineRegs() {
     statPipeline(insType);
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
+    ValidT = false;
     return;
   }
 
@@ -647,6 +658,8 @@ void init_pipeline() {
 	Flush_exmem = false;
 	Harzard = false;
 	cacheMissed = false;
+	track = 0;
+	ValidT = false;
 
 	init_wireRegs(ALL_REGS);
   init_pipelineRegs(ALL_REGS);
