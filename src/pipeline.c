@@ -562,45 +562,6 @@ void hdUnitOperation(unsigned int opCode, unsigned int rs, unsigned int rt, int*
     return;
 }
 
-/*
-void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
-  bool Branch;
-  unsigned int rd_ex;
-
-  Branch = false;
-  switch(_idex_reg.opCode) {
-    case 0x1:
-    case I_BEQ:
-    case I_BNE:
-    case I_BGTZ:
-    case I_BLEZ:
-      Branch = true;
-  }
-
-  if(Harzard||!Branch) return;
-
-  rd_ex = idex_reg.RegDst?idex_reg.rd:idex_reg.rt;
-  if(idex_reg.RegWrite && !idex_reg.MemRead && ((rs != 0 && rs == rd_ex)||(rt != 0 && rt == rd_ex))) {
-    // ex alu output
-    Harzard = true;
-    return;
-  }
-
-  if(exmem_reg.RegWrite && exmem_reg.MemRead && ((rs != 0 && rs == exmem_reg.rd)||(rt != 0 && rt == exmem_reg.rd))) {
-    // mem memory value
-    Harzard = true;
-    return;
-  }
-  if(idex_reg.RegWrite && (rs != 0 && rs == exmem_reg.rd))
-    *src1 = exmem_reg.aluResult;
-
-  if(idex_reg.RegWrite && (rt != 0 && rt == exmem_reg.rd))
-    *src2 = exmem_reg.aluResult;
-
-  return;
-}
-*/
-
 void fwdUnitEX(int *src1, int *src2) {
 	unsigned short forwardA = false;
 	unsigned short forwardB = false;
@@ -645,17 +606,8 @@ void fwdUnitEX(int *src1, int *src2) {
 }
 
 void transferPipelineRegs() {
-  if(!Harzard) {
-    statPipeline(insType);
-    copyRegs(ALL_REGS);
-    init_wireRegs(ALL_REGS);
-    return;
-  }
-
-  statPipeline(TYPE_STALL);
   if(cacheMissed) {
-    //statPipeline(insType);
-
+    statPipeline(TYPE_STALL);
     init_wireRegs(ALL_REGS);
     //register_file[memwb_reg.rd] = oldData;
     pcSrc1--;
@@ -664,6 +616,16 @@ void transferPipelineRegs() {
     Harzard = false;
     return;
   }
+
+  if(!Harzard) {
+    statPipeline(insType);
+    copyRegs(ALL_REGS);
+    init_wireRegs(ALL_REGS);
+    return;
+  }
+
+  statPipeline(TYPE_STALL);
+
   // continue MEM, and WB
   insertNOP();
 	copyRegs(EXMEM_ID|MEMWB_ID);

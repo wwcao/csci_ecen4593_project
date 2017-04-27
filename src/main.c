@@ -2,9 +2,6 @@
 #include "cache.h"
 #include "pipeline.h"
 
-
-//int test[5];
-
 int** fileTests;
 
 const char *progSources[128] = {
@@ -24,6 +21,7 @@ int main(int argc, char** argv) {
   if(UNIFIEDCACHE) {
     printf("Unified Cache, D-Cache size is used for both Instruction and Data\n");
   }
+
   indexTest = 0;
   init_results(testNum);
   while(indexTest < testNum) {

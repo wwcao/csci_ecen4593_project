@@ -59,6 +59,10 @@ void init_caches() {
       data = 0;
       fillCache(CACHE_I, addr, true);
       readFromCache(CACHE_I, addr, &data);
+      if(data != memory[addr]) {
+        Error("i Cache data Error");
+      }
+
       addr++;
     }
 
@@ -66,6 +70,10 @@ void init_caches() {
     while (addr < dWordNum) {
       data = 0;
       fillCache(CACHE_D, addr, true);
+      readFromCache(CACHE_I, addr, &data);
+      if(data != memory[addr]) {
+        Error("i Cache data Error");
+      }
       readFromCache(CACHE_D, addr, &data);
       addr++;
     }
