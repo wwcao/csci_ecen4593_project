@@ -4,6 +4,8 @@ void updateMemory() {
   unsigned int addr;
   unsigned int data;
 
+  if(!CacheEnabled) return;
+
   if(memoryPenalty > 0) {
     memoryPenalty--;
     if(memoryPenalty > 0)

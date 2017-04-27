@@ -21,9 +21,9 @@ unsigned int pcSrc1;
 unsigned int pcSrc2;
 bool PCSrc;
 
-bool Flush_if;
-bool Flush_id;
-bool Flush_ex;
+bool Flush_ifid;
+bool Flush_idex;
+bool Flush_exmem;
 
 // regular pipeline register
 IFID_Register ifid_reg;
@@ -53,9 +53,8 @@ void aluUnitOperation(int src1, int src2);
 void ctlUnitOperation(unsigned int opCode,
 				int regVal1, int regVal2,
 				int extendedValue);
-void hdUnitOperation(void);
+void hdUnitOperation(unsigned int opCode, unsigned int rs, unsigned int rt, int* src1, int* src2);
 void fwdUnitEX(int *src1, int *src2);
-void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2);
 void transferPipelineRegs(void);
 
 void init_pipeline();

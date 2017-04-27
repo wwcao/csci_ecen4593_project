@@ -37,7 +37,7 @@ void ID(void) {
 	if(!PC) return;
   insCounter++;
 	// ID Operation
-	_idex_reg.progCounter = ifid_reg.progCounter;
+
 
 	instruction = ifid_reg.instruction;
   rs = getPartNum(instruction, PART_RS);
@@ -45,26 +45,25 @@ void ID(void) {
   rd = getPartNum(instruction, PART_RD);
   imm = getPartNum(instruction, PART_IMM);
   opCode = getPartNum(instruction, PART_OP);
-
-  _idex_reg.rs = rs;
-  _idex_reg.rt = rt;
-  _idex_reg.rd = rd;
   extendedValue = imm&0x00008000?
 											imm|0xffff0000:
 											imm&0x0000ffff;
+  _idex_reg.progCounter = ifid_reg.progCounter;
+  _idex_reg.rs = rs;
+  _idex_reg.rt = rt;
+  _idex_reg.rd = rd;
 	_idex_reg.extendedValue = extendedValue;
 	_idex_reg.regValue1 = (int)register_file[rs];
 	_idex_reg.regValue2 = (int)register_file[rt];
   _idex_reg.opCode = opCode;
 
-
   regVal1 = (int)register_file[rs];
   regVal2 = (int)register_file[rt];
 
   // small forwarding, disabled
-  fwdUnitID(rs, rt, &regVal1, &regVal2);
-
+  hdUnitOperation(opCode, rs, rt, &regVal1, &regVal2);
 	ctlUnitOperation(opCode, regVal1, regVal2, extendedValue);
+	return;
 }
 
 void EX(void) {
@@ -161,6 +160,7 @@ void MEM(void) {
           exit(1);
       }
 	}
+	return;
 }
 
 
@@ -181,7 +181,7 @@ void WB(void) {
 }
 
 void startPipeline(void) {
-  hdUnitOperation();
+  //hdUnitOperation();
   IF();
   WB();
   ID();
@@ -513,99 +513,93 @@ void ctlUnitOperation(unsigned int opCode,
 }
 
 // TODO: instruction index 15
-void hdUnitOperation(void) {
-    unsigned int rs, rt;
-    bool isBranch;
-    unsigned opCode;
-    unsigned func;
-    rs = getPartNum(ifid_reg.instruction, PART_RS);
-    rt = getPartNum(ifid_reg.instruction, PART_RT);
-    isBranch = false;
-    opCode = 0;
+void hdUnitOperation(unsigned int opCode, unsigned int rs, unsigned int rt, int* src1, int* src2) {
+    bool Branch;
+    unsigned int idex_rd;
 
-    if(idex_reg.MemRead &&
-        ((idex_reg.rt == rs)||(idex_reg.rt == rt))) {
+    Branch = false;
+    // ins followed by load should stall
+    if(idex_reg.MemRead &&  idex_reg.rt && ((idex_reg.rt == rs)||(idex_reg.rt == rt))) {
       Harzard = true;
+      return;
     }
 
     // Harzard without forwarding in ID Stage
     opCode = getPartNum(ifid_reg.instruction, PART_OP);
-    func = getPartNum(ifid_reg.instruction, PART_FUNC);
+
     switch(opCode) {
-      case 0x0:
-        if(!(func == J_R)) break;
       case 0x1:
-      case 0x2:
-      case 0x3:
       case 0x4:
       case 0x5:
       case 0x6:
       case 0x7:
-        isBranch = true;
-        //break;
+        Branch = true;
     }
 
-    if(isBranch && idex_reg.RegWrite &&
-        (((rs != 0) && (idex_reg.rd == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
+    if(!Branch) return;
+
+    // ------------if Branch -----------------
+    // branch instruction following load should be stalled one more time
+    idex_rd = idex_reg.RegDst?idex_reg.rd:idex_reg.rt;
+    if(idex_reg.RegWrite && idex_rd != 0 && (idex_rd == rs || idex_rd == rt)) {
       Harzard = true;
+      return ;
     }
 
-    if(isBranch && exmem_reg.RegWrite &&
-        (((rs != 0) && (exmem_reg.rd == rs)) || ((rt != 0) && (exmem_reg.rd == rt)))) {
+    if(exmem_reg.MemRead && (exmem_reg.rd == rs || exmem_reg.rd == rt)) {
       Harzard = true;
+      return ;
     }
 
-    if(isBranch && opCode && idex_reg.RegWrite &&
-        (((rs != 0) && (idex_reg.rt == rs)) || ((rt != 0) && (idex_reg.rd == rt)))) {
-      Harzard = true;
+    if(exmem_reg.RegWrite && exmem_reg.rd && exmem_reg.rd == rs) {
+      *src1 = exmem_reg.aluResult;
+    }
+
+    if(exmem_reg.RegWrite && exmem_reg.rd && exmem_reg.rd == rt) {
+      *src2 = exmem_reg.aluResult;
     }
 
     return;
 }
 
+/*
 void fwdUnitID(unsigned int rs, unsigned int rt, int *src1, int *src2) {
-	unsigned short forwardA = false;
-	unsigned short forwardB = false;
+  bool Branch;
+  unsigned int rd_ex;
 
-  return; //  disabled!!
+  Branch = false;
+  switch(_idex_reg.opCode) {
+    case 0x1:
+    case I_BEQ:
+    case I_BNE:
+    case I_BGTZ:
+    case I_BLEZ:
+      Branch = true;
+  }
 
-  if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==rs)	{
-    forwardA = 2;
-	}
-	if(exmem_reg.RegWrite && exmem_reg.rd!=0 && exmem_reg.rd==rt)	{
-    forwardB = 2;
-	}
+  if(Harzard||!Branch) return;
 
-	//Double Data MEM hazard
-	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == rs)) && memwb_reg.rd==rs)	{
-    forwardA = 1;
-	}
-	if(memwb_reg.RegWrite && exmem_reg.rd!=0 && !(exmem_reg.RegWrite && (exmem_reg.rd!=0 && exmem_reg.rd == rt)) && memwb_reg.rd==rt)	{
-    forwardB = 1;
-	}
-
-	if(!forwardA && !forwardB)
+  rd_ex = idex_reg.RegDst?idex_reg.rd:idex_reg.rt;
+  if(idex_reg.RegWrite && !idex_reg.MemRead && ((rs != 0 && rs == rd_ex)||(rt != 0 && rt == rd_ex))) {
+    // ex alu output
+    Harzard = true;
     return;
+  }
 
-	//forwarding
-  switch(forwardA) {
-    case 1:
-      *src1 = writeData;
-      break;
-    case 2:
-      *src1 = exmem_reg.aluResult;  //
-      break;
+  if(exmem_reg.RegWrite && exmem_reg.MemRead && ((rs != 0 && rs == exmem_reg.rd)||(rt != 0 && rt == exmem_reg.rd))) {
+    // mem memory value
+    Harzard = true;
+    return;
   }
-  switch(forwardB) {
-    case 1:
-      *src2 = writeData;
-      break;
-    case 2:
-      *src2 = exmem_reg.aluResult;
-      break;
-  }
+  if(idex_reg.RegWrite && (rs != 0 && rs == exmem_reg.rd))
+    *src1 = exmem_reg.aluResult;
+
+  if(idex_reg.RegWrite && (rt != 0 && rt == exmem_reg.rd))
+    *src2 = exmem_reg.aluResult;
+
   return;
 }
+*/
 
 void fwdUnitEX(int *src1, int *src2) {
 	unsigned short forwardA = false;
@@ -651,17 +645,6 @@ void fwdUnitEX(int *src1, int *src2) {
 }
 
 void transferPipelineRegs() {
-  if(cacheMissed) {
-    //statPipeline(insType);
-    statPipeline(TYPE_STALL);
-    init_wireRegs(ALL_REGS);
-    //register_file[memwb_reg.rd] = oldData;
-    pcSrc1--;
-    PCSrc = false;
-    cacheMissed = false;
-    return;
-  }
-
   if(!Harzard) {
     statPipeline(insType);
     copyRegs(ALL_REGS);
@@ -669,12 +652,22 @@ void transferPipelineRegs() {
     return;
   }
 
-  // continue MEM, and WB
-	copyRegs(EXMEM_ID|MEMWB_ID);
-
-	// keep data in IDEX register
-  insertNOP();
   statPipeline(TYPE_STALL);
+  if(cacheMissed) {
+    //statPipeline(insType);
+
+    init_wireRegs(ALL_REGS);
+    //register_file[memwb_reg.rd] = oldData;
+    pcSrc1--;
+    PCSrc = false;
+    cacheMissed = false;
+    Harzard = false;
+    return;
+  }
+  // continue MEM, and WB
+  insertNOP();
+	copyRegs(EXMEM_ID|MEMWB_ID);
+  init_wireRegs(ALL_REGS);
   //reset PC source
   pcSrc1--;
   // keep IFID but decreases PCINPUT
@@ -687,9 +680,9 @@ void init_pipeline() {
 	pcSrc1 = PC;
 	pcSrc2 = 0;
 	writeData = 0;
-	Flush_if = false;
-	Flush_id = false;
-	Flush_ex = false;
+	Flush_ifid = false;
+	Flush_idex = false;
+	Flush_exmem = false;
 	Harzard = false;
 	cacheMissed = false;
 

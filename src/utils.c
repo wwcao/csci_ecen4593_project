@@ -366,25 +366,23 @@ bool testResults(unsigned int index, int* config) {
       k = memory[7]^29355;
       l = memory[8]^14305;
       m = memory[9]^0;
-      if(j||k||l||m) {
-        printf("Config[%2d] has different result\n", index);
-        return false;
-      }
       break;
     case 1:
       j = memory[7]^0x20696e71;
       k = memory[8]^0x206e7376;
       l = memory[9]^0x20696e71;
       m = memory[6]^1;
-      if(j||k||l||m) {
-        printf("Config[%2d] has different result\n", index);
-        return false;
-      }
       break;
     default:
       Error("Unknown program");
   }
-  printf("Config[%2d]....[OK], memory[6-9][%08x][%08x][%08x][%08x]\n", index, memory[6],memory[7],memory[8],memory[9]);
+  if(j||k||l||m) {
+    printf("Config[%2d]...[FAILED]", index);
+  }
+  else {
+    printf("Config[%2d]...[OK]", index);
+  }
+  printf(" memory[6-9][%08x][%08x][%08x][%08x]\n", memory[6],memory[7],memory[8],memory[9]);
   return true;
 }
 
