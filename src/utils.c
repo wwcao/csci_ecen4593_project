@@ -55,7 +55,10 @@ unsigned int readInstruction(const char* path) {
     char buffer[MAX_READLINE];
 
     FILE* f;
-    if(!(f = fopen(path, "r"))) Error("Failed to read file\n");
+    if(!(f = fopen(path, "r"))) {
+      printf("Error: unable to read machine code from %s\n", path);
+      exit(1);
+    }
 
     addr = 0;
     while(fgets(buffer, MAX_READLINE, f)
