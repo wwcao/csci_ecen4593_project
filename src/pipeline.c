@@ -330,7 +330,7 @@ void ctlUnitOperation(unsigned int opCode,
 				  insType = ALUOP_BR;
 					pcSrc2 = regVal1;
 					PCSrc = true;
-					if(!ValidT && track != ifid_reg.progCounter) {
+					if(Check && !ValidT && track != ifid_reg.progCounter) {
             track = ifid_reg.progCounter;
             ValidT = true;
             printf("Retn: PC[%5d] to [%5d] @ clock [%7d]\n", ifid_reg.progCounter, pcSrc2, clock);
@@ -456,7 +456,7 @@ void ctlUnitOperation(unsigned int opCode,
 			pcSrc2 = (jImm|msb)>>2;
 			PCSrc = true;
 			register_file[31] = (ifid_reg.nPC + 1);
-			if(!ValidT && track != ifid_reg.progCounter) {
+			if(Check && !ValidT && track != ifid_reg.progCounter) {
         track = ifid_reg.progCounter;
         ValidT = true;
         printf("Call: PC[%5d] to [%5d] @ clock [%7d]\n", ifid_reg.progCounter, pcSrc2, clock);

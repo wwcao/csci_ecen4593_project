@@ -17,6 +17,8 @@
 #define ICACHE_MISSED           0x1
 #define DCACHE_MISSED           0x2
 
+extern bool Check;
+
 bool ValidT;
 unsigned int track;
 
