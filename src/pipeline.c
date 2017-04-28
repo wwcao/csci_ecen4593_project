@@ -700,3 +700,4 @@ void insertNOP() {
   idex_reg.progCounter = 0;
   PCSrc = false;
 }
+

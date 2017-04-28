@@ -65,3 +65,4 @@ void init_utils();
 bool readConfigs(const char* filename, unsigned int* testNum);
 
 #endif
+

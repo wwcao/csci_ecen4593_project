@@ -12,17 +12,16 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
   if(dcacheState && (line >= opLine_dcache))
     return false;
   srcCache = dcache[block];
-  numRead_D += 1;
   if(srcCache.valid && (srcCache.tag == tag)) {
     *data = srcCache.block[line];
     return true;
   }
-
+  //numReadMissed_D +=1;
   if(dcacheState||icacheState||MemBusy)
     return false;
   numReadMissed_D += 1;
   if(!writebackCache(srcCache, block)) return false;
-
+  
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
@@ -38,18 +37,18 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
 
   if((cacheBSize==1)&&(icacheState==CSTATE_RD))
     return false;
-  if(icacheState && (line >= opLine_icache))
-    return false;
-  numRead_I += 1;
+  if(icacheState && (line >= opLine_icache)){
+   return false;
+  }
   if(srcCache.valid && (srcCache.tag == tag)) {
     *data = srcCache.block[line];
     earlyfetch(addr+cacheBSize);
     return true;
   }
-  numReadMissed_I += 1;
   if(icacheState||dcacheState || MemBusy)
     return false;
-
+  numReadMissed_I += 1;
+ 
   mPenalty_icache = MISS_PENALTY;
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
@@ -77,6 +76,7 @@ void earlyfetch(unsigned int addr) {
 
   //printf("successfully early fetch");
   // the block doesn't exist, cache the block
+  numReadMissed_I += 1;
   mPenalty_icache = MISS_PENALTY;
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
@@ -131,12 +131,10 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
 
   if(wrbuffer[WRBUFF_SIZE-2])
     return false;
-  numWrite_D += 1;
   switch(wrPolicy) {
     case POLICY_WB:
       // TODO:
       if(!readDataCache(addr, &cacheData)){
-        numWriteMissed_D +=1;
         return false;
       }
       data = getWrData(cacheData, data, offset, wsize);
@@ -144,7 +142,6 @@ bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, l
       break;
     case POLICY_WT:
       if(!readDataCache(addr, &cacheData)){
-         numWriteMissed_D += 1;
          return false;
       }
 
@@ -356,3 +353,4 @@ void cacheData() {
 bool checkCache() {
   return wrbuffer[WRBUFF_SIZE-2]?true:false;
 }
+

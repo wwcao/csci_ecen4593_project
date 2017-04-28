@@ -344,12 +344,12 @@ void saveResult(int index, int* config) {
   float hitRate_D;
   float hitRate_I;
 
-  hitRate_D = 100*(1-(float)(numReadMissed_D+numWriteMissed_D)/(numRead_D+numWrite_D));
-  hitRate_I = 100*(1-(float)(numReadMissed_I)/numRead_I);
-
   numI_f += numBranch + numLWSW + numNop;
   numIns =  numI_f + numR_f;
   cpi = (float)clock/numIns;
+
+  hitRate_D = 100*(1-(float)(numReadMissed_D)/(numIns));
+  hitRate_I = 100*(1-(float)(numReadMissed_I)/(numIns));
 
   memset(&result, 0, sizeof(stat_result));
 
@@ -517,3 +517,4 @@ bool readConfigs(const char* filename, unsigned int *confignum) {
   *confignum = testNum;
   return true;
 }
+

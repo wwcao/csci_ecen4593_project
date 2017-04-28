@@ -24,7 +24,7 @@ $ make
 ### Run
 For submission showing min CPI with an arrow in display: 
 
-~~$ ./bin/emulator test_prog1~~
+$ ./bin/emulator test_prog1
 
 $ ./bin/emulator test_prog2
 
@@ -86,7 +86,7 @@ Unified Cache: {0|1}, cache.h (not working)
 ### Result
 
 Details in files 
-- ~~test_prog1.csv~~,   
+- test_prog1.csv,   
 - test_prog2.csv,   
 - test_all.csv  
 - files with .csv
