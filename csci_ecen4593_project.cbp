@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="test_configs" />
+				<Option parameters="test_all" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />

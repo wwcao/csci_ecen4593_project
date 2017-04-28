@@ -55,7 +55,10 @@ unsigned int readInstruction(const char* path) {
     char buffer[MAX_READLINE];
 
     FILE* f;
-    if(!(f = fopen(path, "r"))) Error("Failed to read file\n");
+    if(!(f = fopen(path, "r"))) {
+      printf("Error: unable to read machine code from %s\n", path);
+      exit(1);
+    }
 
     addr = 0;
     while(fgets(buffer, MAX_READLINE, f)
@@ -192,7 +195,10 @@ void destroyUnusedWRBuffer(writebuffer** target) {
   int i;
   if(!target) return;
   for(i=0; i < WRBUFF_SIZE; i++) {
-    if(target[i]) free(target[i]);
+    if(target[i]) {
+        printf("Deleted a unempty write buffer\n");
+        free(target[i]);
+    }
   }
 
   free(target);
@@ -290,6 +296,29 @@ void printSummary(const char* argName, const char** progNames, unsigned int len)
   fclose(output);
 }
 
+void printConfig(const char* src, int* config, unsigned int len) {
+  printf("\n");
+  printf("[%s], ",  src);
+  if(config[5]) {
+    printf("ICache[%d], DCache[%d], Line[%d], ", config[1], config[2], config[3]);
+    if(config[4]) {
+      printf("WB, ");
+    }
+    else {
+      printf("WT, ");
+    }
+    if(config[6]) {
+      printf("Early Cached\n");
+    }
+    else {
+      printf("Not Early Cached\n");
+    }
+  }
+  else {
+    printf("No cache\n");
+  }
+}
+
 unsigned int findMinCpi(unsigned int progNum) {
   unsigned int i;
   unsigned int res;
@@ -366,25 +395,23 @@ bool testResults(unsigned int index, int* config) {
       k = memory[7]^29355;
       l = memory[8]^14305;
       m = memory[9]^0;
-      if(j||k||l||m) {
-        printf("Config[%2d] has different result\n", index);
-        return false;
-      }
       break;
     case 1:
       j = memory[7]^0x20696e71;
       k = memory[8]^0x206e7376;
       l = memory[9]^0x20696e71;
       m = memory[6]^1;
-      if(j||k||l||m) {
-        printf("Config[%2d] has different result\n", index);
-        return false;
-      }
       break;
     default:
       Error("Unknown program");
   }
-  printf("Config[%2d]....[OK], memory[6-9][%08x][%08x][%08x][%08x]\n", index, memory[6],memory[7],memory[8],memory[9]);
+  if(j||k||l||m) {
+    printf("Config[%2d]...[FAILED]", index);
+  }
+  else {
+    printf("Config[%2d]...[OK]", index);
+  }
+  printf(" memory[6-9][%08x][%08x][%08x][%08x]\n", memory[6],memory[7],memory[8],memory[9]);
   return true;
 }
 

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define EARLYFETCH             0
 #define UNIFIEDCACHE           0
 
 #define MISS_PENALTY           8           // clock cycle
@@ -36,6 +37,7 @@ unsigned int cacheLMask;
 
 bool readDataCache(unsigned int addr, unsigned int *data);
 bool readInsCache(unsigned int addr, unsigned int *data);
+void earlyfetch(unsigned int addr);
 bool readFromCache(cache_t type, unsigned int addr, unsigned int *data);
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize);
 void updateCache(unsigned int addr, unsigned int data);

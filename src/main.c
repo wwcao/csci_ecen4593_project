@@ -2,10 +2,8 @@
 #include "cache.h"
 #include "pipeline.h"
 
-unsigned int indexTest;
-//int test[5];
-
 int** fileTests;
+bool Check;
 
 const char *progSources[128] = {
   "Program1File.txt",
@@ -13,21 +11,30 @@ const char *progSources[128] = {
 };
 
 int main(int argc, char** argv) {
-  unsigned int testNum;
+  unsigned int testNum, indexTest;
+	
+	Check = true;
+	indexTest = 0;
+	testNum = 0;
+
   if(argc < 2) {
     Error("Need a config file");
   }
-  else {
-    readConfigs(argv[1], &testNum);
-  }
+	if(argc > 2 && !strcmp(argv[2], "-s")) {
+		printf("Check: Disabled\n");
+		Check = false;
+	}
+  readConfigs(argv[1], &testNum);
 
   if(UNIFIEDCACHE) {
     printf("Unified Cache, D-Cache size is used for both Instruction and Data\n");
   }
+
   init_results(testNum);
   while(indexTest < testNum) {
     int* curTest = *(fileTests+indexTest);
     memcpy(&config, curTest, sizeof(int)*7);
+		if(Check) printConfig(progSources[config[0]], config, 7);
     init_utils();
     init_units();
     init_pipeline();
@@ -39,17 +46,17 @@ int main(int argc, char** argv) {
         break;
       clock++;
     }
-    testResults(indexTest, config);
+		if(Check) testResults(indexTest, config);
+
     saveResult(indexTest, config);
     destroyCaches();
     destroyWRBuffer();
     indexTest++;
     free(curTest);
   }
-
   printSummary(argv[1], progSources, 2);
-
-  if(results) free(results);
+  
+	if(results) free(results);
   if(fileTests) free(fileTests);
 	return 0;
 }

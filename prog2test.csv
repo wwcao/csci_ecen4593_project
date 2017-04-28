@@ -1,2 +1,0 @@
-ProgNum,icache size,dcache size,line,WT(0)/WB(1),Early Cached,icache Hit rate,dcache Hit rate,cpi,clock,total instructions
-1,0,0,0, 0,0,0,0,1.28,15594,12154
