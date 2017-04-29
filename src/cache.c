@@ -12,21 +12,25 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
     // caching the same block
     if(dcacheState && opAddr_dcache == addr && opLine_dcache <= line)
       return false;
-    if(cacheMissed==ICACHE_MISSED) return false;
+    if(cacheMissed==ICACHE_MISSED) {
+      tmp = true;
+      return false;
+    }
     // ready to read
     else {
+      numRead_D++;
       *data = srcCache.block[line];
       return true;
     }
   }
 
+
   if(dcacheState||icacheState||MemBusy)
     return false;
 
-  numReadMissed_D++;
-
   if(!writebackCache(srcCache, block)) return false;
 
+  numReadMissed_D++;
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
@@ -47,17 +51,16 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
       return false;
     // ready to read
     else {
-      numRead_I++;
       *data = srcCache.block[line];
       return true;
     }
   }
+
   // need to cache
-  if(icacheState||dcacheState || MemBusy)
+  if(icacheState||dcacheState || MemBusy) {
     return false;
-
+  }
   numReadMissed_I++;
-
   mPenalty_icache = MISS_PENALTY;
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
@@ -278,6 +281,7 @@ void startCaching() {
   cacheInstruction();
   cacheData();
 
+  tmp = false;
   return;
 }
 

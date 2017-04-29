@@ -350,16 +350,16 @@ void saveResult(int index, int* config) {
 
   numI_f += numBranch + numLWSW + numNop;
   //numIns =  numI_f + numR_f;
+  numIns -= numHarzard;
   cpi = (float)clock/numIns;
 
   hitRate_D = 100*(1-(float)(numReadMissed_D)/(numIns));
   hitRate_I = 100*(1-(float)(numReadMissed_I)/(numIns));
 
-
   memset(&result, 0, sizeof(stat_result));
 
   result.clock = clock;
-  result.ins = numIns - numHarzard;
+  result.ins = numIns;
   result.insCounter = insCounter;
   result.cpi = cpi;
 
