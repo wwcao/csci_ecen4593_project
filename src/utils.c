@@ -396,16 +396,16 @@ bool testResults(unsigned int index, int* config) {
   int j,k,l,m;
   switch(config[0]) {
     case 0:
-      j = memory[6]^progResults[0][0];
-      k = memory[7]==progResults[0][1];
-      l = memory[8]==progResults[0][2];
-      m = memory[9]==progResults[0][3];
+      j = progResults[0][0]^memory[6];
+      k = progResults[0][1]^memory[7];
+      l = progResults[0][2]^memory[8];
+      m = progResults[0][3]^memory[9];
       break;
     case 1:
-      j = memory[6]^progResults[0][0];
-      k = memory[7]==progResults[0][1];
-      l = memory[8]==progResults[0][2];
-      m = memory[9]==progResults[0][3];
+      j = progResults[1][0]^memory[6];
+      k = progResults[1][1]^memory[7];
+      l = progResults[1][2]^memory[8];
+      m = progResults[1][3]^memory[9];
       break;
     default:
       Error("Unknown program");
