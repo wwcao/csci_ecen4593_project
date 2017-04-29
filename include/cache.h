@@ -14,6 +14,8 @@
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
 
+int cacheMissed;
+
 unsigned short cachePenalty;
 
 unsigned int opAddr_icache;

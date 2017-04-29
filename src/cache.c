@@ -2,16 +2,16 @@
 #include <utils.h>
 
 bool readDataCache(unsigned int addr, unsigned int *data) {
-  unsigned int block, line, tag, _addr;
+  unsigned int block, line, tag;
   cache srcCache;
 
-  _addr = addr;
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
   srcCache = dcache[block];
   if(srcCache.valid && srcCache.tag == tag) {
     // caching the same block
     if(dcacheState && opAddr_dcache == addr && opLine_dcache <= line)
       return false;
+    if(cacheMissed) return false;
     // ready to read
     else {
       *data = srcCache.block[line];
@@ -259,6 +259,8 @@ void initial_cacheCtl() {
     opLine_dcache = 1;
     opLine_icache = 1;
   }
+
+  cacheMissed = false;
 
   return;
 }

@@ -104,7 +104,7 @@ void MEM(void) {
   unsigned int data;
   bool Success;
 
-	if(!PC||cacheMissed) return;
+	if(!PC) return;
 
 	_memwb_reg.progCounter = exmem_reg.progCounter;
 
@@ -657,7 +657,7 @@ void init_pipeline() {
 	Flush_idex = false;
 	Flush_exmem = false;
 	Harzard = false;
-	cacheMissed = false;
+	//cacheMissed = false;
 	track = 0;
 	ValidT = false;
 

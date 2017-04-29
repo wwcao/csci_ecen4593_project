@@ -45,7 +45,6 @@ MEMWB_Register _memwb_reg;
 int writeData;
 int oldData;      // backup register files
 bool Harzard;
-int cacheMissed;
 
 void IF(void);
 void ID(void);
