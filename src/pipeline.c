@@ -116,7 +116,6 @@ void MEM(void) {
 
 	offset = exmem_reg.aluResult;
 	addr = ((unsigned int)exmem_reg.aluResult)>>2;
-
 	if(exmem_reg.MemWrite) {
 	 Success = writeToCache(addr, (unsigned int)exmem_reg.dataToMem, offset, exmem_reg.dataLen);
     	 if(!Success){
@@ -626,16 +625,15 @@ void transferPipelineRegs() {
     Harzard = false;
     return;
   }
-
+  numIns++;
   if(!Harzard) {
-    statPipeline(insType);
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
     ValidT = false;
     return;
   }
 
-  statPipeline(TYPE_STALL);
+  statPipeline(TYPE_HARZARD);
 
   // continue MEM, and WB
   insertNOP();

@@ -12,7 +12,7 @@ const char *progSources[128] = {
 
 int main(int argc, char** argv) {
   unsigned int testNum, indexTest;
-	
+
 	Check = true;
 	indexTest = 0;
 	testNum = 0;
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     free(curTest);
   }
   printSummary(argv[1], progSources, 2);
-  
+
 	if(results) free(results);
   if(fileTests) free(fileTests);
 	return 0;

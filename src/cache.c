@@ -47,6 +47,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
       return false;
     // ready to read
     else {
+      numRead_I++;
       *data = srcCache.block[line];
       return true;
     }
@@ -56,6 +57,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
     return false;
 
   numReadMissed_I++;
+
   mPenalty_icache = MISS_PENALTY;
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
@@ -133,6 +135,7 @@ bool writebackCache(cache srcCache, unsigned int block) {
 
 bool writeToCache(unsigned int addr, unsigned int data, unsigned short offset, lwsw_len wsize) {
   unsigned int cacheData;
+
   if(!CacheEnabled) {
     return handleWRCDisabled(addr, data, offset, wsize);
   }

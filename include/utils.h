@@ -29,6 +29,7 @@ unsigned int numR_f;
 unsigned int numI_f;
 unsigned int numNop;
 unsigned int numStall;
+unsigned int numHarzard;
 unsigned int numRead_I;
 unsigned int numRead_D;
 unsigned int numReadMissed_I;

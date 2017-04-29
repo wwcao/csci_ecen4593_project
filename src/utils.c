@@ -8,6 +8,7 @@ void init_utils() {
   numI_f = 0;
   numNop = 0;
   numStall = 0;
+  numHarzard = 0;
   numRead_I = 0;
   numRead_D = 0;
   numReadMissed_I = 0;
@@ -224,6 +225,9 @@ void statPipeline(count_type itype) {
     case TYPE_STALL:
       numStall++;
       break;
+    case TYPE_HARZARD:
+      numHarzard++;
+      break;
   }
 }
 
@@ -345,16 +349,17 @@ void saveResult(int index, int* config) {
   float hitRate_I;
 
   numI_f += numBranch + numLWSW + numNop;
-  numIns =  numI_f + numR_f;
+  //numIns =  numI_f + numR_f;
   cpi = (float)clock/numIns;
 
   hitRate_D = 100*(1-(float)(numReadMissed_D)/(numIns));
   hitRate_I = 100*(1-(float)(numReadMissed_I)/(numIns));
 
+
   memset(&result, 0, sizeof(stat_result));
 
   result.clock = clock;
-  result.ins = numIns;
+  result.ins = numIns - numHarzard;
   result.insCounter = insCounter;
   result.cpi = cpi;
 

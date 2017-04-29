@@ -129,13 +129,13 @@
 0x02403025,   // 	move	a2,s2
 0x3c020000,   // 	lui	v0,0x00
 0x8c050008,	  //	lw $a1, 8($zero)	0x8c450008,   // 	lw	a1,8(v0)
-0x24040005,   // 	li	a0,5
+0x24040007,   // 	li	a0,5
 0x0c00000a,   // 	jal	10 <ceasar_encrypt>
 0x00000000,   // 	nop
 0x27b10270,   // 	addiu	s1,sp,624
 0x02203025,   // 	move	a2,s1
 0x02402825,   // 	move	a1,s2
-0x24040005,   // 	li	a0,5
+0x24040007,   // 	li	a0,5
 0x0c000032,   // 	jal	50 <ceasar_decrypt>
 0x00000000,   // 	nop
 0x02202825,   // 	move	a1,s1
