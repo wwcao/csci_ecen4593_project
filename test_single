@@ -1,0 +1,6 @@
+// program, icache, dcache, line, wr policy, cache?, precache?
+
+//
+//,Normal,Tests
+//
+0,128,256,4,0,1,1

@@ -2,26 +2,29 @@
 #include <utils.h>
 
 bool readDataCache(unsigned int addr, unsigned int *data) {
-  unsigned int block, line, tag;
+  unsigned int block, line, tag, _addr;
   cache srcCache;
 
+  _addr = addr;
   convertAddr(CACHE_D, &addr, &tag, &block, &line);
-
-  if((cacheBSize==1)&&(dcacheState==CSTATE_RD))
-    return false;
-  if(dcacheState && (line >= opLine_dcache))
-    return false;
   srcCache = dcache[block];
-  if(srcCache.valid && (srcCache.tag == tag)) {
-    *data = srcCache.block[line];
-    return true;
+  if(srcCache.valid && srcCache.tag == tag) {
+    // caching the same block
+    if(dcacheState && opAddr_dcache == addr && opLine_dcache <= line)
+      return false;
+    // ready to read
+    else {
+      *data = srcCache.block[line];
+      return true;
+    }
   }
-  //numReadMissed_D +=1;
+
   if(dcacheState||icacheState||MemBusy)
     return false;
-  numReadMissed_D += 1;
+
   if(!writebackCache(srcCache, block)) return false;
 
+  numReadMissed_D += 1;
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
@@ -35,18 +38,21 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
   convertAddr(CACHE_I, &addr, &tag, &block, &line);
   srcCache = icache[block];
 
-  if((cacheBSize==1)&&(icacheState==CSTATE_RD))
-    return false;
-  if(icacheState && (line >= opLine_icache)){
-   return false;
+  if(srcCache.valid && srcCache.tag == tag) {
+    // caching the same block
+    if(icacheState && opAddr_icache == addr && opLine_icache <= line)
+      return false;
+    // ready to read
+    else {
+      *data = srcCache.block[line];
+      return true;
+    }
   }
-  if(srcCache.valid && (srcCache.tag == tag)) {
-    *data = srcCache.block[line];
-    earlyfetch(addr+cacheBSize);
-    return true;
-  }
+
+  // need to cache
   if(icacheState||dcacheState || MemBusy)
     return false;
+
   numReadMissed_I += 1;
 
   mPenalty_icache = MISS_PENALTY;
