@@ -14,8 +14,6 @@
 #define EXMEM_ID                0x4
 #define MEMWB_ID                0x8
 #define ALL_REGS                0xf
-#define ICACHE_MISSED           0x1
-#define DCACHE_MISSED           0x2
 
 extern bool Check;
 

@@ -16,5 +16,8 @@ void updateMemory();
 bool setMemWrite();
 bool checkMemory();
 
+void setMemBusy();
+void setMemIdle();
+
 void init_memoryCtl();
 #endif // __CACHE_HEADER__

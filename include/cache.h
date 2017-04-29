@@ -14,6 +14,9 @@
 #define MISS_PENALTY           8           // clock cycle
 #define SUBLINE_PENALTY        2
 
+#define ICACHE_MISSED           0x1
+#define DCACHE_MISSED           0x2
+
 int cacheMissed;
 
 unsigned short cachePenalty;

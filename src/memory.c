@@ -39,7 +39,6 @@ void updateMemory() {
   if(!MemBusy && wrbuffer[WRBUFF_SIZE-2]) {
     setMemWrite();
   }
-
   return;
 }
 
@@ -53,6 +52,14 @@ bool setMemWrite() {
   MemBusy = true;
   memoryPenalty = MISS_PENALTY;
   return true;
+}
+
+void setMemBusy() {
+  MemBusy = true;
+}
+
+void setMemIdle() {
+  MemBusy = false;
 }
 
 bool checkMemory() {
