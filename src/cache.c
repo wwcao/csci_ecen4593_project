@@ -21,7 +21,7 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
     return false;
   numReadMissed_D += 1;
   if(!writebackCache(srcCache, block)) return false;
-  
+
   mPenalty_dcache = MISS_PENALTY;
   opAddr_dcache = addr;
   opLine_dcache = cacheBSize>1?0:1;
@@ -48,7 +48,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
   if(icacheState||dcacheState || MemBusy)
     return false;
   numReadMissed_I += 1;
- 
+
   mPenalty_icache = MISS_PENALTY;
   opAddr_icache = addr;
   opLine_icache = cacheBSize>1?0:1;
@@ -275,7 +275,6 @@ void cacheInstruction() {
     switch(icacheState) {
       case CSTATE_RD:
         if(cacheBSize == 1) {
-          //opLine_icache++;
           icacheState = CSTATE_IDLE;
           fillCache(CACHE_I, opAddr_icache, true);
           mPenalty_icache = 1;
@@ -284,16 +283,14 @@ void cacheInstruction() {
           icacheState = CSTATE_RD_SUB;
           fillCache(CACHE_I, opAddr_icache, true);
           opLine_icache++;
-          opAddr_icache++;
           mPenalty_icache = SUBLINE_PENALTY;
         }
         break;
       case CSTATE_RD_SUB:
         if(mPenalty_icache) break;
 
-        fillCache(CACHE_I, opAddr_icache, false);
+        fillCache(CACHE_I, opAddr_icache+opLine_icache, false);
         opLine_icache++;
-        opAddr_icache++;
         if(opLine_icache == cacheBSize) {
           icacheState = CSTATE_IDLE;
           break;
@@ -315,15 +312,12 @@ void cacheData() {
     switch(dcacheState) {
       case CSTATE_RD:
         if(cacheBSize == 1) {
-          //opLine_dcache++;
           dcacheState = CSTATE_IDLE;
           fillCache(CACHE_D, opAddr_dcache, true);
-          mPenalty_dcache = 1;
         }
         else{
           dcacheState = CSTATE_RD_SUB;
           fillCache(CACHE_D, opAddr_dcache, true);
-          opAddr_dcache++;
           opLine_dcache++;
           mPenalty_dcache = SUBLINE_PENALTY;
         }
@@ -332,9 +326,8 @@ void cacheData() {
       case CSTATE_RD_SUB:
         if(mPenalty_dcache) break;
 
-        fillCache(CACHE_D, opAddr_dcache, false);
+        fillCache(CACHE_D, opAddr_dcache+opLine_dcache, false);
         opLine_dcache++;
-        opAddr_dcache++;
         if(opLine_dcache == cacheBSize) {
           dcacheState = CSTATE_IDLE;
           break;
