@@ -353,7 +353,7 @@ void saveResult(int index, int* config) {
   numIns -= numHarzard;
   cpi = (float)clock/numIns;
 
-  hitRate_D = 100*(1-(float)(numReadMissed_D)/(numIns));
+  hitRate_D = 100*(1-(float)(numReadMissed_D)/(numLWSW));
   hitRate_I = 100*(1-(float)(numReadMissed_I)/(numIns));
 
   memset(&result, 0, sizeof(stat_result));

@@ -627,6 +627,7 @@ void transferPipelineRegs() {
   }
   numIns++;
   if(!Harzard) {
+    statPipeline(insType);
     copyRegs(ALL_REGS);
     init_wireRegs(ALL_REGS);
     ValidT = false;

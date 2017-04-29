@@ -12,18 +12,14 @@ bool readDataCache(unsigned int addr, unsigned int *data) {
     // caching the same block
     if(dcacheState && opAddr_dcache == addr && opLine_dcache <= line)
       return false;
-    if(cacheMissed==ICACHE_MISSED) {
-      tmp = true;
+    if(cacheMissed==ICACHE_MISSED)
       return false;
-    }
     // ready to read
     else {
-      numRead_D++;
       *data = srcCache.block[line];
       return true;
     }
   }
-
 
   if(dcacheState||icacheState||MemBusy)
     return false;
