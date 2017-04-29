@@ -248,7 +248,7 @@ void printSummary(const char* argName, const char** progNames, unsigned int len)
   char filename[32];
   FILE* output;
 
-  sprintf(filename, "%s%s", argName, ".csv");
+  sprintf(filename, "results/%s%s", argName, ".csv");
   output = fopen(filename, "w");
 
   if(!output) Error("Error: Unable to open output file");
@@ -396,16 +396,16 @@ bool testResults(unsigned int index, int* config) {
   int j,k,l,m;
   switch(config[0]) {
     case 0:
-      j = memory[6]^112;
-      k = memory[7]^29355;
-      l = memory[8]^14305;
-      m = memory[9]^0;
+      j = memory[6]^progResults[0][0];
+      k = memory[7]==progResults[0][1];
+      l = memory[8]==progResults[0][2];
+      m = memory[9]==progResults[0][3];
       break;
     case 1:
-      j = memory[7]^0x20696e71;
-      k = memory[8]^0x206e7376;
-      l = memory[9]^0x20696e71;
-      m = memory[6]^1;
+      j = memory[6]^progResults[0][0];
+      k = memory[7]==progResults[0][1];
+      l = memory[8]==progResults[0][2];
+      m = memory[9]==progResults[0][3];
       break;
     default:
       Error("Unknown program");
@@ -506,7 +506,7 @@ bool readConfigs(const char* filename, unsigned int *confignum) {
 
   rewind(fconf);
   fileTests = (int**)calloc(testNum, sizeof(int*));
-
+  if(!fileTests) Error("Unable to allocation memory @ utils.c line 509");
   i = 0;
   while(fgets(buffer, MAX_READLINE, fconf)) {
     newConfig = NULL;
@@ -522,4 +522,37 @@ bool readConfigs(const char* filename, unsigned int *confignum) {
   *confignum = testNum;
   return true;
 }
+
+void loadProgResults() {
+  FILE* fresult;
+  char buffer[MAX_READLINE];
+  int* newRes;
+  int counter;
+
+  fresult = fopen("assembly_results.txt","r");
+  if(!fresult) Error("Error: Unable to read Result file");
+
+
+  progResults = (int**)calloc(2, sizeof(int*));
+  counter = 0;
+  while(fgets(buffer, MAX_READLINE, fresult)) {
+    newRes = NULL;
+    char c = buffer[0];
+    if(c < 48 || c > 57) continue;
+    newRes = (int*) calloc(4, sizeof(int));
+    if(!newRes) Error("Errror: Unable to allocate memory for configuration");
+    sscanf(buffer, "%x,%x,%x,%x", newRes, newRes+1, newRes+2, newRes+3);
+    progResults[counter] = newRes;
+    counter++;
+  }
+
+  counter = 0;
+  for(counter = 0; counter < 2; counter++) {
+    printf("%s---[0x%08x],[0x%08x],[0x%08x],[0x%08x]\n", progSources[counter],
+           progResults[counter][0],progResults[counter][1], progResults[counter][2], progResults[counter][3]);
+  }
+  return;
+}
+
+
 

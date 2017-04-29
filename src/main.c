@@ -3,6 +3,7 @@
 #include "pipeline.h"
 
 int** fileTests;
+int** progResults;
 bool Check;
 
 const char *progSources[128] = {
@@ -24,7 +25,9 @@ int main(int argc, char** argv) {
 		printf("Check: Disabled\n");
 		Check = false;
 	}
+
   readConfigs(argv[1], &testNum);
+  loadProgResults();
 
   if(UNIFIEDCACHE) {
     printf("Unified Cache, D-Cache size is used for both Instruction and Data\n");
@@ -58,5 +61,9 @@ int main(int argc, char** argv) {
 
 	if(results) free(results);
   if(fileTests) free(fileTests);
+  //
+  free(progResults[0]);
+  free(progResults[1]);
+  free(progResults);
 	return 0;
 }

@@ -16,6 +16,7 @@ extern const char *progSources[128];
 extern bool CacheEnabled;
 extern bool PreCached;
 extern int **fileTests;
+extern int** progResults;
 
 // globals
 count_type insType;
@@ -64,6 +65,7 @@ void init_results(unsigned int num);
 void init_utils();
 
 bool readConfigs(const char* filename, unsigned int* testNum);
+void loadProgResults();
 
 #endif
 
