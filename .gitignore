@@ -20,4 +20,3 @@ bin/Debug
 # Ignore Mac specific files
 .DS_Store
 
-*.csv
