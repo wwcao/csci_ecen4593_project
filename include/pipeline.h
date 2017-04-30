@@ -56,6 +56,8 @@ void aluUnitOperation(int src1, int src2);
 void ctlUnitOperation(unsigned int opCode,
 				int regVal1, int regVal2,
 				int extendedValue);
+void setLoad(lwsw_len len);
+void setStore(lwsw_len len);
 void hdUnitOperation(unsigned int opCode, unsigned int rs, unsigned int rt, int* src1, int* src2);
 void fwdUnitEX(int *src1, int *src2);
 void transferPipelineRegs(void);

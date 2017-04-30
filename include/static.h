@@ -43,6 +43,7 @@
 #define I_LUI		      	    0x0f
 #define I_SEB               0x1f
 #define I_ANDI	 	          0x0c
+#define I_XORI              0x0e
 
 #define I_BEQ		      	    0x04
 #define I_BNE		      	    0x05

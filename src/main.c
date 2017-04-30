@@ -11,16 +11,7 @@ const char *progSources[128] = {
   "Program2File.txt"
 };
 
-
-void testMemory() {
-  int i;
-  for(i = 0; i < 70; i++) {
-    printf("[0x%x][0x%x], %d\n", memory[200+i], memory[470+i], memory[200+i]^memory[470+i]);
-  }
-}
-
 int main(int argc, char** argv) {
-  int start, end;
   unsigned int testNum, indexTest;
 
 	Check = true;
@@ -43,8 +34,6 @@ int main(int argc, char** argv) {
   }
 
   init_results(testNum);
-  start = 0;
-  end = 0;
   while(indexTest < testNum) {
     int* curTest = *(fileTests+indexTest);
     memcpy(&config, curTest, sizeof(int)*7);
@@ -69,8 +58,6 @@ int main(int argc, char** argv) {
     free(curTest);
   }
   printSummary(argv[1], progSources, 2);
-  printf(">%d<\n", start);
-  testMemory();
 	if(results) free(results);
   if(fileTests) free(fileTests);
 

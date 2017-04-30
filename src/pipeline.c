@@ -133,8 +133,9 @@ void MEM(void) {
           break;
         case DLEN_B:
           shamt = (3-offset)*8;
-          data >>= shamt;
+          data = data >> shamt;
           data = data&0x80?(data|0xffffff00):data&0xff;
+          //data &= 0xff;
           _memwb_reg.memValue = data;
           break;
         case DLEN_BU:
@@ -214,23 +215,29 @@ void aluUnitOperation(int src1, int src2) {
 						result = src1 + src2;
 						break;
 					case I_ANDI:
-						result = src1 & (int)(src2&IM_MASK);
+						//result = src1 & (int)(src2&IM_MASK);
+						result = src1&(src2&IM_MASK);
 						break;
 					case I_ORI:
-						result = src1 | (int)(src2&IM_MASK);
+						//result = src1 | (int)(src2&IM_MASK);
+						result = src1 | (src2&IM_MASK);
 						break;
 					case I_SLTI:
-						result = src1<src2?1:0;
+						result = src1<(src2&IM_MASK)?1:0;
 						break;
 					case I_SLTIU:
 						result = src1<src2?1:0;
 						break;
           case I_LUI:
-            result = idex_reg.extendedValue<<16;
+            result = src2<<16;
+            break;
+          case I_XORI:
+            result = src1^(src2&IM_MASK);
             break;
           case I_SEB:
             // breaking the format
             result = ((int)src2<<24)>>24;
+
             break;
 					default:
 						printf("Error I @ clock: %u, PC: %04d, instruction: [0x%x]\n",
@@ -267,7 +274,7 @@ void aluUnitOperation(int src1, int src2) {
 					result = src1 < src2?1:0;
 					break;
 				case R_SLTU:
-					result = src1 < src2?1:0;
+					result = (unsigned int)src1 < (unsigned int)src2?1:0;
 					break;
 				case R_SLL:
 					result = src2<<shamt;
@@ -349,77 +356,36 @@ void ctlUnitOperation(unsigned int opCode,
 		// SPECIAL BEGIN
 		// case LW
 		case 0x20|I_LB:
-		  _idex_reg.dataLen = DLEN_B;
-
-		  _idex_reg.RegWrite = true;
-			_idex_reg.MemtoReg = true;
-			_idex_reg.MemRead = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
+      setLoad(DLEN_B);
 			insType = ALUOP_LWSW;
 			break;
     case 0x21|I_LH:
-      _idex_reg.dataLen = DLEN_HW;
-
-		  _idex_reg.RegWrite = true;
-			_idex_reg.MemtoReg = true;
-			_idex_reg.MemRead = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
+      setLoad(DLEN_HW);
 			insType = ALUOP_LWSW;
       break;
     case 0x23|I_LW:
-			_idex_reg.RegWrite = true;
-			_idex_reg.MemtoReg = true;
-			_idex_reg.MemRead = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-			insType = ALUOP_LWSW;
+      setLoad(DLEN_W);
+      insType = ALUOP_LWSW;
 			break;
     case 0x24|I_LBU:
-      _idex_reg.dataLen = DLEN_BU;
-
-		  _idex_reg.RegWrite = true;
-			_idex_reg.MemtoReg = true;
-			_idex_reg.MemRead = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-
+      setLoad(DLEN_BU);
 			insType = ALUOP_LWSW;
       break;
 		case 0x25|I_LHU:
-      _idex_reg.dataLen = DLEN_HWU;
-
-		  _idex_reg.RegWrite = true;
-			_idex_reg.MemtoReg = true;
-			_idex_reg.MemRead = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-
+      setLoad(DLEN_HWU);
 			insType = ALUOP_LWSW;
 		  break;
 		// case SW
 		case 0x28|I_SB:
-		  _idex_reg.dataLen = DLEN_B;
-		  _idex_reg.MemWrite = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-
+		  setStore(DLEN_B);
 			insType = ALUOP_LWSW;
 		  break;
     case 0x29|I_SH:
-      _idex_reg.dataLen = DLEN_HW;
-		  _idex_reg.MemWrite = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-
+      setStore(DLEN_HW);
 			insType = ALUOP_LWSW;
       break;
     case 0x2b|I_SW:
-			_idex_reg.MemWrite = true;
-			_idex_reg.ALUSrc = true;
-			_idex_reg.aluOp = ALUOP_LWSW;
-
+      setStore(DLEN_W);
 			insType = ALUOP_LWSW;
 			break;
 		// case Branch
@@ -519,6 +485,22 @@ void ctlUnitOperation(unsigned int opCode,
 			_idex_reg.ALUSrc = true;
 			break;
 	}
+}
+
+void setLoad(lwsw_len len) {
+  _idex_reg.dataLen = len;
+  _idex_reg.RegWrite = true;
+  _idex_reg.MemtoReg = true;
+  _idex_reg.MemRead = true;
+  _idex_reg.ALUSrc = true;
+  _idex_reg.aluOp = ALUOP_LWSW;
+}
+
+void setStore(lwsw_len len) {
+  _idex_reg.dataLen = len;
+  _idex_reg.MemWrite = true;
+  _idex_reg.ALUSrc = true;
+  _idex_reg.aluOp = ALUOP_LWSW;
 }
 
 // TODO: instruction index 15
