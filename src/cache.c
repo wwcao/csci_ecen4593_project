@@ -48,6 +48,7 @@ bool readInsCache(unsigned int addr, unsigned int *data) {
     // ready to read
     else {
       *data = srcCache.block[line];
+      earlyfetch(addr+cacheBSize);
       return true;
     }
   }

@@ -44,7 +44,11 @@ void init_caches() {
   icacheBNum = (iWordNum/cacheBSize);
   dcacheBNum = (dWordNum/cacheBSize);
 
-  if(iWordNum<cacheBSize||dWordNum<cacheBSize) Error("Invalid Cache Setting");
+  if(!UNIFIEDCACHE) {
+    if(iWordNum<cacheBSize) Error("Invalid Cache Setting");
+  }
+
+  if(dWordNum<cacheBSize) Error("Invalid Cache Setting");
   // initalize cache control
   initial_cacheCtl();
 
@@ -54,29 +58,17 @@ void init_caches() {
 
   // setup caches
   if(PreCached) {
-    addr = 0;
-    while(addr < iWordNum) {
-//      data = 0;
-      fillCache(CACHE_I, addr, true);
-      /*
-      readFromCache(CACHE_I, addr, &data);
-      if(data != memory[addr]) {
-        Error("i Cache data Error");
+    if(!UNIFIEDCACHE) {
+      addr = 0;
+      while(addr < iWordNum) {
+        fillCache(CACHE_I, addr, true);
+        addr++;
       }
-      */
-      addr++;
     }
 
     addr = 0;
     while (addr < dWordNum) {
-//      data = 0;
       fillCache(CACHE_D, addr, true);
-      /*
-      readFromCache(CACHE_D, addr, &data);
-      if(data != memory[addr]) {
-        Error("d Cache data Error");
-      }
-      */
       addr++;
     }
   }
