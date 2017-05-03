@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "units.h"
 
-#define MEM_MISS_PENALTY           8           // clock cycle
+#define MEM_MISS_PENALTY           7           // clock cycle
 #define MEM_SUBLINE_PENALTY        2
 
 unsigned int opAddr_mem;

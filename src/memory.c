@@ -4,7 +4,8 @@ void updateMemory() {
   unsigned int addr;
   unsigned int data;
 
-  if(!CacheEnabled) return;
+  if(!CacheEnabled)
+    return;
 
   if(memoryPenalty > 0) {
     memoryPenalty--;
@@ -23,7 +24,7 @@ void updateMemory() {
           wrbuffer[WRBUFF_SIZE-1] = NULL;
           break;
         }
-        memoryPenalty = SUBLINE_PENALTY;
+        memoryPenalty = MEM_SUBLINE_PENALTY;
         break;
       case POLICY_WT:
         addr = wrbuffer[WRBUFF_SIZE-1]->addr;
@@ -50,7 +51,7 @@ bool setMemWrite() {
   wrbuffer[WRBUFF_SIZE-2] = NULL;
   opLine_mem = 0;
   MemBusy = true;
-  memoryPenalty = MISS_PENALTY;
+  memoryPenalty = MEM_MISS_PENALTY;
   return true;
 }
 
