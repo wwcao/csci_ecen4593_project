@@ -1,13 +1,7 @@
 #include "pipeline.h"
 
 void IF(void) {
-
-	if(!PC) return;
-
-	/*
-  if(Harzard)
-    return;
-  */
+  if(!PC) return;
 
   if(PCSrc) {
     PC = pcSrc2;
@@ -16,6 +10,9 @@ void IF(void) {
   else if(!PCSrc) {
     PC = pcSrc1;
   }
+
+  if(PC == 0) return;
+
   _ifid_reg.progCounter = PC;
   pcSrc1 = PC+1;
   _ifid_reg.nPC = pcSrc1;
@@ -23,7 +20,6 @@ void IF(void) {
   if(!readFromCache(CACHE_I, PC, &(_ifid_reg.instruction))){
     cacheMissed |= ICACHE_MISSED;
   }
-
 }
 
 void ID(void) {
@@ -35,10 +31,8 @@ void ID(void) {
 
 	// handle is pipeline
 	if(!PC) return;
-  insCounter++;
+
 	// ID Operation
-
-
 	instruction = ifid_reg.instruction;
   rs = getPartNum(instruction, PART_RS);
   rt = getPartNum(instruction, PART_RT);
@@ -123,43 +117,43 @@ void MEM(void) {
 	 }
 	}
 	if(exmem_reg.MemRead) {
-	 if(!readFromCache(CACHE_D, addr, &data)) {
-      	  cacheMissed |= DCACHE_MISSED;
-    	 }
+    if(!readFromCache(CACHE_D, addr, &data)) {
+      cacheMissed |= DCACHE_MISSED;
+    }
 
-    switch(exmem_reg.dataLen) {
-        case DLEN_W:
-          _memwb_reg.memValue = data;
-          break;
-        case DLEN_B:
-          shamt = (3-offset)*8;
-          data = data >> shamt;
-          data = data&0x80?(data|0xffffff00):data&0xff;
-          //data &= 0xff;
-          _memwb_reg.memValue = data;
-          break;
-        case DLEN_BU:
-          shamt = (3-offset)*8;
-          data = data&0xff;
-          _memwb_reg.memValue = data;
-          break;
-        case DLEN_HW:
-          shamt = (1-offset)*16;
-          data >>= shamt;
-          data = data&0x8000?(data|0xffff0000):data&0xffff;
-          _memwb_reg.memValue = data;
-          break;
-        case DLEN_HWU:
-          shamt = (1-offset)*16;
-          data = data&0xffff;
-          _memwb_reg.memValue = data;
-          break;
-        default:
-          printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
-                      clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
-          exit(1);
-      }
-	}
+  switch(exmem_reg.dataLen) {
+      case DLEN_W:
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_B:
+        shamt = (3-offset)*8;
+        data = data >> shamt;
+        data = data&0x80?(data|0xffffff00):data&0xff;
+        //data &= 0xff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_BU:
+        shamt = (3-offset)*8;
+        data = data&0xff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_HW:
+        shamt = (1-offset)*16;
+        data >>= shamt;
+        data = data&0x8000?(data|0xffff0000):data&0xffff;
+        _memwb_reg.memValue = data;
+        break;
+      case DLEN_HWU:
+        shamt = (1-offset)*16;
+        data = data&0xffff;
+        _memwb_reg.memValue = data;
+        break;
+      default:
+        printf("Error MEM_READ @ clock: %u, PC: %04d, instruction: [0x%x]\n",
+                    clock, exmem_reg.progCounter, memory[exmem_reg.progCounter]);
+        exit(1);
+    }
+  }
 	return;
 }
 
@@ -170,25 +164,21 @@ void WB(void) {
 	writeData = memwb_reg.MemtoReg? memwb_reg.memValue:
 																	memwb_reg.aluResult;
 
-
 	if(memwb_reg.RegWrite && (memwb_reg.rd != 0)) {
     oldData = register_file[memwb_reg.rd];
 		register_file[memwb_reg.rd] = writeData;
 	}
 
-
 	return;
 }
 
 void startPipeline(void) {
-  //hdUnitOperation();
   IF();
   WB();
   ID();
   EX();
   MEM();
 	transferPipelineRegs();
-
 }
 
 // controll
@@ -607,7 +597,9 @@ void transferPipelineRegs() {
     Harzard = false;
     return;
   }
-  numIns++;
+  if(ifid_reg.nPC && ifid_reg.nPC != _ifid_reg.nPC) {
+    numIns++;
+  }
   if(!Harzard) {
     statPipeline(insType);
     copyRegs(ALL_REGS);
@@ -668,7 +660,6 @@ void copyRegs(int ops) {
   if(ops&EXMEM_ID) memcpy(&exmem_reg, &_exmem_reg , sizeof(EXMEM_Register));
   if(ops&MEMWB_ID) memcpy(&memwb_reg, &_memwb_reg , sizeof(MEMWB_Register));
 }
-
 
 void insertNOP() {
   idex_reg.MemtoReg = false;
