@@ -360,7 +360,7 @@ void saveResult(int index, int* config) {
 
   result.clock = clock;
   result.ins = numIns;
-  result.insCounter = insCounter;
+  result.insCounter = numIns+numNop+numStall;
   result.cpi = cpi;
 
   result.progNum = config[0];
